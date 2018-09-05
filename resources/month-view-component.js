@@ -11,7 +11,7 @@ window.MonthViewComponent = Vue.component('month-view', {
   },
   watch: {
     month: (oldValue, newValue) => {
-      console.log(oldValue, newValue)
+      // console.log(oldValue, newValue)
     }
   },
   data: () => ({
@@ -49,9 +49,9 @@ window.MonthViewComponent = Vue.component('month-view', {
       // console.log(Object)
       // days[date.getDate()][webstrateId]
 
-
-      console.log(Object.keys(days)[1])
-      console.dir(Object.values(days)[1])
+      console.dir(days)
+      // console.dir(Object.keys(days)[1])
+      // console.dir(Object.values(days)[1])
 
       // for (var i = 0; i < 32; i++) {
 
@@ -141,8 +141,8 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       d3colors = d3.scaleOrdinal(d3.schemeCategory20);
       d3colors.domain(webstrateIds);
-      console.log(d3colors)
-      console.log('emit', this.$refs);
+      // console.log(d3colors)
+      // console.log('emit', this.$refs);
       setTimeout(() => console.log(this.$refs), 1000);
       this.$emit('webstrateIds', webstrateIds);
       // this.$emit('webstrateIds', webstrateIds, d3colors); // old version
@@ -281,7 +281,7 @@ window.MonthViewComponent = Vue.component('month-view', {
 
           // console.log(arrayRadius)
           // webstrateId.d3colorsQuantile = d3colorsQuantile;
-          console.log(x);
+          // console.log(x);
           return x;
         }
         )
