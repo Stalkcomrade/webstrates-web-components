@@ -36,45 +36,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       let effortTotalArray = new Array();
 
 
-      // console.log(Object)
-      // Object.keys(days).forEach(day => {
-      //   Object.values(day).forEach(webstrateId => {
-      //     console.log(webstrateId)
-      //   })
-      // console.log(Object.keys(day))
-
-
-      // })
-
-      // console.log(Object)
-      // days[date.getDate()][webstrateId]
-
-      console.dir(days)
-      // console.dir(Object.keys(days)[1])
-      // console.dir(Object.values(days)[1])
-
-      // for (var i = 0; i < 32; i++) {
-
-      //   // console.log(JSON.stringify(Object.keys(days)[i], null, 4))
-
-      //   var tmp = Object.keys(days)[i]
-      //     .map(webstrateId => ({ date, webstrateId, activities: days[i][webstrateId] }))
-
-      //   console.log(tmp)
-
-      // }
-
-      // console.log(Object.constructor)
-      // console.log(Object.prototype)
-
-      // var xx = Object.keys({})
-      //   .map(webstrateId => ({
-      //     webstrateId, activities: days[webstrateId],
-      //   }))
-      //   .sort((a, b) => b.activities - a.activities)
-
-      // console.log(xx)
-
       Object.values(days).forEach(day => {
 
         Object.keys(day).forEach(webstrateId => {
@@ -89,40 +50,13 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       })
 
-      // console.log(typeof (webstrateIds))
-      // console.log(webstrateIds)
-      // console.log(webstrateIdsArray)
-
-      // console.log(typeof (effortTotal))
-      // console.log(effortTotal)
-      // console.log(effortTotalArray)
-
-
-      // make N - number of divisions for coloring
-      // quantiles?
-      // I need to map webstrateIds based on the totalEffort
-
+      
 
       let df = {}
       webstrateIdsArray.forEach((id, value) => df[id] = effortTotalArray[value])
-      // console.log(df)
 
 
       effortTotalArray = effortTotalArray.sort((a, b) => a - b);
-      // console.log(effortTotalArray)
-
-      var d3colorsQuantize = d3.scaleQuantize()
-        .domain(d3.extent(effortTotalArray)) // mix and man of data
-        .range(['blue', 'red'])
-
-      var d3colorsQuantile = d3.scaleQuantile()
-        .domain(effortTotalArray) // pass the whole dataset
-        .range(['blue', 'red'])
-
-
-      // console.log(d3colorsQuantile(4));
-      // console.lo(d3colorsQuantize(4));
-
 
       // console.log(webstrateIds)
       // console.log(webstrateIdsArray)
@@ -137,7 +71,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       // ?
 
       webstrateIds = Array.from(webstrateIds).sort();
-      // console.log(webstrateIds)
 
       d3colors = d3.scaleOrdinal(d3.schemeCategory20);
       d3colors.domain(webstrateIds);
@@ -175,21 +108,70 @@ window.MonthViewComponent = Vue.component('month-view', {
       }
       delete days[0];
 
+      console.dir(days)
+
+
+      const totalAcitvityPerMotnh = []
+
+
+      try {
+        
+        Object.values(days).forEach(day => {
+
+          // console.log(day)
+          
+          Object.keys(day).forEach(webstrateId => {
+            // console.log(webstrateId)
+            // webstrateIds.add(webstrateId)
+            // webstrateIdsArray.push(webstrateId)
+          });
+
+          Object.values(day).forEach(singleEffort => {
+            // console.dir(singleEffort)
+            
+            // console.dir(Object.values(singleEffort)[2])// .forEach(wtf => {
+            // console.dir(typeof((Object.values(singleEffort)[2])))
+
+            totalAcitvityPerMotnh.push(Object.values(singleEffort)[2]) 
+            
+
+            //   console.dir(wtf)
+            // })
+            // effortTotal.add(singleEffort)
+            // effortTotalArray.push(singleEffort)
+          })
+
+        })
+      }
+      catch(err){
+        console.dir("Undefined is caught")
+      }
+
+      console.dir(totalAcitvityPerMotnh)
+
+
+
+      // ----- Monthly Basis
+
+      var d3colorsQuantizeMonth = d3.scaleQuantize()
+          .domain(d3.extent(totalAcitvityPerMotnh)) // mix and man of data
+          .range(['blue', 'red', "yellow"])
+
+      var d3colorsQuantileMonth = d3.scaleQuantile()
+          .domain(totalAcitvityPerMotnh) // pass the whole dataset
+          .range(['blue', 'red', "yellow"])
+
+      // ----- Monthly Basis      
+
+
+      
+            
       const d3format = d3.timeFormat("%Y-%m-%d");
       const d3day = (date) => d3.timeFormat("%u")(date) - 1;
 
       const d3week = d3.timeFormat("%V");
       const monthName = d3.timeFormat("%B");
       const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
-
-
-      // var d3colorsQuantize = d3.scaleQuantize()
-      //     .domain(d3.extent(effortTotalArray)) // mix and man of data
-      //     .range(['blue', 'red'])
-
-      // var d3colorsQuantile = d3.scaleQuantile()
-      //     .domain(effortTotalArray) // pass the whole dataset
-      //     .range(['blue', 'red'])
 
 
       const svg = d3.select(this.$el.querySelector('svg'))
@@ -239,45 +221,27 @@ window.MonthViewComponent = Vue.component('month-view', {
             .sort((a, b) => b.activities - a.activities)
 
 
-          // ----------- Day-based Scaling
-
           x.forEach(webstrateId => { webstrateId.radius = webstrateId.activities.radius; })
           var arrayRadius = x.map(webstrateId => webstrateId.radius)
 
           var d3colorsQuantile = d3.scaleQuantile()
             .domain(arrayRadius) // pass the whole dataset
-            .range(['blue', 'red'])
+              .range(['blue', 'red', "yellow"])
 
 
           var d3colorsQuantize = d3.scaleQuantize()
             .domain(d3.extent(arrayRadius)) // mix and man of data
-            .range(['blue', 'red'])
-
-          x.forEach(webstrateId => { webstrateId.color = d3colorsQuantile(webstrateId.radius) })
-          x.forEach(webstrateId => { webstrateId.colorQ = d3colorsQuantize(webstrateId.radius) })
+              .range(['blue', 'red', "yellow"])
 
           // ----------- Day-based Scaling
-
-          // -----------
-
-          // ----------- Month-based Scaling
-
-          var arrayRadius = x.map(webstrateId => webstrateId.radius)
-
-          var d3colorsQuantile = d3.scaleQuantile()
-            .domain(arrayRadius) // pass the whole dataset
-            .range(['blue', 'red'])
-
-
-          var d3colorsQuantize = d3.scaleQuantize()
-            .domain(d3.extent(arrayRadius)) // mix and man of data
-            .range(['blue', 'red'])
-
+          
           x.forEach(webstrateId => { webstrateId.color = d3colorsQuantile(webstrateId.radius) })
           x.forEach(webstrateId => { webstrateId.colorQ = d3colorsQuantize(webstrateId.radius) })
 
           // ----------- Month-based Scaling
 
+          x.forEach(webstrateId => { webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius) })
+          x.forEach(webstrateId => { webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius) })
 
           // console.log(arrayRadius)
           // webstrateId.d3colorsQuantile = d3colorsQuantile;
@@ -294,8 +258,9 @@ window.MonthViewComponent = Vue.component('month-view', {
         .attr('cy', ({ date, activities }) => (d3week(date) - d3week(new Date(date.getFullYear(),
           date.getMonth(), 1))) * cellSize + activities.position.y + activities.radius / 2)
         .attr('r', ({ activities }) => activities.radius)
-        // .style('fill', ({ webstrateId }) => d3colors(webstrateId)) // old version
-        .style('fill', ({ colorQ }) => colorQ)
+        // .style('fill', ({ webstrateId }) => d3colors(webstrateId)) // OLD VERSION
+        // .style('fill', ({ colorQ }) => colorQ) // DAILY BASIS
+        .style('fill', ({ colorMonthQ }) => colorMonthQ) // MONTHLY BASIS
         // .style('fill', ({ webstrateId, radius }) => {
         //   d3ColorsQuantile = d3.scaleQuantize()
         //     .domain(d3.extent(radius))
