@@ -1,7 +1,7 @@
 window.MonthViewComponent = Vue.component('month-view', {
 
   
-  props: ['month', 'year', 'maxWebstrates', 'd3Data'],
+  props: ['month', 'year', 'maxWebstrates'],
   
   template: `<div>
 		<h2>{{ date }}</h2>
@@ -18,16 +18,18 @@ window.MonthViewComponent = Vue.component('month-view', {
 
   data: () => ({
     date: '',
-    scaling: 'default'
+    scaling: 'default',
+    cellSize: 185,
+    margin: {
+      left: 0,
+      right: 0,
+      top: 185,
+      bottom: 10
+    }
   }),
 
-
   watch: {
-    month: function(oldValue, newValue) {
-    },
-    d3Data: function(newValue, oldValue) {
-      console.log("ADD")
-    },
+    month: function(oldValue, newValue) {},
     transformedScaling: function(newValue, oldValue) {
       console.log("Scaling has changed")
       console.log(newValue, oldValue)
@@ -35,12 +37,20 @@ window.MonthViewComponent = Vue.component('month-view', {
   },
 
   // computed properties are cached, so, it seems reasonable to use them for parameters storing
+  // could be accessed in mounted using this.
+  // padded.width or padded.height are accessible later
+  
   computed: {
+    padded() {
+      const width = this.cellSize * 7 - this.margin.right - this.margin.left
+      const height = this.cellSize * 5 - this.margin.top - this.margin.bottom
+      return { width, height }
+    },
     transformedScaling: {
       get: function () {
         return this.scaling
       },
-      set: function (newValue) {
+      set: function (newValue) { // FIXME: set newValue instead of just returning scaling
         return this.scaling
       }
     }
@@ -51,33 +61,30 @@ window.MonthViewComponent = Vue.component('month-view', {
       return Number(this.month) || ((new Date).getMonth() + 1)
     },
     changeScaling: function () {
-      this.scaling = "changed"
-      
-    } 
- },
+      this.scaling = "changed" // FIXME: fix the absolute 
+    }
+  },
 
   
   async mounted() {
 
-    // console.log(monthComputed)
-
-    let d3Data = "Some value"
-    let transformedScaling = "default"
-    
+    let transformedScaling = "default"  
     const month = Number(this.month) || ((new Date).getMonth() + 1);
     const maxWebstrates = this.maxWebstrates || 20;
     const year = Number(this.year) || (new Date).getFullYear();
 
+
+
+    
     this.date = (new Date(year, month - 1)).toLocaleDateString(undefined, {
       month: 'long', year: 'numeric'
     });
 
-    
-    dataFetcher('month', { month, year, maxWebstrates, d3Data, transformedScaling}).then(async (days) => {
+   
 
-      // console.log(monthComputed)
+    dataFetcher('month', { month, year, maxWebstrates, transformedScaling }).then(async (days) => {
 
-      
+  
       let webstrateIds = new Set();
       let effortTotal = new Set();
 
@@ -91,16 +98,17 @@ window.MonthViewComponent = Vue.component('month-view', {
         })
       })
 
-           
+
       // console.log('emit', this.$refs);
       // setTimeout(() => console.log(this.$refs), 1000);
       // this.$emit('webstrateIds', webstrateIds, d3colorsQuant);
 
 
-
       webstrateIds = Array.from(webstrateIds).sort();
 
       d3colors = d3.scaleOrdinal(d3.schemeCategory20);
+
+      
       d3colors.domain(webstrateIds)
       // console.log('emit', this.$refs);
       setTimeout(() => console.log(this.$refs), 1000);
@@ -108,24 +116,27 @@ window.MonthViewComponent = Vue.component('month-view', {
       // this.$emit('webstrateIds', webstrateIds, d3colors); // old version
 
 
-
-
-      const cellSize = 185;
-      const margin = { top: cellSize, right: 0, bottom: 0, left: 0 };
-      const width = cellSize * 7 - margin.right - margin.left; // width
-      const height = cellSize * 5 - margin.top - margin.bottom; // height
+      // const this.cellSize = 185;
+      // const this.margin = { top: this.cellSize, right: 0, bottom: 0, left: 0 };
+      // const this.width = this.cellSize * 7 - this.margin.right - this.margin.left; // width
+      // const this.height = this.cellSize * 5 - this.margin.top - this.margin.bottom; // height
 
       // scalar is used to calculate the sizes of the circles. They need to be different sizes,
       // so we can distinguish very active webstrates from not-so-active webstrates. However, a
       // linear scaling usually doesn't give us a very good representation, so we just do some
       // random trial-and-error Math here. There's no great insight to be had, other than the fact
       // that we're using a logarithmic scale.
+
       const maxOps = Math.log(d3.max(Object.values(days), (day) => d3.max(Object.values(day)))) / 2;
-      const scalar = 1 / (maxOps / (cellSize / 19)); // after all, changes the diameter of the webstrates actitivity
+      const scalar = 1 / (maxOps / (this.cellSize / 19)); // after all, changes the diameter of the webstrates actitivity
+
+
+
+      // ALL IN THE ABOVE MIGHT BE MOVED to ANOTHER BLOCK
 
       // days is here indexed properly, starting from 1.
       const promises = Object.keys(days).map(day =>
-        calculateCircleCoordinates(days[day], scalar, cellSize));
+        calculateCircleCoordinates(days[day], scalar, this.cellSize));
 
       // days has now become zero-indexed, so the data for the 1st of the month is at index position
       // 0 and so on. We'll correct this, so it now corresponds to what days looked like above.
@@ -141,41 +152,42 @@ window.MonthViewComponent = Vue.component('month-view', {
       try {
         Object.values(days).forEach(day => {
           Object.values(day).forEach(singleEffort => {
-            totalAcitvityPerMotnh.push(Object.values(singleEffort)[2]) 
+            totalAcitvityPerMotnh.push(Object.values(singleEffort)[2])
           })
         })
       }
-      catch(err){
+      catch (err) {
         console.dir("Undefined is caught")
       }
 
       // ----- Monthly Basis
 
       var d3colorsQuantizeMonth = d3.scaleQuantize()
-          .domain(d3.extent(totalAcitvityPerMotnh)) // mix and man of data
-          .range(['blue', 'red', "yellow"])
+        .domain(d3.extent(totalAcitvityPerMotnh)) // mix and man of data
+        .range(['blue', 'red', "yellow"])
 
       var d3colorsQuantileMonth = d3.scaleQuantile()
-          .domain(totalAcitvityPerMotnh) // pass the whole dataset
-          .range(['blue', 'red', "yellow"])
+        .domain(totalAcitvityPerMotnh) // pass the whole dataset
+        .range(['blue', 'red', "yellow"])
 
       // ----- Monthly Basis      
-      
-            
-      const d3format = d3.timeFormat("%Y-%m-%d");
-      const d3day = (date) => d3.timeFormat("%u")(date) - 1;
 
+      
+      const d3format = d3.timeFormat("%Y-%m-%d");
       const d3week = d3.timeFormat("%V");
       const monthName = d3.timeFormat("%B");
       const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
 
 
+      
+      const d3day = (date) => d3.timeFormat("%u")(date) - 1;
+
       const svg = d3.select(this.$el.querySelector('svg'))
-        .attr("width", width + margin.right + margin.left)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + (margin.left + (width - cellSize * 7) / 2) + ","
-          + (margin.top + (height - cellSize * 6) / 2) + ")");
+        .attr("width", this.padded.width)
+        .attr("height", this.padded.height)
+            .append("g")
+            .attr("transform", "translate(" + (this.margin.left + (this.padded.width - this.cellSize * 7) / 2) + ","
+                  + (this.margin.top + (this.padded.height - this.cellSize * 6) / 2) + ")");
 
       const groups = svg.selectAll("g.day")
         .data(dayRange)
@@ -186,20 +198,21 @@ window.MonthViewComponent = Vue.component('month-view', {
       groups
         .append('rect')
         .attr("class", "day")
-        .attr("width", cellSize)
-        .attr("height", cellSize)
-        .attr("x", date => d3day(date) * cellSize)
+        .attr("width", this.cellSize)
+        .attr("height", this.cellSize)
+        .attr("x", date => d3day(date) * this.cellSize)
         .attr("y", date => (d3week(date) - d3week(new Date(date.getFullYear(),
-          date.getMonth(), 1))) * cellSize)
+          date.getMonth(), 1))) * this.cellSize)
 
       groups
         .append('text')
-        .attr("x", date => 5 + d3day(date) * cellSize)
+        .attr("x", date => 5 + d3day(date) * this.cellSize)
         .attr("y", date => 15 + (d3week(date) - d3week(new Date(date.getFullYear(),
-          date.getMonth(), 1))) * cellSize)
+          date.getMonth(), 1))) * this.cellSize)
         .text(d => d.getDate())
 
       const today = new Date();
+      
       const isSameDay = (a, b = today) =>
         a.getDate() === b.getDate()
         && a.getMonth() === b.getMonth()
@@ -247,9 +260,9 @@ window.MonthViewComponent = Vue.component('month-view', {
         .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
         .append('circle')
         .attr('class', () => 'activity')
-        .attr('cx', ({ date, activities }) => d3day(date) * cellSize + activities.position.x + activities.radius / 2)
+        .attr('cx', ({ date, activities }) => d3day(date) * this.cellSize + activities.position.x + activities.radius / 2)
         .attr('cy', ({ date, activities }) => (d3week(date) - d3week(new Date(date.getFullYear(),
-          date.getMonth(), 1))) * cellSize + activities.position.y + activities.radius / 2)
+          date.getMonth(), 1))) * this.cellSize + activities.position.y + activities.radius / 2)
         .attr('r', ({ activities }) => activities.radius)
         // .style('fill', ({ webstrateId }) => d3colors(webstrateId)) // OLD VERSION
         // .style('fill', ({ colorQ }) => colorQ) // DAILY BASIS
@@ -267,21 +280,21 @@ window.MonthViewComponent = Vue.component('month-view', {
   }
 });
 
-function random(min, max, intResult) {
-  if (typeof min !== 'number' && typeof max !== 'number') {
-    min = 0;
-    max = 1;
-  }
-  if (typeof max !== 'number') {
-    max = min;
-    min = 0;
-  }
-  var result = min + Math.random() * (max - min);
-  if (intResult) {
-    result = parseInt(result, 10);
-  }
-  return result;
-}
+// function random(min, max, intResult) {
+//   if (typeof min !== 'number' && typeof max !== 'number') {
+//     min = 0;
+//     max = 1;
+//   }
+//   if (typeof max !== 'number') {
+//     max = min;
+//     min = 0;
+//   }
+//   var result = min + Math.random() * (max - min);
+//   if (intResult) {
+//     result = parseInt(result, 10);
+//   }
+//   return result;
+// }
 
 const calculateCircleCoordinates = (circles, scalar, cellSize) => new Promise((accept, reject) => {
   if (!circles || Object.keys(circles).length === 0) {
