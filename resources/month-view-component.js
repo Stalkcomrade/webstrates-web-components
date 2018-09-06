@@ -1,5 +1,4 @@
 window.MonthViewComponent = Vue.component('month-view', {
-
   
   props: ['month', 'year', 'maxWebstrates'],
   
@@ -28,8 +27,17 @@ window.MonthViewComponent = Vue.component('month-view', {
     }
   }),
 
+
+  // created: function(month, year, maxWebstrates) {
+  //     const month = Number(this.month) || ((new Date).getMonth() + 1)
+  //     const year = Number(this.year) || (new Date).getFullYear()
+  //     const maxWebstrates = this.maxWebstrates || 20
+  //     return {month, year, maxWebstrates}
+  // },
+
   watch: {
     month: function(oldValue, newValue) {},
+    
     transformedScaling: function(newValue, oldValue) {
       console.log("Scaling has changed")
       console.log(newValue, oldValue)
@@ -46,6 +54,16 @@ window.MonthViewComponent = Vue.component('month-view', {
       const height = this.cellSize * 5 - this.margin.top - this.margin.bottom
       return { width, height }
     },
+    // transormedProps: {
+    //   get: function () {
+    //     return {month, year, maxWebstrates}
+    //   },
+    //   set: function () {
+    //     const month = Number(this.month) || ((new Date).getMonth() + 1)
+    //     const year = Number(this.year) || (new Date).getFullYear()
+    //     const maxWebstrates = this.maxWebstrates || 20
+    //   }
+    // },
     transformedScaling: {
       get: function () {
         return this.scaling
@@ -57,34 +75,75 @@ window.MonthViewComponent = Vue.component('month-view', {
   },
 
   methods: {
-    monthComputed: function (month) {
-      return Number(this.month) || ((new Date).getMonth() + 1)
-    },
-    changeScaling: function () {
+    changeScaling: function() {
       this.scaling = "changed" // FIXME: fix the absolute 
+    },
+    // I am using this for construction of async functions
+    getMonthAsync: function() {
+      this.getMonth().then(this.nestedFunction())
+    },
+
+    getMonth: function() {
+      return new Promise((resolve,reject) => {
+        setTimeout((resolve) => {
+          const month = Number(this.month) || ((new Date).getMonth() + 1)
+          const year = Number(this.year) || (new Date).getFullYear()
+          const maxWebstrates = this.maxWebstrates || 20
+        }, 3000) 
+        // if (typeof(month)!='undefined' & typeof(year)!='undefined' & typeof(maxWebstrates)!='undefined') return resolve("resolved");
+      })       
+    },
+    
+    nestedFunction: function() {
+      console.log('success')
+      console.log(this.month)
+      dataFetcher('month', {month, year, maxWebstrates })
+      console.log('success')
+     
     }
   },
 
-  
   async mounted() {
 
-    let transformedScaling = "default"  
-    const month = Number(this.month) || ((new Date).getMonth() + 1);
-    const maxWebstrates = this.maxWebstrates || 20;
-    const year = Number(this.year) || (new Date).getFullYear();
+    let transformedScaling = "default"
 
+    
+    // main issue here is that month is not defined right from start, so
+    // do chaining
+    
+    // const month = Number(this.month) || ((new Date).getMonth() + 1);
+    // const maxWebstrates = this.maxWebstrates || 20;
+    // const year = Number(this.year) || (new Date).getFullYear();
 
 
     
-    this.date = (new Date(year, month - 1)).toLocaleDateString(undefined, {
-      month: 'long', year: 'numeric'
-    });
+    // this.date = (new Date(year, month - 1)).toLocaleDateString(undefined, {
+    //   month: 'long', year: 'numeric'
+    // });
 
-   
+    this.getMonthAsync()
 
-    dataFetcher('month', { month, year, maxWebstrates, transformedScaling }).then(async (days) => {
+    // this.getMonthAsyncSecond()
 
+
+      this.date = (new Date(year, month - 1)).toLocaleDateString(undefined, {
+        month: 'long', year: 'numeric'
   
+
+
+
+    })
+    
+    // this.getMonthAsync()
+    // this.getMonth().then(async this.nestedFunction());
+    
+    // getMonth.then() 
+    // this.nestedFunction()
+
+    
+    dataFetcher('month', { month, year, maxWebstrates }).then(async (days) => {
+
+
       let webstrateIds = new Set();
       let effortTotal = new Set();
 
@@ -107,8 +166,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       webstrateIds = Array.from(webstrateIds).sort();
 
       d3colors = d3.scaleOrdinal(d3.schemeCategory20);
-
-      
       d3colors.domain(webstrateIds)
       // console.log('emit', this.$refs);
       setTimeout(() => console.log(this.$refs), 1000);
@@ -173,9 +230,9 @@ window.MonthViewComponent = Vue.component('month-view', {
       // ----- Monthly Basis      
 
       
-      const d3format = d3.timeFormat("%Y-%m-%d");
+      // const d3format = d3.timeFormat("%Y-%m-%d");
       const d3week = d3.timeFormat("%V");
-      const monthName = d3.timeFormat("%B");
+      // const monthName = d3.timeFormat("%B");
       const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
 
 
@@ -211,18 +268,16 @@ window.MonthViewComponent = Vue.component('month-view', {
           date.getMonth(), 1))) * this.cellSize)
         .text(d => d.getDate())
 
-      const today = new Date();
+      // const today = new Date();
       
-      const isSameDay = (a, b = today) =>
-        a.getDate() === b.getDate()
-        && a.getMonth() === b.getMonth()
-        && a.getFullYear() === b.getFullYear();
+      // const isSameDay = (a, b = today) =>
+      //   a.getDate() === b.getDate()
+      //   && a.getMonth() === b.getMonth()
+      //   && a.getFullYear() === b.getFullYear();
 
       groups.selectAll('circle.activity')
-        .data((index, data, x, y, z) => {
-          // console.log(index, data, x, y, z);
+        .data((index, data, x) => {
           const date = index;
-          // console.log(date)
           var x = Object.keys(days[date.getDate()] || {})
             .map(webstrateId => ({
               date, webstrateId, activities: days[date.getDate()][webstrateId],
