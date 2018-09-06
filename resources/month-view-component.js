@@ -3,13 +3,11 @@ window.MonthViewComponent = Vue.component('month-view', {
   template: `<div>
 		<h2>{{ date }}</h2>
 		<button @click="">Prev</button>
-        // <webstrate-scaling/>
 		<svg></svg>
 		<webstrate-legend/>
-	         </div>`,
+	</div>`,
   components: {
-    'webstrate-legend-component':  WebstrateLegendComponent,
-    // 'webstrate-scaling-component': WebstrateScalingComponent
+    'webstrate-legend-component': WebstrateLegendComponent
   },
   watch: {
     month: (oldValue, newValue) => {
@@ -34,40 +32,29 @@ window.MonthViewComponent = Vue.component('month-view', {
       let webstrateIds = new Set();
       let effortTotal = new Set();
 
-      let webstrateIdsArray = new Array();
-      let effortTotalArray = new Array();
-
-
       Object.values(days).forEach(day => {
-
         Object.keys(day).forEach(webstrateId => {
           webstrateIds.add(webstrateId)
-          webstrateIdsArray.push(webstrateId)
         });
 
         Object.values(day).forEach(singleEffort => {
           effortTotal.add(singleEffort)
-          effortTotalArray.push(singleEffort)
         })
-
       })
 
       
 
-      let df = {}
-      webstrateIdsArray.forEach((id, value) => df[id] = effortTotalArray[value])
+      // console.log('emit', this.$refs);
+      // setTimeout(() => console.log(this.$refs), 1000);
+      // this.$emit('webstrateIds', webstrateIds, d3colorsQuant);
 
 
-      effortTotalArray = effortTotalArray.sort((a, b) => a - b);
-
-
-      // version based on webstrate id
-      // ?
 
       webstrateIds = Array.from(webstrateIds).sort();
 
       d3colors = d3.scaleOrdinal(d3.schemeCategory20);
       d3colors.domain(webstrateIds);
+      // console.log(d3colors)
       // console.log('emit', this.$refs);
       setTimeout(() => console.log(this.$refs), 1000);
       this.$emit('webstrateIds', webstrateIds);
@@ -101,37 +88,19 @@ window.MonthViewComponent = Vue.component('month-view', {
       }
       delete days[0];
 
+      // console.dir(days)
 
       const totalAcitvityPerMotnh = []
-
-
       try {
-        
         Object.values(days).forEach(day => {
-          // console.log(day)
-          Object.keys(day).forEach(webstrateId => {
-            // console.log(webstrateId)
-            // webstrateIds.add(webstrateId)
-            // webstrateIdsArray.push(webstrateId)
-          });
           Object.values(day).forEach(singleEffort => {
-            // console.dir(singleEffort)
-            // console.dir(Object.values(singleEffort)[2])// .forEach(wtf => {
-            // console.dir(typeof((Object.values(singleEffort)[2])))
             totalAcitvityPerMotnh.push(Object.values(singleEffort)[2]) 
-            //   console.dir(wtf)
-            // })
-            // effortTotal.add(singleEffort)
-            // effortTotalArray.push(singleEffort)
           })
         })
       }
       catch(err){
         console.dir("Undefined is caught")
       }
-
-      console.dir(totalAcitvityPerMotnh)
-
 
       // ----- Monthly Basis
 
@@ -144,7 +113,6 @@ window.MonthViewComponent = Vue.component('month-view', {
           .range(['blue', 'red', "yellow"])
 
       // ----- Monthly Basis      
-
       
             
       const d3format = d3.timeFormat("%Y-%m-%d");
@@ -153,7 +121,7 @@ window.MonthViewComponent = Vue.component('month-view', {
       const d3week = d3.timeFormat("%V");
       const monthName = d3.timeFormat("%B");
       const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
-      
+
 
       const svg = d3.select(this.$el.querySelector('svg'))
         .attr("width", width + margin.right + margin.left)
@@ -192,7 +160,9 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       groups.selectAll('circle.activity')
         .data((index, data, x, y, z) => {
+          // console.log(index, data, x, y, z);
           const date = index;
+          // console.log(date)
           var x = Object.keys(days[date.getDate()] || {})
             .map(webstrateId => ({
               date, webstrateId, activities: days[date.getDate()][webstrateId],
@@ -221,7 +191,7 @@ window.MonthViewComponent = Vue.component('month-view', {
 
           x.forEach(webstrateId => { webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius) })
           x.forEach(webstrateId => { webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius) })
-          
+
           return x;
         }
         )
