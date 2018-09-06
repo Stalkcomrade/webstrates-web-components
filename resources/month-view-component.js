@@ -3,11 +3,13 @@ window.MonthViewComponent = Vue.component('month-view', {
   template: `<div>
 		<h2>{{ date }}</h2>
 		<button @click="">Prev</button>
+        // <webstrate-scaling/>
 		<svg></svg>
 		<webstrate-legend/>
-	</div>`,
+	         </div>`,
   components: {
-    'webstrate-legend-component': WebstrateLegendComponent
+    'webstrate-legend-component':  WebstrateLegendComponent,
+    // 'webstrate-scaling-component': WebstrateScalingComponent
   },
   watch: {
     month: (oldValue, newValue) => {
@@ -58,14 +60,6 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       effortTotalArray = effortTotalArray.sort((a, b) => a - b);
 
-      // console.log(webstrateIds)
-      // console.log(webstrateIdsArray)
-
-      // console.log('emit', this.$refs);
-      // setTimeout(() => console.log(this.$refs), 1000);
-      // this.$emit('webstrateIds', webstrateIds, d3colorsQuant);
-
-
 
       // version based on webstrate id
       // ?
@@ -74,7 +68,6 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       d3colors = d3.scaleOrdinal(d3.schemeCategory20);
       d3colors.domain(webstrateIds);
-      // console.log(d3colors)
       // console.log('emit', this.$refs);
       setTimeout(() => console.log(this.$refs), 1000);
       this.$emit('webstrateIds', webstrateIds);
@@ -108,8 +101,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       }
       delete days[0];
 
-      console.dir(days)
-
 
       const totalAcitvityPerMotnh = []
 
@@ -117,30 +108,22 @@ window.MonthViewComponent = Vue.component('month-view', {
       try {
         
         Object.values(days).forEach(day => {
-
           // console.log(day)
-          
           Object.keys(day).forEach(webstrateId => {
             // console.log(webstrateId)
             // webstrateIds.add(webstrateId)
             // webstrateIdsArray.push(webstrateId)
           });
-
           Object.values(day).forEach(singleEffort => {
             // console.dir(singleEffort)
-            
             // console.dir(Object.values(singleEffort)[2])// .forEach(wtf => {
             // console.dir(typeof((Object.values(singleEffort)[2])))
-
             totalAcitvityPerMotnh.push(Object.values(singleEffort)[2]) 
-            
-
             //   console.dir(wtf)
             // })
             // effortTotal.add(singleEffort)
             // effortTotalArray.push(singleEffort)
           })
-
         })
       }
       catch(err){
@@ -148,7 +131,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       }
 
       console.dir(totalAcitvityPerMotnh)
-
 
 
       // ----- Monthly Basis
@@ -163,7 +145,6 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       // ----- Monthly Basis      
 
-
       
             
       const d3format = d3.timeFormat("%Y-%m-%d");
@@ -172,7 +153,7 @@ window.MonthViewComponent = Vue.component('month-view', {
       const d3week = d3.timeFormat("%V");
       const monthName = d3.timeFormat("%B");
       const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
-
+      
 
       const svg = d3.select(this.$el.querySelector('svg'))
         .attr("width", width + margin.right + margin.left)
@@ -211,9 +192,7 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       groups.selectAll('circle.activity')
         .data((index, data, x, y, z) => {
-          // console.log(index, data, x, y, z);
           const date = index;
-          // console.log(date)
           var x = Object.keys(days[date.getDate()] || {})
             .map(webstrateId => ({
               date, webstrateId, activities: days[date.getDate()][webstrateId],
@@ -242,10 +221,7 @@ window.MonthViewComponent = Vue.component('month-view', {
 
           x.forEach(webstrateId => { webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius) })
           x.forEach(webstrateId => { webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius) })
-
-          // console.log(arrayRadius)
-          // webstrateId.d3colorsQuantile = d3colorsQuantile;
-          // console.log(x);
+          
           return x;
         }
         )

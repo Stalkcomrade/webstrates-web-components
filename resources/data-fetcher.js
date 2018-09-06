@@ -1,4 +1,4 @@
-const userId = 'raedle:github'; //webstrate.user.userId;
+const userId = 'cklokmose:github'; //webstrate.user.userId;
 const ws = new WebSocket('wss://webstrates.cs.au.dk/_monitor');
 
 // Generate random string to be used as tokens.

@@ -1,5 +1,9 @@
 /* Inspiration: http://themes.getbootstrap.com/preview/?theme_id=1468  */
 
+#mainBody {
+	margin: 0 auto;
+	width: 1050px;
+}
 svg {
   fill: #fff;
 }
