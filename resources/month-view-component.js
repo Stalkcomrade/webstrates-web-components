@@ -1,7 +1,7 @@
 window.MonthViewComponent = Vue.component('month-view', {
 
   
-  props: ['month', 'year', 'maxWebstrates', 'd3Data', 'scaling'],
+  props: ['month', 'year', 'maxWebstrates', 'd3Data'],
   
   template: `<div>
 		<h2>{{ date }}</h2>
@@ -17,7 +17,8 @@ window.MonthViewComponent = Vue.component('month-view', {
   },
 
   data: () => ({
-    date: ''
+    date: '',
+    scaling: 'default'
   }),
 
 
@@ -27,17 +28,23 @@ window.MonthViewComponent = Vue.component('month-view', {
     d3Data: function(newValue, oldValue) {
       console.log("ADD")
     },
-    scaling: function(newValue, oldValue) {
+    transformedScaling: function(newValue, oldValue) {
       console.log("Scaling has changed")
       console.log(newValue, oldValue)
     }
   },
 
-  // computed: {
-  //   monthComputed: function () {
-  //       return Number(this.month) || ((new Date).getMonth() + 1)
-  //     }
-  // },
+  // computed properties are cached, so, it seems reasonable to use them for parameters storing
+  computed: {
+    transformedScaling: {
+      get: function () {
+        return this.scaling
+      },
+      set: function (newValue) {
+        return this.scaling
+      }
+    }
+  },
 
   methods: {
     monthComputed: function (month) {
@@ -45,8 +52,9 @@ window.MonthViewComponent = Vue.component('month-view', {
     },
     changeScaling: function () {
       this.scaling = "changed"
-    }
-  },
+      
+    } 
+ },
 
   
   async mounted() {
@@ -54,7 +62,8 @@ window.MonthViewComponent = Vue.component('month-view', {
     // console.log(monthComputed)
 
     let d3Data = "Some value"
-    let scaling = "default"
+    let transformedScaling = "default"
+    
     const month = Number(this.month) || ((new Date).getMonth() + 1);
     const maxWebstrates = this.maxWebstrates || 20;
     const year = Number(this.year) || (new Date).getFullYear();
@@ -64,7 +73,7 @@ window.MonthViewComponent = Vue.component('month-view', {
     });
 
     
-    dataFetcher('month', { month, year, maxWebstrates, d3Data}).then(async (days) => {
+    dataFetcher('month', { month, year, maxWebstrates, d3Data, transformedScaling}).then(async (days) => {
 
       // console.log(monthComputed)
 
@@ -82,10 +91,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         })
       })
 
-      
-
-      d3Data = "NEW"
-      
+           
       // console.log('emit', this.$refs);
       // setTimeout(() => console.log(this.$refs), 1000);
       // this.$emit('webstrateIds', webstrateIds, d3colorsQuant);
@@ -247,7 +253,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         .attr('r', ({ activities }) => activities.radius)
         // .style('fill', ({ webstrateId }) => d3colors(webstrateId)) // OLD VERSION
         // .style('fill', ({ colorQ }) => colorQ) // DAILY BASIS
-        .style('fill', ({ scaling, colorMonthQ, colorQ }) => (scaling == "changed") ? colorMonthQ : colorQ) // MONTHLY BASIS
+        .style('fill', ({ scaling, colorMonthQ, colorQ }) => (transformedScaling == "changed") ? colorMonthQ : colorQ) // MONTHLY BASIS
         // .style('fill', ({ webstrateId, radius }) => {
         //   d3ColorsQuantile = d3.scaleQuantize()
         //     .domain(d3.extent(radius))
