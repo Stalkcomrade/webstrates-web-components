@@ -124,20 +124,10 @@ window.MonthViewComponent = Vue.component('month-view', {
     this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
       month: 'long', year: 'numeric'})
     
-    
-    dataFetcher('month', { month, year, maxWebstrates }).then(async (days) => {
-
-      let webstrateIds = new Set();
-      let effortTotal = new Set();
-
     // main issue here is that month is not defined right from start, so
-    // do chaining
-
-    
+    // do chaining    
     // var1.then((month, year, maxWebstrates) => {dataFetcher('month', {month, year, maxWebstrates })}
     //          )
-    
-    
     // this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
     //   month: 'long', year: 'numeric'})
     
@@ -230,7 +220,7 @@ window.MonthViewComponent = Vue.component('month-view', {
       // ----- Monthly Basis      
 
       
-      // const d3format = d3.timeFormat("%Y-%m-%d");
+      const d3format = d3.timeFormat("%Y-%m-%d");
       const d3week = d3.timeFormat("%V");
       // const monthName = d3.timeFormat("%B");
       const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
@@ -334,6 +324,7 @@ window.MonthViewComponent = Vue.component('month-view', {
     });
   }
 });
+    // });
 
 // function random(min, max, intResult) {
 //   if (typeof min !== 'number' && typeof max !== 'number') {
@@ -349,7 +340,7 @@ window.MonthViewComponent = Vue.component('month-view', {
 //     result = parseInt(result, 10);
 //   }
 //   return result;
-// }
+    // }
 
 const calculateCircleCoordinates = (circles, scalar, cellSize) => new Promise((accept, reject) => {
   if (!circles || Object.keys(circles).length === 0) {
