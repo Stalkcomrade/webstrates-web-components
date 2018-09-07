@@ -25,7 +25,9 @@ window.MonthViewComponent = Vue.component('month-view', {
       right: 0,
       top: 185,
       bottom: 10
-    }
+    },
+    totalAcitvityPerMotnh: [],
+    test: 0
   }),
 
 
@@ -88,8 +90,7 @@ window.MonthViewComponent = Vue.component('month-view', {
     },
 
     async callDays(days){
-      let call1 = await this.getMonth()
-      // let call = await dataFetcher('month', { month, year, maxWebstrates })
+      let call1 = await this.getMonth() // let call = await dataFetcher('month', { month, year, maxWebstrates })
     },
     
     async nestedFunction() {
@@ -107,20 +108,19 @@ window.MonthViewComponent = Vue.component('month-view', {
     }
   },
 
+  
   async mounted() {
     let transformedScaling = "default"
-    // console.log(this.month)
-    // this.methodMonth().then(this.nestedFunction())
-     var1 = new Promise((resolve,reject) => {
-        setTimeout(() => {
-          const month = this.month
-          const year = this.year
-          const maxWebstrates = this.maxWebstrates
-          console.log(month)
-          resolve()
-        }, 6000) 
-     })
-
+  
+    // var1 = new Promise((resolve,reject) => {
+    //    setTimeout(() => {
+    //      const month = this.month
+    //      const year = this.year
+    //      const maxWebstrates = this.maxWebstrates
+    //      console.log(month)
+    //      resolve()
+    //    }, 6000) 
+    // })
     // main issue here is that month is not defined right from start, so
     // do chaining
 
@@ -145,9 +145,13 @@ window.MonthViewComponent = Vue.component('month-view', {
     
     dataFetcher('month', { month, year, maxWebstrates }).then(async (days) => {
 
+
+      // this.test = 2
+      // console.log(this.test)
+      console.log(this.totalAcitvityPerMotnh)
+      
       let webstrateIds = new Set();
       let effortTotal = new Set();
-
       Object.values(days).forEach(day => {
         Object.keys(day).forEach(webstrateId => {
           webstrateIds.add(webstrateId)
@@ -163,9 +167,8 @@ window.MonthViewComponent = Vue.component('month-view', {
       // setTimeout(() => console.log(this.$refs), 1000);
       // this.$emit('webstrateIds', webstrateIds, d3colorsQuant);
 
-
       webstrateIds = Array.from(webstrateIds).sort();
-
+      
       d3colors = d3.scaleOrdinal(d3.schemeCategory20);
       d3colors.domain(webstrateIds)
       // console.log('emit', this.$refs);
@@ -192,10 +195,10 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       // ALL IN THE ABOVE MIGHT BE MOVED to ANOTHER BLOCK
 
+      
       // days is here indexed properly, starting from 1.
       const promises = Object.keys(days).map(day =>
         calculateCircleCoordinates(days[day], scalar, this.cellSize));
-
       // days has now become zero-indexed, so the data for the 1st of the month is at index position
       // 0 and so on. We'll correct this, so it now corresponds to what days looked like above.
       days = await Promise.all(promises);
@@ -205,35 +208,31 @@ window.MonthViewComponent = Vue.component('month-view', {
       delete days[0];
 
       // console.dir(days)
-
-      const totalAcitvityPerMotnh = []
+      // const totalAcitvityPerMotnh = []
+      
+      // ----- Monthly Basis
       try {
         Object.values(days).forEach(day => {
           Object.values(day).forEach(singleEffort => {
-            totalAcitvityPerMotnh.push(Object.values(singleEffort)[2])
+            this.totalAcitvityPerMotnh.push(Object.values(singleEffort)[2])
           })
         })
       }
       catch (err) {
         console.dir("Undefined is caught")
       }
-
-      // ----- Monthly Basis
-
       var d3colorsQuantizeMonth = d3.scaleQuantize()
-        .domain(d3.extent(totalAcitvityPerMotnh)) // mix and man of data
+        .domain(d3.extent(this.totalAcitvityPerMotnh)) // mix and man of data
         .range(['blue', 'red', "yellow"])
-
       var d3colorsQuantileMonth = d3.scaleQuantile()
-        .domain(totalAcitvityPerMotnh) // pass the whole dataset
+        .domain(this.totalAcitvityPerMotnh) // pass the whole dataset
         .range(['blue', 'red', "yellow"])
 
-      // ----- Monthly Basis      
+      
 
       
       const d3format = d3.timeFormat("%Y-%m-%d");
       const d3week = d3.timeFormat("%V");
-      // const monthName = d3.timeFormat("%B");
       const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
       const d3day = (date) => d3.timeFormat("%u")(date) - 1;
 
@@ -251,8 +250,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         .attr('day', d => d.getDate());
 
 
-      this.firstMethod(groups, this.cellSize, this.date, d3week, d3day)
-      
+      this.firstMethod(groups, this.cellSize, this.date, d3week, d3day)      
       // groups
       //   .append('rect')
       //   .attr("class", "day")
@@ -269,8 +267,7 @@ window.MonthViewComponent = Vue.component('month-view', {
           date.getMonth(), 1))) * this.cellSize)
         .text(d => d.getDate())
 
-      // const today = new Date();
-      
+      // const today = new Date();      
       // const isSameDay = (a, b = today) =>
       //   a.getDate() === b.getDate()
       //   && a.getMonth() === b.getMonth()
