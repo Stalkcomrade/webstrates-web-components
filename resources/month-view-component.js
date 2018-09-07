@@ -62,6 +62,17 @@ window.MonthViewComponent = Vue.component('month-view', {
   },
 
   methods: {
+    firstMethod: function(groups, cellSize, date, d3week, d3day) {
+      groups
+        .append('rect')
+        .attr("class", "day")
+        .attr("width", cellSize)
+        .attr("height", cellSize)
+        .attr("x", date => d3day(date) * cellSize)
+        .attr("y", date => (d3week(date) - d3week(new Date(date.getFullYear(),
+                                                          date.getMonth(), 1))) * cellSize)
+      console.log('success')
+    },
     changeScaling: function() {
       this.scaling = "changed" // FIXME: fix the absolute 
     },
@@ -224,9 +235,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       const d3week = d3.timeFormat("%V");
       // const monthName = d3.timeFormat("%B");
       const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
-
-
-      
       const d3day = (date) => d3.timeFormat("%u")(date) - 1;
 
       const svg = d3.select(this.$el.querySelector('svg'))
@@ -242,14 +250,17 @@ window.MonthViewComponent = Vue.component('month-view', {
         .append("g")
         .attr('day', d => d.getDate());
 
-      groups
-        .append('rect')
-        .attr("class", "day")
-        .attr("width", this.cellSize)
-        .attr("height", this.cellSize)
-        .attr("x", date => d3day(date) * this.cellSize)
-        .attr("y", date => (d3week(date) - d3week(new Date(date.getFullYear(),
-          date.getMonth(), 1))) * this.cellSize)
+
+      this.firstMethod(groups, this.cellSize, this.date, d3week, d3day)
+      
+      // groups
+      //   .append('rect')
+      //   .attr("class", "day")
+      //   .attr("width", this.cellSize)
+      //   .attr("height", this.cellSize)
+      //   .attr("x", date => d3day(date) * this.cellSize)
+      //   .attr("y", date => (d3week(date) - d3week(new Date(date.getFullYear(),
+      //     date.getMonth(), 1))) * this.cellSize)
 
       groups
         .append('text')
