@@ -28,7 +28,8 @@ window.MonthViewComponent = Vue.component('month-view', {
     },
     totalAcitvityPerMotnh: [],
     maxOps: 0,
-    scalar: 0
+    scalar: 0,
+    groups: []
   }),
 
 
@@ -39,10 +40,13 @@ window.MonthViewComponent = Vue.component('month-view', {
   watch: {
     month: function(oldValue, newValue) {},    
     transformedScaling: function(newValue, oldValue) {
+      this.update()
       console.log("Scaling has changed")
       console.log(newValue, oldValue)
     }
   },
+
+  
 
   // computed properties are cached, so, it seems reasonable to use them for parameters storing
   // could be accessed in mounted using this.
@@ -65,6 +69,10 @@ window.MonthViewComponent = Vue.component('month-view', {
   },
 
   methods: {
+    update() {
+      this.groups.selectAll('circle.activity')
+        .style('fill', ({}) => ("yellow"))
+    },
     firstMethod: function(groups, cellSize, date, d3week, d3day) {
       groups
         .append('rect')
@@ -183,15 +191,9 @@ window.MonthViewComponent = Vue.component('month-view', {
     // do chaining
 
 
-    const month = this.month
-    const year = this.year
-    const maxWebstrates = this.maxWebstrates
     // var1.then((month, year, maxWebstrates) => {dataFetcher('month', {month, year, maxWebstrates })}
     //          )
     
-    
-    this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
-      month: 'long', year: 'numeric'})
     
     // main issue here is that month is not defined right from start, so
     // do chaining    
@@ -200,6 +202,11 @@ window.MonthViewComponent = Vue.component('month-view', {
     // this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
     //   month: 'long', year: 'numeric'})
     
+    const month = this.month
+    const year = this.year
+    const maxWebstrates = this.maxWebstrates    
+    this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
+      month: 'long', year: 'numeric'})
     
     dataFetcher('month', { month, year, maxWebstrates}).then(async (days) => {
 
@@ -278,6 +285,7 @@ window.MonthViewComponent = Vue.component('month-view', {
       catch (err) {
         console.dir("Undefined is caught")
       }
+      
       var d3colorsQuantizeMonth = d3.scaleQuantize()
         .domain(d3.extent(this.totalAcitvityPerMotnh)) // mix and man of data
         .range(['blue', 'red', "yellow"])
@@ -300,14 +308,14 @@ window.MonthViewComponent = Vue.component('month-view', {
             .attr("transform", "translate(" + (this.margin.left + (this.padded.width - this.cellSize * 7) / 2) + ","
                   + (this.margin.top + (this.padded.height - this.cellSize * 6) / 2) + ")");
 
-      const groups = svg.selectAll("g.day")
+      this.groups = svg.selectAll("g.day")
         .data(dayRange)
         .enter()
         .append("g")
         .attr('day', d => d.getDate());
 
 
-      this.firstMethod(groups, this.cellSize, this.date, d3week, d3day)      
+      this.firstMethod(this.groups, this.cellSize, this.date, d3week, d3day)      
       // groups
       //   .append('rect')
       //   .attr("class", "day")
@@ -317,7 +325,7 @@ window.MonthViewComponent = Vue.component('month-view', {
       //   .attr("y", date => (d3week(date) - d3week(new Date(date.getFullYear(),
       //     date.getMonth(), 1))) * this.cellSize)
 
-      groups
+      this.groups
         .append('text')
         .attr("x", date => 5 + d3day(date) * this.cellSize)
         .attr("y", date => 15 + (d3week(date) - d3week(new Date(date.getFullYear(),
@@ -330,7 +338,7 @@ window.MonthViewComponent = Vue.component('month-view', {
       //   && a.getMonth() === b.getMonth()
       //   && a.getFullYear() === b.getFullYear();
 
-      groups.selectAll('circle.activity')
+      this.groups.selectAll('circle.activity')
         .data((index, data, x) => {
           const date = index;
           var x = Object.keys(days[date.getDate()] || {})
@@ -341,15 +349,17 @@ window.MonthViewComponent = Vue.component('month-view', {
 
 
           x.forEach(webstrateId => { webstrateId.radius = webstrateId.activities.radius; })
-          var arrayRadius = x.map(webstrateId => webstrateId.radius)
-
+          var arrayRadius = x.map(webstrateId => webstrateId.radius) // ADDED THIS TO DATA
+          // var arrayRadius = x.map(webstrateId => webstrateId.radius) // ADDED THIS TO DATA
+        
+          
           var d3colorsQuantile = d3.scaleQuantile()
-            .domain(arrayRadius) // pass the whole dataset
+              .domain(arrayRadius) // pass the whole dataset
               .range(['blue', 'red', "yellow"])
 
 
           var d3colorsQuantize = d3.scaleQuantize()
-            .domain(d3.extent(arrayRadius)) // mix and man of data
+              .domain(d3.extent(arrayRadius)) // mix and man of data
               .range(['blue', 'red', "yellow"])
 
           // ----------- Day-based Scaling
