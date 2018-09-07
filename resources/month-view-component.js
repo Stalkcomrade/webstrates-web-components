@@ -4,6 +4,7 @@ window.MonthViewComponent = Vue.component('month-view', {
   
   template: `<div>
 		<h2>{{ date }}</h2>
+		<h3>{{ month }}</h3>
 		<button @click="">Prev</button>
         <button @click="changeScaling()">scl</button>
 		<svg></svg>
@@ -29,15 +30,11 @@ window.MonthViewComponent = Vue.component('month-view', {
 
 
   // created: function(month, year, maxWebstrates) {
-  //     const month = Number(this.month) || ((new Date).getMonth() + 1)
-  //     const year = Number(this.year) || (new Date).getFullYear()
-  //     const maxWebstrates = this.maxWebstrates || 20
   //     return {month, year, maxWebstrates}
   // },
 
   watch: {
-    month: function(oldValue, newValue) {},
-    
+    month: function(oldValue, newValue) {},    
     transformedScaling: function(newValue, oldValue) {
       console.log("Scaling has changed")
       console.log(newValue, oldValue)
@@ -54,16 +51,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       const height = this.cellSize * 5 - this.margin.top - this.margin.bottom
       return { width, height }
     },
-    // transormedProps: {
-    //   get: function () {
-    //     return {month, year, maxWebstrates}
-    //   },
-    //   set: function () {
-    //     const month = Number(this.month) || ((new Date).getMonth() + 1)
-    //     const year = Number(this.year) || (new Date).getFullYear()
-    //     const maxWebstrates = this.maxWebstrates || 20
-    //   }
-    // },
     transformedScaling: {
       get: function () {
         return this.scaling
@@ -78,28 +65,38 @@ window.MonthViewComponent = Vue.component('month-view', {
     changeScaling: function() {
       this.scaling = "changed" // FIXME: fix the absolute 
     },
+    methodMonth: function() {
+      return new Promise((resolve,reject) => {
+        setTimeout(() => {
+          const month = this.month
+          const year = this.year
+          const maxWebstrates = this.maxWebstrates
+          console.log(month)
+        }, 6000) 
+      })       
+    },
+
+    async callDays(days){
+
+
+      let call1 = await this.getMonth()
+      // let call = await dataFetcher('month', { month, year, maxWebstrates })
+      
+    },
+    
+    async nestedFunction() {
+      // const month = this.month
+      // const year = this.year
+      // const maxWebstrates = this.maxWebstrates
+      
+      // console.log(this.month)
+      await dataFetcher('month', {month, year, maxWebstrates })
+      console.log('success')
+      
+    },
     // I am using this for construction of async functions
     getMonthAsync: function() {
       this.getMonth().then(this.nestedFunction())
-    },
-
-    getMonth: function() {
-      return new Promise((resolve,reject) => {
-        setTimeout((resolve) => {
-          const month = Number(this.month) || ((new Date).getMonth() + 1)
-          const year = Number(this.year) || (new Date).getFullYear()
-          const maxWebstrates = this.maxWebstrates || 20
-        }, 3000) 
-        // if (typeof(month)!='undefined' & typeof(year)!='undefined' & typeof(maxWebstrates)!='undefined') return resolve("resolved");
-      })       
-    },
-    
-    nestedFunction: function() {
-      console.log('success')
-      console.log(this.month)
-      dataFetcher('month', {month, year, maxWebstrates })
-      console.log('success')
-     
     }
   },
 
@@ -107,231 +104,222 @@ window.MonthViewComponent = Vue.component('month-view', {
 
     let transformedScaling = "default"
 
-    
+    // console.log(this.month)
+    // this.methodMonth().then(this.nestedFunction())
+
+     var1 = new Promise((resolve,reject) => {
+        setTimeout(() => {
+          const month = this.month
+          const year = this.year
+          const maxWebstrates = this.maxWebstrates
+          console.log(month)
+          resolve()
+        }, 6000) 
+     })
+
+
     // main issue here is that month is not defined right from start, so
     // do chaining
-    
-    // const month = Number(this.month) || ((new Date).getMonth() + 1);
-    // const maxWebstrates = this.maxWebstrates || 20;
-    // const year = Number(this.year) || (new Date).getFullYear();
-
 
     
-    // this.date = (new Date(year, month - 1)).toLocaleDateString(undefined, {
-    //   month: 'long', year: 'numeric'
-    // });
-
-    this.getMonthAsync()
-
-    // this.getMonthAsyncSecond()
-
-
-      this.date = (new Date(year, month - 1)).toLocaleDateString(undefined, {
-        month: 'long', year: 'numeric'
-  
-
-
-
-    })
+    var1.then((month, year, maxWebstrates) => {dataFetcher('month', {month, year, maxWebstrates })}
+             )
     
-    // this.getMonthAsync()
-    // this.getMonth().then(async this.nestedFunction());
     
-    // getMonth.then() 
-    // this.nestedFunction()
-
+    // this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
+    //   month: 'long', year: 'numeric'})
     
-    dataFetcher('month', { month, year, maxWebstrates }).then(async (days) => {
+    
+//     dataFetcher('month', { month, year, maxWebstrates }).then(async (days) => {
+
+//       let webstrateIds = new Set();
+//       let effortTotal = new Set();
+
+//       Object.values(days).forEach(day => {
+//         Object.keys(day).forEach(webstrateId => {
+//           webstrateIds.add(webstrateId)
+//         });
+
+//         Object.values(day).forEach(singleEffort => {
+//           effortTotal.add(singleEffort)
+//         })
+//       })
 
 
-      let webstrateIds = new Set();
-      let effortTotal = new Set();
-
-      Object.values(days).forEach(day => {
-        Object.keys(day).forEach(webstrateId => {
-          webstrateIds.add(webstrateId)
-        });
-
-        Object.values(day).forEach(singleEffort => {
-          effortTotal.add(singleEffort)
-        })
-      })
+//       // console.log('emit', this.$refs);
+//       // setTimeout(() => console.log(this.$refs), 1000);
+//       // this.$emit('webstrateIds', webstrateIds, d3colorsQuant);
 
 
-      // console.log('emit', this.$refs);
-      // setTimeout(() => console.log(this.$refs), 1000);
-      // this.$emit('webstrateIds', webstrateIds, d3colorsQuant);
+//       webstrateIds = Array.from(webstrateIds).sort();
+
+//       d3colors = d3.scaleOrdinal(d3.schemeCategory20);
+//       d3colors.domain(webstrateIds)
+//       // console.log('emit', this.$refs);
+//       setTimeout(() => console.log(this.$refs), 1000);
+//       this.$emit('webstrateIds', webstrateIds);
+//       // this.$emit('webstrateIds', webstrateIds, d3colors); // old version
 
 
-      webstrateIds = Array.from(webstrateIds).sort();
+//       // const this.cellSize = 185;
+//       // const this.margin = { top: this.cellSize, right: 0, bottom: 0, left: 0 };
+//       // const this.width = this.cellSize * 7 - this.margin.right - this.margin.left; // width
+//       // const this.height = this.cellSize * 5 - this.margin.top - this.margin.bottom; // height
 
-      d3colors = d3.scaleOrdinal(d3.schemeCategory20);
-      d3colors.domain(webstrateIds)
-      // console.log('emit', this.$refs);
-      setTimeout(() => console.log(this.$refs), 1000);
-      this.$emit('webstrateIds', webstrateIds);
-      // this.$emit('webstrateIds', webstrateIds, d3colors); // old version
+//       // scalar is used to calculate the sizes of the circles. They need to be different sizes,
+//       // so we can distinguish very active webstrates from not-so-active webstrates. However, a
+//       // linear scaling usually doesn't give us a very good representation, so we just do some
+//       // random trial-and-error Math here. There's no great insight to be had, other than the fact
+//       // that we're using a logarithmic scale.
 
-
-      // const this.cellSize = 185;
-      // const this.margin = { top: this.cellSize, right: 0, bottom: 0, left: 0 };
-      // const this.width = this.cellSize * 7 - this.margin.right - this.margin.left; // width
-      // const this.height = this.cellSize * 5 - this.margin.top - this.margin.bottom; // height
-
-      // scalar is used to calculate the sizes of the circles. They need to be different sizes,
-      // so we can distinguish very active webstrates from not-so-active webstrates. However, a
-      // linear scaling usually doesn't give us a very good representation, so we just do some
-      // random trial-and-error Math here. There's no great insight to be had, other than the fact
-      // that we're using a logarithmic scale.
-
-      const maxOps = Math.log(d3.max(Object.values(days), (day) => d3.max(Object.values(day)))) / 2;
-      const scalar = 1 / (maxOps / (this.cellSize / 19)); // after all, changes the diameter of the webstrates actitivity
+//       const maxOps = Math.log(d3.max(Object.values(days), (day) => d3.max(Object.values(day)))) / 2;
+//       const scalar = 1 / (maxOps / (this.cellSize / 19)); // after all, changes the diameter of the webstrates actitivity
 
 
 
-      // ALL IN THE ABOVE MIGHT BE MOVED to ANOTHER BLOCK
+//       // ALL IN THE ABOVE MIGHT BE MOVED to ANOTHER BLOCK
 
-      // days is here indexed properly, starting from 1.
-      const promises = Object.keys(days).map(day =>
-        calculateCircleCoordinates(days[day], scalar, this.cellSize));
+//       // days is here indexed properly, starting from 1.
+//       const promises = Object.keys(days).map(day =>
+//         calculateCircleCoordinates(days[day], scalar, this.cellSize));
 
-      // days has now become zero-indexed, so the data for the 1st of the month is at index position
-      // 0 and so on. We'll correct this, so it now corresponds to what days looked like above.
-      days = await Promise.all(promises);
-      for (let i = days.length; i; --i) {
-        days[i + 1] = days[i];
-      }
-      delete days[0];
+//       // days has now become zero-indexed, so the data for the 1st of the month is at index position
+//       // 0 and so on. We'll correct this, so it now corresponds to what days looked like above.
+//       days = await Promise.all(promises);
+//       for (let i = days.length; i; --i) {
+//         days[i + 1] = days[i];
+//       }
+//       delete days[0];
 
-      // console.dir(days)
+//       // console.dir(days)
 
-      const totalAcitvityPerMotnh = []
-      try {
-        Object.values(days).forEach(day => {
-          Object.values(day).forEach(singleEffort => {
-            totalAcitvityPerMotnh.push(Object.values(singleEffort)[2])
-          })
-        })
-      }
-      catch (err) {
-        console.dir("Undefined is caught")
-      }
+//       const totalAcitvityPerMotnh = []
+//       try {
+//         Object.values(days).forEach(day => {
+//           Object.values(day).forEach(singleEffort => {
+//             totalAcitvityPerMotnh.push(Object.values(singleEffort)[2])
+//           })
+//         })
+//       }
+//       catch (err) {
+//         console.dir("Undefined is caught")
+//       }
 
-      // ----- Monthly Basis
+//       // ----- Monthly Basis
 
-      var d3colorsQuantizeMonth = d3.scaleQuantize()
-        .domain(d3.extent(totalAcitvityPerMotnh)) // mix and man of data
-        .range(['blue', 'red', "yellow"])
+//       var d3colorsQuantizeMonth = d3.scaleQuantize()
+//         .domain(d3.extent(totalAcitvityPerMotnh)) // mix and man of data
+//         .range(['blue', 'red', "yellow"])
 
-      var d3colorsQuantileMonth = d3.scaleQuantile()
-        .domain(totalAcitvityPerMotnh) // pass the whole dataset
-        .range(['blue', 'red', "yellow"])
+//       var d3colorsQuantileMonth = d3.scaleQuantile()
+//         .domain(totalAcitvityPerMotnh) // pass the whole dataset
+//         .range(['blue', 'red', "yellow"])
 
-      // ----- Monthly Basis      
+//       // ----- Monthly Basis      
 
       
-      // const d3format = d3.timeFormat("%Y-%m-%d");
-      const d3week = d3.timeFormat("%V");
-      // const monthName = d3.timeFormat("%B");
-      const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
+//       // const d3format = d3.timeFormat("%Y-%m-%d");
+//       const d3week = d3.timeFormat("%V");
+//       // const monthName = d3.timeFormat("%B");
+//       const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
 
 
       
-      const d3day = (date) => d3.timeFormat("%u")(date) - 1;
+//       const d3day = (date) => d3.timeFormat("%u")(date) - 1;
 
-      const svg = d3.select(this.$el.querySelector('svg'))
-        .attr("width", this.padded.width)
-        .attr("height", this.padded.height)
-            .append("g")
-            .attr("transform", "translate(" + (this.margin.left + (this.padded.width - this.cellSize * 7) / 2) + ","
-                  + (this.margin.top + (this.padded.height - this.cellSize * 6) / 2) + ")");
+//       const svg = d3.select(this.$el.querySelector('svg'))
+//         .attr("width", this.padded.width)
+//         .attr("height", this.padded.height)
+//             .append("g")
+//             .attr("transform", "translate(" + (this.margin.left + (this.padded.width - this.cellSize * 7) / 2) + ","
+//                   + (this.margin.top + (this.padded.height - this.cellSize * 6) / 2) + ")");
 
-      const groups = svg.selectAll("g.day")
-        .data(dayRange)
-        .enter()
-        .append("g")
-        .attr('day', d => d.getDate());
+//       const groups = svg.selectAll("g.day")
+//         .data(dayRange)
+//         .enter()
+//         .append("g")
+//         .attr('day', d => d.getDate());
 
-      groups
-        .append('rect')
-        .attr("class", "day")
-        .attr("width", this.cellSize)
-        .attr("height", this.cellSize)
-        .attr("x", date => d3day(date) * this.cellSize)
-        .attr("y", date => (d3week(date) - d3week(new Date(date.getFullYear(),
-          date.getMonth(), 1))) * this.cellSize)
+//       groups
+//         .append('rect')
+//         .attr("class", "day")
+//         .attr("width", this.cellSize)
+//         .attr("height", this.cellSize)
+//         .attr("x", date => d3day(date) * this.cellSize)
+//         .attr("y", date => (d3week(date) - d3week(new Date(date.getFullYear(),
+//           date.getMonth(), 1))) * this.cellSize)
 
-      groups
-        .append('text')
-        .attr("x", date => 5 + d3day(date) * this.cellSize)
-        .attr("y", date => 15 + (d3week(date) - d3week(new Date(date.getFullYear(),
-          date.getMonth(), 1))) * this.cellSize)
-        .text(d => d.getDate())
+//       groups
+//         .append('text')
+//         .attr("x", date => 5 + d3day(date) * this.cellSize)
+//         .attr("y", date => 15 + (d3week(date) - d3week(new Date(date.getFullYear(),
+//           date.getMonth(), 1))) * this.cellSize)
+//         .text(d => d.getDate())
 
-      // const today = new Date();
+//       // const today = new Date();
       
-      // const isSameDay = (a, b = today) =>
-      //   a.getDate() === b.getDate()
-      //   && a.getMonth() === b.getMonth()
-      //   && a.getFullYear() === b.getFullYear();
+//       // const isSameDay = (a, b = today) =>
+//       //   a.getDate() === b.getDate()
+//       //   && a.getMonth() === b.getMonth()
+//       //   && a.getFullYear() === b.getFullYear();
 
-      groups.selectAll('circle.activity')
-        .data((index, data, x) => {
-          const date = index;
-          var x = Object.keys(days[date.getDate()] || {})
-            .map(webstrateId => ({
-              date, webstrateId, activities: days[date.getDate()][webstrateId],
-            }))
-            .sort((a, b) => b.activities - a.activities)
-
-
-          x.forEach(webstrateId => { webstrateId.radius = webstrateId.activities.radius; })
-          var arrayRadius = x.map(webstrateId => webstrateId.radius)
-
-          var d3colorsQuantile = d3.scaleQuantile()
-            .domain(arrayRadius) // pass the whole dataset
-              .range(['blue', 'red', "yellow"])
+//       groups.selectAll('circle.activity')
+//         .data((index, data, x) => {
+//           const date = index;
+//           var x = Object.keys(days[date.getDate()] || {})
+//             .map(webstrateId => ({
+//               date, webstrateId, activities: days[date.getDate()][webstrateId],
+//             }))
+//             .sort((a, b) => b.activities - a.activities)
 
 
-          var d3colorsQuantize = d3.scaleQuantize()
-            .domain(d3.extent(arrayRadius)) // mix and man of data
-              .range(['blue', 'red', "yellow"])
+//           x.forEach(webstrateId => { webstrateId.radius = webstrateId.activities.radius; })
+//           var arrayRadius = x.map(webstrateId => webstrateId.radius)
 
-          // ----------- Day-based Scaling
+//           var d3colorsQuantile = d3.scaleQuantile()
+//             .domain(arrayRadius) // pass the whole dataset
+//               .range(['blue', 'red', "yellow"])
+
+
+//           var d3colorsQuantize = d3.scaleQuantize()
+//             .domain(d3.extent(arrayRadius)) // mix and man of data
+//               .range(['blue', 'red', "yellow"])
+
+//           // ----------- Day-based Scaling
           
-          x.forEach(webstrateId => { webstrateId.color = d3colorsQuantile(webstrateId.radius) })
-          x.forEach(webstrateId => { webstrateId.colorQ = d3colorsQuantize(webstrateId.radius) })
+//           x.forEach(webstrateId => { webstrateId.color = d3colorsQuantile(webstrateId.radius) })
+//           x.forEach(webstrateId => { webstrateId.colorQ = d3colorsQuantize(webstrateId.radius) })
 
-          // ----------- Month-based Scaling
+//           // ----------- Month-based Scaling
 
-          x.forEach(webstrateId => { webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius) })
-          x.forEach(webstrateId => { webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius) })
+//           x.forEach(webstrateId => { webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius) })
+//           x.forEach(webstrateId => { webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius) })
 
-          return x;
-        }
-        )
-        .enter()
-        .append('a')
-        .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
-        .append('circle')
-        .attr('class', () => 'activity')
-        .attr('cx', ({ date, activities }) => d3day(date) * this.cellSize + activities.position.x + activities.radius / 2)
-        .attr('cy', ({ date, activities }) => (d3week(date) - d3week(new Date(date.getFullYear(),
-          date.getMonth(), 1))) * this.cellSize + activities.position.y + activities.radius / 2)
-        .attr('r', ({ activities }) => activities.radius)
-        // .style('fill', ({ webstrateId }) => d3colors(webstrateId)) // OLD VERSION
-        // .style('fill', ({ colorQ }) => colorQ) // DAILY BASIS
-        .style('fill', ({ scaling, colorMonthQ, colorQ }) => (transformedScaling == "changed") ? colorMonthQ : colorQ) // MONTHLY BASIS
-        // .style('fill', ({ webstrateId, radius }) => {
-        //   d3ColorsQuantile = d3.scaleQuantize()
-        //     .domain(d3.extent(radius))
-        //     .range(['blue', 'red'])
+//           return x;
+//         }
+//         )
+//         .enter()
+//         .append('a')
+//         .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
+//         .append('circle')
+//         .attr('class', () => 'activity')
+//         .attr('cx', ({ date, activities }) => d3day(date) * this.cellSize + activities.position.x + activities.radius / 2)
+//         .attr('cy', ({ date, activities }) => (d3week(date) - d3week(new Date(date.getFullYear(),
+//           date.getMonth(), 1))) * this.cellSize + activities.position.y + activities.radius / 2)
+//         .attr('r', ({ activities }) => activities.radius)
+//         // .style('fill', ({ webstrateId }) => d3colors(webstrateId)) // OLD VERSION
+//         // .style('fill', ({ colorQ }) => colorQ) // DAILY BASIS
+//         .style('fill', ({ scaling, colorMonthQ, colorQ }) => (transformedScaling == "changed") ? colorMonthQ : colorQ) // MONTHLY BASIS
+//         // .style('fill', ({ webstrateId, radius }) => {
+//         //   d3ColorsQuantile = d3.scaleQuantize()
+//         //     .domain(d3.extent(radius))
+//         //     .range(['blue', 'red'])
 
-        // })
-        .attr('webstrateId', ({ webstrateId }) => webstrateId)
-        .append('svg:title')
-        .text(({ webstrateId, activities }) => webstrateId + "\n" + activities.radius) // added info about radius ~ to activity
-    });
+//         // })
+//         .attr('webstrateId', ({ webstrateId }) => webstrateId)
+//         .append('svg:title')
+//         .text(({ webstrateId, activities }) => webstrateId + "\n" + activities.radius) // added info about radius ~ to activity
+//     });
   }
 });
 
