@@ -9,9 +9,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         <button @click="changeScaling()">scl</button>
 		<svg></svg>
 		<webstrate-legend/>
-            	</div>`,
-
-  
+            	</div>`,  
   components: {
     'webstrate-legend-component': WebstrateLegendComponent
   },
@@ -32,7 +30,6 @@ window.MonthViewComponent = Vue.component('month-view', {
     groups: []
   }),
 
-
   // created: function(month, year, maxWebstrates) {
   //     return {month, year, maxWebstrates}
   // },
@@ -47,7 +44,6 @@ window.MonthViewComponent = Vue.component('month-view', {
   },
 
   
-
   // computed properties are cached, so, it seems reasonable to use them for parameters storing
   // could be accessed in mounted using this.
   // padded.width or padded.height are accessible later
@@ -84,7 +80,10 @@ window.MonthViewComponent = Vue.component('month-view', {
                                                           date.getMonth(), 1))) * cellSize)
       console.log('success')
     },
+    // calculateCircleCoodrinates: function(circles, scalar, cellSize) {
+    // (circles, scalar, cellSize) => new Promise((accept, reject) => {
     calculateCircleCoodrinates: function(circles, scalar, cellSize) {
+
       new Promise((accept, reject) => {
         
         if (!circles || Object.keys(circles).length === 0) {
