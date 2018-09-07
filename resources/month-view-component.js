@@ -77,18 +77,14 @@ window.MonthViewComponent = Vue.component('month-view', {
     },
 
     async callDays(days){
-
-
       let call1 = await this.getMonth()
       // let call = await dataFetcher('month', { month, year, maxWebstrates })
-      
     },
     
     async nestedFunction() {
       // const month = this.month
       // const year = this.year
-      // const maxWebstrates = this.maxWebstrates
-      
+      // const maxWebstrates = this.maxWebstrates      
       // console.log(this.month)
       await dataFetcher('month', {month, year, maxWebstrates })
       console.log('success')
@@ -101,12 +97,9 @@ window.MonthViewComponent = Vue.component('month-view', {
   },
 
   async mounted() {
-
     let transformedScaling = "default"
-
     // console.log(this.month)
     // this.methodMonth().then(this.nestedFunction())
-
      var1 = new Promise((resolve,reject) => {
         setTimeout(() => {
           const month = this.month
