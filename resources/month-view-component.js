@@ -27,7 +27,8 @@ window.MonthViewComponent = Vue.component('month-view', {
       bottom: 10
     },
     totalAcitvityPerMotnh: [],
-    test: 0
+    maxOps: 0,
+    scalar: 0
   }),
 
 
@@ -74,6 +75,63 @@ window.MonthViewComponent = Vue.component('month-view', {
         .attr("y", date => (d3week(date) - d3week(new Date(date.getFullYear(),
                                                           date.getMonth(), 1))) * cellSize)
       console.log('success')
+    },
+    calculateCircleCoodrinates: function(circles, scalar, cellSize) {
+      new Promise((accept, reject) => {
+        
+        if (!circles || Object.keys(circles).length === 0) {
+          accept([]);
+        }
+
+        let x = 0, y = -100;
+        // console.log(x)
+        
+        circles = Object.keys(circles).map((webstrateId) => {
+          
+          const radius = Math.max(cellSize / 25, Math.log(circles[webstrateId]) * scalar);
+          
+          if (x + radius >= cellSize / 5) {
+            x = radius;
+            // console.log("Inside if stm")
+            y += (cellSize / 6) % cellSize;
+          } else {
+            x += radius;
+            // console.log("Inside else stm")
+          }
+          return {
+            id: webstrateId,
+            radius: radius,
+            position: {
+              x: x, //random( radius, cellSize - radius ),
+              y: y //random( radius, cellSize - radius )
+            }
+          }
+          
+        })
+
+        // console.log(y,x)
+        
+        const packerOptions = {
+          target: { x: cellSize / 2, y: cellSize / 2 },
+          bounds: { width: cellSize, height: cellSize },
+          circles: circles,
+          continuousMode: false,
+          collisionPasses: 150,
+          centeringPasses: 50,
+          onMove: accept
+        }
+
+        const packer = new CirclePacker(packerOptions);
+        packer.update()
+        
+      })
+    },
+    resolvePromises: async function(promises, days){
+      days = await Promise.all(promises);
+      for (let i = days.length; i; --i) {
+        days[i + 1] = days[i];
+      }      
+      delete days[0];
     },
     changeScaling: function() {
       this.scaling = "changed" // FIXME: fix the absolute 
@@ -143,12 +201,12 @@ window.MonthViewComponent = Vue.component('month-view', {
     //   month: 'long', year: 'numeric'})
     
     
-    dataFetcher('month', { month, year, maxWebstrates }).then(async (days) => {
+    dataFetcher('month', { month, year, maxWebstrates}).then(async (days) => {
 
 
       // this.test = 2
       // console.log(this.test)
-      console.log(this.totalAcitvityPerMotnh)
+      // console.log(this.totalAcitvityPerMotnh)
       
       let webstrateIds = new Set();
       let effortTotal = new Set();
@@ -162,6 +220,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         })
       })
 
+      
 
       // console.log('emit', this.$refs);
       // setTimeout(() => console.log(this.$refs), 1000);
@@ -177,35 +236,33 @@ window.MonthViewComponent = Vue.component('month-view', {
       // this.$emit('webstrateIds', webstrateIds, d3colors); // old version
 
 
-      // const this.cellSize = 185;
-      // const this.margin = { top: this.cellSize, right: 0, bottom: 0, left: 0 };
-      // const this.width = this.cellSize * 7 - this.margin.right - this.margin.left; // width
-      // const this.height = this.cellSize * 5 - this.margin.top - this.margin.bottom; // height
-
       // scalar is used to calculate the sizes of the circles. They need to be different sizes,
       // so we can distinguish very active webstrates from not-so-active webstrates. However, a
       // linear scaling usually doesn't give us a very good representation, so we just do some
       // random trial-and-error Math here. There's no great insight to be had, other than the fact
       // that we're using a logarithmic scale.
 
-      const maxOps = Math.log(d3.max(Object.values(days), (day) => d3.max(Object.values(day)))) / 2;
-      const scalar = 1 / (maxOps / (this.cellSize / 19)); // after all, changes the diameter of the webstrates actitivity
+      this.maxOps = Math.log(d3.max(Object.values(days), (day) => d3.max(Object.values(day)))) / 2;
+      this.scalar = 1 / (this.maxOps / (this.cellSize / 19)); // after all, changes the diameter of the webstrates actitivity
 
 
 
       // ALL IN THE ABOVE MIGHT BE MOVED to ANOTHER BLOCK
-
       
       // days is here indexed properly, starting from 1.
       const promises = Object.keys(days).map(day =>
-        calculateCircleCoordinates(days[day], scalar, this.cellSize));
+        calculateCircleCoordinates(days[day], this.scalar, this.cellSize));
       // days has now become zero-indexed, so the data for the 1st of the month is at index position
       // 0 and so on. We'll correct this, so it now corresponds to what days looked like above.
+
+      // this.resolvePromises(promises, days)
+      
       days = await Promise.all(promises);
       for (let i = days.length; i; --i) {
         days[i + 1] = days[i];
       }
-      delete days[0];
+      
+      // delete days[0];
 
       // console.dir(days)
       // const totalAcitvityPerMotnh = []
