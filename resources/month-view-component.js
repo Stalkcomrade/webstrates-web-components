@@ -4,6 +4,7 @@ window.MonthViewComponent = Vue.component('month-view', {
   
   template: `<div>
 		<h2>{{ date }}</h2>
+		<h3>{{ month }}</h3>
 		<button @click="">Prev</button>
         <button @click="changeScaling()">scl</button>
 		<svg></svg>
@@ -29,15 +30,11 @@ window.MonthViewComponent = Vue.component('month-view', {
 
 
   // created: function(month, year, maxWebstrates) {
-  //     const month = Number(this.month) || ((new Date).getMonth() + 1)
-  //     const year = Number(this.year) || (new Date).getFullYear()
-  //     const maxWebstrates = this.maxWebstrates || 20
   //     return {month, year, maxWebstrates}
   // },
 
   watch: {
-    month: function(oldValue, newValue) {},
-    
+    month: function(oldValue, newValue) {},    
     transformedScaling: function(newValue, oldValue) {
       console.log("Scaling has changed")
       console.log(newValue, oldValue)
@@ -54,16 +51,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       const height = this.cellSize * 5 - this.margin.top - this.margin.bottom
       return { width, height }
     },
-    // transormedProps: {
-    //   get: function () {
-    //     return {month, year, maxWebstrates}
-    //   },
-    //   set: function () {
-    //     const month = Number(this.month) || ((new Date).getMonth() + 1)
-    //     const year = Number(this.year) || (new Date).getFullYear()
-    //     const maxWebstrates = this.maxWebstrates || 20
-    //   }
-    // },
     transformedScaling: {
       get: function () {
         return this.scaling
@@ -78,28 +65,38 @@ window.MonthViewComponent = Vue.component('month-view', {
     changeScaling: function() {
       this.scaling = "changed" // FIXME: fix the absolute 
     },
+    methodMonth: function() {
+      return new Promise((resolve,reject) => {
+        setTimeout(() => {
+          const month = this.month
+          const year = this.year
+          const maxWebstrates = this.maxWebstrates
+          console.log(month)
+        }, 6000) 
+      })       
+    },
+
+    async callDays(days){
+
+
+      let call1 = await this.getMonth()
+      // let call = await dataFetcher('month', { month, year, maxWebstrates })
+      
+    },
+    
+    async nestedFunction() {
+      // const month = this.month
+      // const year = this.year
+      // const maxWebstrates = this.maxWebstrates
+      
+      // console.log(this.month)
+      await dataFetcher('month', {month, year, maxWebstrates })
+      console.log('success')
+      
+    },
     // I am using this for construction of async functions
     getMonthAsync: function() {
       this.getMonth().then(this.nestedFunction())
-    },
-
-    getMonth: function() {
-      return new Promise((resolve,reject) => {
-        setTimeout((resolve) => {
-          const month = Number(this.month) || ((new Date).getMonth() + 1)
-          const year = Number(this.year) || (new Date).getFullYear()
-          const maxWebstrates = this.maxWebstrates || 20
-        }, 3000) 
-        // if (typeof(month)!='undefined' & typeof(year)!='undefined' & typeof(maxWebstrates)!='undefined') return resolve("resolved");
-      })       
-    },
-    
-    nestedFunction: function() {
-      console.log('success')
-      console.log(this.month)
-      dataFetcher('month', {month, year, maxWebstrates })
-      console.log('success')
-     
     }
   },
 
@@ -107,42 +104,36 @@ window.MonthViewComponent = Vue.component('month-view', {
 
     let transformedScaling = "default"
 
-    
+    // console.log(this.month)
+    // this.methodMonth().then(this.nestedFunction())
+
+     var1 = new Promise((resolve,reject) => {
+        setTimeout(() => {
+          const month = this.month
+          const year = this.year
+          const maxWebstrates = this.maxWebstrates
+          console.log(month)
+          resolve()
+        }, 6000) 
+     })
+
+
     // main issue here is that month is not defined right from start, so
     // do chaining
+
+
+    const month = this.month
+    const year = this.year
+    const maxWebstrates = this.maxWebstrates
+    // var1.then((month, year, maxWebstrates) => {dataFetcher('month', {month, year, maxWebstrates })}
+    //          )
     
-    // const month = Number(this.month) || ((new Date).getMonth() + 1);
-    // const maxWebstrates = this.maxWebstrates || 20;
-    // const year = Number(this.year) || (new Date).getFullYear();
-
-
     
-    // this.date = (new Date(year, month - 1)).toLocaleDateString(undefined, {
-    //   month: 'long', year: 'numeric'
-    // });
-
-    this.getMonthAsync()
-
-    // this.getMonthAsyncSecond()
-
-
-      this.date = (new Date(year, month - 1)).toLocaleDateString(undefined, {
-        month: 'long', year: 'numeric'
-  
-
-
-
-    })
+    this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
+      month: 'long', year: 'numeric'})
     
-    // this.getMonthAsync()
-    // this.getMonth().then(async this.nestedFunction());
-    
-    // getMonth.then() 
-    // this.nestedFunction()
-
     
     dataFetcher('month', { month, year, maxWebstrates }).then(async (days) => {
-
 
       let webstrateIds = new Set();
       let effortTotal = new Set();
