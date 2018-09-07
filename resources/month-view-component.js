@@ -110,7 +110,6 @@ window.MonthViewComponent = Vue.component('month-view', {
         }, 6000) 
      })
 
-
     // main issue here is that month is not defined right from start, so
     // do chaining
 
@@ -124,6 +123,23 @@ window.MonthViewComponent = Vue.component('month-view', {
     
     this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
       month: 'long', year: 'numeric'})
+    
+    
+    dataFetcher('month', { month, year, maxWebstrates }).then(async (days) => {
+
+      let webstrateIds = new Set();
+      let effortTotal = new Set();
+
+    // main issue here is that month is not defined right from start, so
+    // do chaining
+
+    
+    // var1.then((month, year, maxWebstrates) => {dataFetcher('month', {month, year, maxWebstrates })}
+    //          )
+    
+    
+    // this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
+    //   month: 'long', year: 'numeric'})
     
     
     dataFetcher('month', { month, year, maxWebstrates }).then(async (days) => {
