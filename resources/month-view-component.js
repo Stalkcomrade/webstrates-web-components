@@ -56,7 +56,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
       month: 'long', year: 'numeric'})
 
-      // dataFetcher('month', { month, year, maxWebstrates}).then((days) => {
       dataFetcher('month').then((days) => {
       
       let webstrateIds = new Set();
@@ -74,13 +73,37 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       
       webstrateIds = Array.from(webstrateIds).sort()
-      this.test = Array.from(webstrateIds).sort()
-      // console.dir(this.test)
+        this.test = Array.from(webstrateIds).sort()
+
+
+        
+        // const date = index;
+        // var x = Object.keys(days[date.getDate()] || {})
+        //     .map(webstrateId => ({
+        //       date, webstrateId, activities: days[date.getDate()][webstrateId],
+        //     }))
+        //     .sort((a, b) => b.activities - a.activities)
+
+
+        // x.forEach(webstrateId => { webstrateId.radius = webstrateId.activities.radius; })
+        // var arrayRadius = x.map(webstrateId => webstrateId.radius) // ADDED THIS TO DATA
+        
+        // var d3colorsQuantile = this.d3Scaling.colorQuantileScaling(arrayRadius)
+        // var d3colorsQuantize = this.d3Scaling.colorQuantizeScaling(arrayRadius)
+
+        // // ----------- Day-based Scaling
+        // x.forEach(webstrateId => { webstrateId.color = d3colorsQuantile(webstrateId.radius) })
+        // x.forEach(webstrateId => { webstrateId.colorQ = d3colorsQuantize(webstrateId.radius) })
+        // // ----------- Month-based Scaling
+        // x.forEach(webstrateId => { webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius) })
+        // x.forEach(webstrateId => { webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius) })
+
+
+
+
+        
       
     }).then(() => resolve())
-
-      // resolve()
-      
     })
 
   },
@@ -192,6 +215,7 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       this.groups.selectAll('circle.activity')
         .data((index, data, x) => {
+          // console.dir(x)
           const date = index;
           var x = Object.keys(days[date.getDate()] || {})
               .map(webstrateId => ({
@@ -219,6 +243,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         .enter()
         .append('a')
         .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
+        .on("mouseover", ({webstrateId}) => this.showMessage(webstrateId))
         .append('circle')
         .attr('class', () => 'activity')
         .attr('cx', ({ date, activities }) => this.d3Const.d3day(date) * this.cellSize + activities.position.x + activities.radius / 2)
@@ -230,16 +255,11 @@ window.MonthViewComponent = Vue.component('month-view', {
         .attr('webstrateId', ({ webstrateId }) => webstrateId)
         .append('svg:title')
         .text(({ webstrateId, activities }) => webstrateId + "\n" + activities.radius) // added info about radius ~ to activity
-
-      this.groups.on("mouseover", this.showMessage)
-
       
+
     },
-    showMessage(d) {
-      this.todoHovered = `${Object.keys(d)}`
-      this.todoHovered = d
-      console.dir(this.groups.data())
-      console.dir(this.todoHovered)
+    showMessage: function(d) {
+      this.todoHovered = `${d}`
     },
     resolvePromises: async function(promises, days){
       days = await Promise.all(promises);
