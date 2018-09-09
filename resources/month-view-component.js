@@ -1,6 +1,6 @@
 window.MonthViewComponent = Vue.component('month-view', {
   
-  props: ['month', 'year', 'maxWebstrates'],
+  props: ['monthProp', 'yearProp', 'maxWebstratesProp'],
   
   template: `<div>
 		<h2>{{ date }}</h2>
@@ -17,6 +17,9 @@ window.MonthViewComponent = Vue.component('month-view', {
 
   data: () => ({
     date: '',
+    month: '',
+    year: '',
+    maxWebstrates: '',
     scaling: 'default',
     cellSize: 185,
     margin: {
@@ -29,7 +32,9 @@ window.MonthViewComponent = Vue.component('month-view', {
     maxOps: 0,
     scalar: 0,
     svg: [],
-    groups: []
+    groups: [],
+    test: [],
+    waitData: []
   }),
   watch: {
     month: function(oldValue, newValue) { 
@@ -39,6 +44,44 @@ window.MonthViewComponent = Vue.component('month-view', {
   // computed properties are cached, so, it seems reasonable to use them for parameters and functions
   // storing. Could be accessed in mounted using this.
   
+  created: function() {
+
+    this.waitData = new Promise((resolve,reject) => {
+    
+      this.month = this.monthProp
+      this.year = this.yearProp
+      this.maxWebstrates = this.maxWebstratesProp
+      this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
+      month: 'long', year: 'numeric'})
+
+      // dataFetcher('month', { month, year, maxWebstrates}).then((days) => {
+      dataFetcher('month').then((days) => {
+      
+      let webstrateIds = new Set();
+      let effortTotal = new Set();
+      
+      Object.values(days).forEach(day => {
+        Object.keys(day).forEach(webstrateId => {
+          webstrateIds.add(webstrateId)
+        });
+
+        Object.values(day).forEach(singleEffort => {
+          effortTotal.add(singleEffort)
+        })
+      })
+
+      
+      webstrateIds = Array.from(webstrateIds).sort()
+      this.test = Array.from(webstrateIds).sort()
+      // console.dir(this.test)
+      
+    }).then(() => resolve())
+
+      // resolve()
+      
+    })
+
+  },
   computed: {
     padded() {
       const width = this.cellSize * 7 - this.margin.right - this.margin.left
@@ -224,32 +267,14 @@ window.MonthViewComponent = Vue.component('month-view', {
   },
 
   
-  async mounted() {
+  // async mounted() {
+  mounted() {
+    
 
-    // var1 = new Promise((resolve,reject) => {
-    //    setTimeout(() => {
-    //      const month = this.month
-    //      const year = this.year
-    //      const maxWebstrates = this.maxWebstrates
-    //      console.log(month)
-    //      resolve()
-    //    }, 6000) 
-    // })
-    
-    // main issue here is that month is not defined right from start, so
-    // do chaining
+    this.waitData.then(() => console.dir(this.test))
+      
 
-    // var1.then((month, year, maxWebstrates) => {dataFetcher('month', {month, year, maxWebstrates })}
-    //          )    
-        
-    const month = this.month
-    const year = this.year
-    const maxWebstrates = this.maxWebstrates
-    
-    this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
-      month: 'long', year: 'numeric'})
-    
-    dataFetcher('month', { month, year, maxWebstrates}).then(async (days) => {
+    dataFetcher('month').then(async (days) => {
       
       let webstrateIds = new Set();
       let effortTotal = new Set();
@@ -264,9 +289,8 @@ window.MonthViewComponent = Vue.component('month-view', {
         })
       })
 
+      webstrateIds = Array.from(webstrateIds).sort()
       
-      webstrateIds = Array.from(webstrateIds).sort();
-
       // scalar is used to calculate the sizes of the circles. They need to be different sizes,
       // so we can distinguish very active webstrates from not-so-active webstrates. However, a
       // linear scaling usually doesn't give us a very good representation, so we just do some
@@ -308,6 +332,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       this.mainD3()
       this.mainD3Second(days, d3colorsQuantizeMonth, d3colorsQuantileMonth)
       
-    });
+    })
   }
-});
+})
