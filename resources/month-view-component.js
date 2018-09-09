@@ -28,17 +28,16 @@ window.MonthViewComponent = Vue.component('month-view', {
     totalAcitvityPerMotnh: [],
     maxOps: 0,
     scalar: 0,
+    svg: [],
     groups: []
   }),
   watch: {
     month: function(oldValue, newValue) { 
     }
   },
-
   
-  // computed properties are cached, so, it seems reasonable to use them for parameters storing
-  // could be accessed in mounted using this.
-  // padded.width or padded.height are accessible later
+  // computed properties are cached, so, it seems reasonable to use them for parameters and functions
+  // storing. Could be accessed in mounted using this.
   
   computed: {
     padded() {
@@ -68,26 +67,38 @@ window.MonthViewComponent = Vue.component('month-view', {
       this.groups.selectAll('circle.activity')
         .style('fill', ({}) => ("yellow"))
     },
-    // colorQuantileScaling: function(data) {
-    //   d3.scaleQuantile()
-    //     .domain(data) // pass the whole dataset
-    //     .range(['blue', 'red', "yellow"])
-    // },
-    // colorQuantizeScaling: function(data){
-    //   d3.scaleQuantize()
-    //     .domain(d3.extent(data)) // max and min of data
-    //     .range(['blue', 'red', "yellow"])
-    // },
-    firstMethod: function(groups, cellSize, date, d3week, d3day) {
-      groups
+    mainD3: function() {
+
+      this.svg = d3.select(this.$el.querySelector('svg'))
+        .attr("width", this.padded.width)
+        .attr("height", this.padded.height)
+        .append("g")
+        .attr("transform", "translate(" + (this.margin.left + (this.padded.width - this.cellSize * 7) / 2) + ","
+              + (this.margin.top + (this.padded.height - this.cellSize * 6) / 2) + ")")
+
+      this.groups = this.svg.selectAll("g.day")
+        .data(this.d3Const.dayRange)
+        .enter()
+        .append("g")
+        .attr('day', d => d.getDate())
+
+
+      this.groups
         .append('rect')
         .attr("class", "day")
-        .attr("width", cellSize)
-        .attr("height", cellSize)
-        .attr("x", date => d3day(date) * cellSize)
-        .attr("y", date => (d3week(date) - d3week(new Date(date.getFullYear(),
-                                                          date.getMonth(), 1))) * cellSize)
-      console.log('success')
+        .attr("width", this.cellSize)
+        .attr("height", this.cellSize)
+        .attr("x", date => this.d3Const.d3day(date) * this.cellSize)
+        .attr("y", date => (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
+                                                                                    date.getMonth(), 1))) * this.cellSize)
+
+      this.groups
+        .append('text')
+        .attr("x", date => 5 + this.d3Const.d3day(date) * this.cellSize)
+        .attr("y", date => 15 + (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
+                                                                                         date.getMonth(), 1))) * this.cellSize)
+        .text(d => d.getDate())
+
     },
     // calculateCircleCoodrinates: function(circles, scalar, cellSize) {
     // (circles, scalar, cellSize) => new Promise((accept, reject) => {
@@ -163,7 +174,6 @@ window.MonthViewComponent = Vue.component('month-view', {
     async callDays(days){
       let call1 = await this.getMonth() // let call = await dataFetcher('month', { month, year, maxWebstrates })
     },
-    
     async nestedFunction() {
       // const month = this.month
       // const year = this.year
@@ -210,6 +220,7 @@ window.MonthViewComponent = Vue.component('month-view', {
       
       let webstrateIds = new Set();
       let effortTotal = new Set();
+      
       Object.values(days).forEach(day => {
         Object.keys(day).forEach(webstrateId => {
           webstrateIds.add(webstrateId)
@@ -222,14 +233,6 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       
       webstrateIds = Array.from(webstrateIds).sort();
-      
-      d3colors = d3.scaleOrdinal(d3.schemeCategory20);
-      d3colors.domain(webstrateIds)
-      // console.log('emit', this.$refs);
-      setTimeout(() => console.log(this.$refs), 1000);
-      this.$emit('webstrateIds', webstrateIds);
-      // this.$emit('webstrateIds', webstrateIds, d3colors); // old version
-
 
       // scalar is used to calculate the sizes of the circles. They need to be different sizes,
       // so we can distinguish very active webstrates from not-so-active webstrates. However, a
@@ -255,8 +258,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       }
       
       delete days[0];
-
-     
       
       // ----- Monthly Basis
       try {
@@ -273,38 +274,8 @@ window.MonthViewComponent = Vue.component('month-view', {
       var d3colorsQuantizeMonth = this.d3Scaling.colorQuantizeScaling(this.totalAcitvityPerMotnh)
       var d3colorsQuantileMonth = this.d3Scaling.colorQuantileScaling(this.totalAcitvityPerMotnh)
 
+      this.mainD3()
       
-      const svg = d3.select(this.$el.querySelector('svg'))
-            .attr("width", this.padded.width)
-            .attr("height", this.padded.height)
-            .append("g")
-            .attr("transform", "translate(" + (this.margin.left + (this.padded.width - this.cellSize * 7) / 2) + ","
-                  + (this.margin.top + (this.padded.height - this.cellSize * 6) / 2) + ")");
-
-      this.groups = svg.selectAll("g.day")
-        .data(this.d3Const.dayRange)
-        .enter()
-        .append("g")
-        .attr('day', d => d.getDate());
-
-
-      this.firstMethod(this.groups, this.cellSize, this.date, this.d3Const.d3week, this.d3Const.d3day)      
-      // groups
-      //   .append('rect')
-      //   .attr("class", "day")
-      //   .attr("width", this.cellSize)
-      //   .attr("height", this.cellSize)
-      //   .attr("x", date => d3day(date) * this.cellSize)
-      //   .attr("y", date => (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
-      //     date.getMonth(), 1))) * this.cellSize)
-
-      this.groups
-        .append('text')
-        .attr("x", date => 5 + this.d3Const.d3day(date) * this.cellSize)
-        .attr("y", date => 15 + (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
-          date.getMonth(), 1))) * this.cellSize)
-        .text(d => d.getDate())
-
       this.groups.selectAll('circle.activity')
         .data((index, data, x) => {
           const date = index;
@@ -340,7 +311,6 @@ window.MonthViewComponent = Vue.component('month-view', {
         .attr('cy', ({ date, activities }) => (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
           date.getMonth(), 1))) * this.cellSize + activities.position.y + activities.radius / 2)
         .attr('r', ({ activities }) => activities.radius)
-        // .style('fill', ({ webstrateId }) => d3colors(webstrateId)) // OLD VERSION
         .style('fill', ({ colorQ }) => colorQ) // DAILY BASIS
         // .style('fill', ({ scaling, colorMonthQ, colorQ }) => (transformedScaling == "changed") ? colorMonthQ : colorQ) // MONTHLY BASIS
         .attr('webstrateId', ({ webstrateId }) => webstrateId)
