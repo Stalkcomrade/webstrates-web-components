@@ -100,6 +100,53 @@ window.MonthViewComponent = Vue.component('month-view', {
         .text(d => d.getDate())
 
     },
+
+    mainD3Second: function(days, d3colorsQuantizeMonth, d3colorsQuantileMonth) {
+
+      this.groups.selectAll('circle.activity')
+        .data((index, data, x) => {
+          const date = index;
+          var x = Object.keys(days[date.getDate()] || {})
+              .map(webstrateId => ({
+                date, webstrateId, activities: days[date.getDate()][webstrateId],
+              }))
+              .sort((a, b) => b.activities - a.activities)
+
+
+          x.forEach(webstrateId => { webstrateId.radius = webstrateId.activities.radius; })
+          var arrayRadius = x.map(webstrateId => webstrateId.radius) // ADDED THIS TO DATA
+          
+          var d3colorsQuantile = this.d3Scaling.colorQuantileScaling(arrayRadius)
+          var d3colorsQuantize = this.d3Scaling.colorQuantizeScaling(arrayRadius)
+
+          // ----------- Day-based Scaling
+          x.forEach(webstrateId => { webstrateId.color = d3colorsQuantile(webstrateId.radius) })
+          x.forEach(webstrateId => { webstrateId.colorQ = d3colorsQuantize(webstrateId.radius) })
+          // ----------- Month-based Scaling
+          x.forEach(webstrateId => { webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius) })
+          x.forEach(webstrateId => { webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius) })
+
+          return x;
+        }
+             )
+        .enter()
+        .append('a')
+        .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
+        .append('circle')
+        .attr('class', () => 'activity')
+        .attr('cx', ({ date, activities }) => this.d3Const.d3day(date) * this.cellSize + activities.position.x + activities.radius / 2)
+        .attr('cy', ({ date, activities }) => (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
+                                                                                                       date.getMonth(), 1))) * this.cellSize + activities.position.y + activities.radius / 2)
+        .attr('r', ({ activities }) => activities.radius)
+        .style('fill', ({ colorQ }) => colorQ) // DAILY BASIS
+      // .style('fill', ({ scaling, colorMonthQ, colorQ }) => (transformedScaling == "changed") ? colorMonthQ : colorQ) // MONTHLY BASIS
+        .attr('webstrateId', ({ webstrateId }) => webstrateId)
+        .append('svg:title')
+        .text(({ webstrateId, activities }) => webstrateId + "\n" + activities.radius) // added info about radius ~ to activity
+
+      
+    },
+    
     // calculateCircleCoodrinates: function(circles, scalar, cellSize) {
     // (circles, scalar, cellSize) => new Promise((accept, reject) => {
     calculateCircleCoodrinates: function(circles, scalar, cellSize) {
@@ -275,47 +322,8 @@ window.MonthViewComponent = Vue.component('month-view', {
       var d3colorsQuantileMonth = this.d3Scaling.colorQuantileScaling(this.totalAcitvityPerMotnh)
 
       this.mainD3()
+      this.mainD3Second(days, d3colorsQuantizeMonth, d3colorsQuantileMonth)
       
-      this.groups.selectAll('circle.activity')
-        .data((index, data, x) => {
-          const date = index;
-          var x = Object.keys(days[date.getDate()] || {})
-            .map(webstrateId => ({
-              date, webstrateId, activities: days[date.getDate()][webstrateId],
-            }))
-            .sort((a, b) => b.activities - a.activities)
-
-
-          x.forEach(webstrateId => { webstrateId.radius = webstrateId.activities.radius; })
-          var arrayRadius = x.map(webstrateId => webstrateId.radius) // ADDED THIS TO DATA
-        
-          var d3colorsQuantile = this.d3Scaling.colorQuantileScaling(arrayRadius)
-          var d3colorsQuantize = this.d3Scaling.colorQuantizeScaling(arrayRadius)
-
-          // ----------- Day-based Scaling
-          x.forEach(webstrateId => { webstrateId.color = d3colorsQuantile(webstrateId.radius) })
-          x.forEach(webstrateId => { webstrateId.colorQ = d3colorsQuantize(webstrateId.radius) })
-          // ----------- Month-based Scaling
-          x.forEach(webstrateId => { webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius) })
-          x.forEach(webstrateId => { webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius) })
-
-          return x;
-        }
-        )
-        .enter()
-        .append('a')
-        .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
-        .append('circle')
-        .attr('class', () => 'activity')
-        .attr('cx', ({ date, activities }) => this.d3Const.d3day(date) * this.cellSize + activities.position.x + activities.radius / 2)
-        .attr('cy', ({ date, activities }) => (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
-          date.getMonth(), 1))) * this.cellSize + activities.position.y + activities.radius / 2)
-        .attr('r', ({ activities }) => activities.radius)
-        .style('fill', ({ colorQ }) => colorQ) // DAILY BASIS
-        // .style('fill', ({ scaling, colorMonthQ, colorQ }) => (transformedScaling == "changed") ? colorMonthQ : colorQ) // MONTHLY BASIS
-        .attr('webstrateId', ({ webstrateId }) => webstrateId)
-        .append('svg:title')
-        .text(({ webstrateId, activities }) => webstrateId + "\n" + activities.radius) // added info about radius ~ to activity
     });
   }
 });
