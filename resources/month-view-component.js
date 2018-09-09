@@ -6,7 +6,8 @@ window.MonthViewComponent = Vue.component('month-view', {
 		<h2>{{ date }}</h2>
 		<h3>{{ month }}</h3>
 		<button @click="">Prev</button>
-        <button @click="changeScaling()">scl</button>
+        <button @click="update()">scl</button>
+        <button @click="updateScaling()">UPD SCL</button>
 		<svg></svg>
 		<webstrate-legend/>
             	</div>`,  
@@ -35,11 +36,7 @@ window.MonthViewComponent = Vue.component('month-view', {
   // },
 
   watch: {
-    month: function(oldValue, newValue) {},    
-    transformedScaling: function(newValue, oldValue) {
-      this.update()
-      console.log("Scaling has changed")
-      console.log(newValue, oldValue)
+    month: function(oldValue, newValue) { 
     }
   },
 
@@ -54,17 +51,20 @@ window.MonthViewComponent = Vue.component('month-view', {
       const height = this.cellSize * 5 - this.margin.top - this.margin.bottom
       return { width, height }
     },
-    transformedScaling: {
-      get: function () {
-        return this.scaling
-      },
-      set: function (newValue) { // FIXME: set newValue instead of just returning scaling
-        return this.scaling
-      }
+    d3Const() {
+      const d3week = d3.timeFormat("%V")
+      const dayRange = d3.timeDays(new Date(this.year, this.month - 1, 1), new Date(this.year, this.month, 1))
+      const d3day = (date) => d3.timeFormat("%u")(date) - 1
+      return { d3week, dayRange, d3day }
     }
   },
 
   methods: {
+    updateScaling() {
+      this.groups.selectAll('circle.activity')
+        .style('fill', ({ scaling, colorMonthQ, colorQ }) => (colorMonthQ)) // MONTHLY BASIS
+
+    },
     update() {
       this.groups.selectAll('circle.activity')
         .style('fill', ({}) => ("yellow"))
@@ -140,9 +140,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       }      
       delete days[0];
     },
-    changeScaling: function() {
-      this.scaling = "changed" // FIXME: fix the absolute 
-    },
     methodMonth: function() {
       return new Promise((resolve,reject) => {
         setTimeout(() => {
@@ -208,11 +205,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       month: 'long', year: 'numeric'})
     
     dataFetcher('month', { month, year, maxWebstrates}).then(async (days) => {
-
-
-      // this.test = 2
-      // console.log(this.test)
-      // console.log(this.totalAcitvityPerMotnh)
       
       let webstrateIds = new Set();
       let effortTotal = new Set();
@@ -252,7 +244,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       this.scalar = 1 / (this.maxOps / (this.cellSize / 19)); // after all, changes the diameter of the webstrates actitivity
 
 
-
       // ALL IN THE ABOVE MIGHT BE MOVED to ANOTHER BLOCK
       
       // days is here indexed properly, starting from 1.
@@ -268,10 +259,9 @@ window.MonthViewComponent = Vue.component('month-view', {
         days[i + 1] = days[i];
       }
       
-      // delete days[0];
+      delete days[0];
 
-      // console.dir(days)
-      // const totalAcitvityPerMotnh = []
+     
       
       // ----- Monthly Basis
       try {
@@ -293,12 +283,10 @@ window.MonthViewComponent = Vue.component('month-view', {
         .range(['blue', 'red', "yellow"])
 
       
-
       
-      const d3format = d3.timeFormat("%Y-%m-%d");
-      const d3week = d3.timeFormat("%V");
-      const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
-      const d3day = (date) => d3.timeFormat("%u")(date) - 1;
+      // const d3week = d3.timeFormat("%V");
+      // const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
+      // const d3day = (date) => d3.timeFormat("%u")(date) - 1;
 
       const svg = d3.select(this.$el.querySelector('svg'))
         .attr("width", this.padded.width)
@@ -308,34 +296,28 @@ window.MonthViewComponent = Vue.component('month-view', {
                   + (this.margin.top + (this.padded.height - this.cellSize * 6) / 2) + ")");
 
       this.groups = svg.selectAll("g.day")
-        .data(dayRange)
+        .data(this.d3Const.dayRange)
         .enter()
         .append("g")
         .attr('day', d => d.getDate());
 
 
-      this.firstMethod(this.groups, this.cellSize, this.date, d3week, d3day)      
+      this.firstMethod(this.groups, this.cellSize, this.date, this.d3Const.d3week, this.d3Const.d3day)      
       // groups
       //   .append('rect')
       //   .attr("class", "day")
       //   .attr("width", this.cellSize)
       //   .attr("height", this.cellSize)
       //   .attr("x", date => d3day(date) * this.cellSize)
-      //   .attr("y", date => (d3week(date) - d3week(new Date(date.getFullYear(),
+      //   .attr("y", date => (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
       //     date.getMonth(), 1))) * this.cellSize)
 
       this.groups
         .append('text')
-        .attr("x", date => 5 + d3day(date) * this.cellSize)
-        .attr("y", date => 15 + (d3week(date) - d3week(new Date(date.getFullYear(),
+        .attr("x", date => 5 + this.d3Const.d3day(date) * this.cellSize)
+        .attr("y", date => 15 + (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
           date.getMonth(), 1))) * this.cellSize)
         .text(d => d.getDate())
-
-      // const today = new Date();      
-      // const isSameDay = (a, b = today) =>
-      //   a.getDate() === b.getDate()
-      //   && a.getMonth() === b.getMonth()
-      //   && a.getFullYear() === b.getFullYear();
 
       this.groups.selectAll('circle.activity')
         .data((index, data, x) => {
@@ -349,25 +331,19 @@ window.MonthViewComponent = Vue.component('month-view', {
 
           x.forEach(webstrateId => { webstrateId.radius = webstrateId.activities.radius; })
           var arrayRadius = x.map(webstrateId => webstrateId.radius) // ADDED THIS TO DATA
-          // var arrayRadius = x.map(webstrateId => webstrateId.radius) // ADDED THIS TO DATA
         
           
           var d3colorsQuantile = d3.scaleQuantile()
               .domain(arrayRadius) // pass the whole dataset
               .range(['blue', 'red', "yellow"])
-
-
           var d3colorsQuantize = d3.scaleQuantize()
               .domain(d3.extent(arrayRadius)) // mix and man of data
               .range(['blue', 'red', "yellow"])
 
           // ----------- Day-based Scaling
-          
           x.forEach(webstrateId => { webstrateId.color = d3colorsQuantile(webstrateId.radius) })
           x.forEach(webstrateId => { webstrateId.colorQ = d3colorsQuantize(webstrateId.radius) })
-
           // ----------- Month-based Scaling
-
           x.forEach(webstrateId => { webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius) })
           x.forEach(webstrateId => { webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius) })
 
@@ -379,42 +355,20 @@ window.MonthViewComponent = Vue.component('month-view', {
         .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
         .append('circle')
         .attr('class', () => 'activity')
-        .attr('cx', ({ date, activities }) => d3day(date) * this.cellSize + activities.position.x + activities.radius / 2)
-        .attr('cy', ({ date, activities }) => (d3week(date) - d3week(new Date(date.getFullYear(),
+        .attr('cx', ({ date, activities }) => this.d3Const.d3day(date) * this.cellSize + activities.position.x + activities.radius / 2)
+        .attr('cy', ({ date, activities }) => (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
           date.getMonth(), 1))) * this.cellSize + activities.position.y + activities.radius / 2)
         .attr('r', ({ activities }) => activities.radius)
         // .style('fill', ({ webstrateId }) => d3colors(webstrateId)) // OLD VERSION
         // .style('fill', ({ colorQ }) => colorQ) // DAILY BASIS
         .style('fill', ({ scaling, colorMonthQ, colorQ }) => (transformedScaling == "changed") ? colorMonthQ : colorQ) // MONTHLY BASIS
-        // .style('fill', ({ webstrateId, radius }) => {
-        //   d3ColorsQuantile = d3.scaleQuantize()
-        //     .domain(d3.extent(radius))
-        //     .range(['blue', 'red'])
-
-        // })
         .attr('webstrateId', ({ webstrateId }) => webstrateId)
         .append('svg:title')
         .text(({ webstrateId, activities }) => webstrateId + "\n" + activities.radius) // added info about radius ~ to activity
     });
   }
 });
-    // });
 
-// function random(min, max, intResult) {
-//   if (typeof min !== 'number' && typeof max !== 'number') {
-//     min = 0;
-//     max = 1;
-//   }
-//   if (typeof max !== 'number') {
-//     max = min;
-//     min = 0;
-//   }
-//   var result = min + Math.random() * (max - min);
-//   if (intResult) {
-//     result = parseInt(result, 10);
-//   }
-//   return result;
-    // }
 
 const calculateCircleCoordinates = (circles, scalar, cellSize) => new Promise((accept, reject) => {
   if (!circles || Object.keys(circles).length === 0) {
