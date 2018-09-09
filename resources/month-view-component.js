@@ -5,6 +5,7 @@ window.MonthViewComponent = Vue.component('month-view', {
   template: `<div>
 		<h2>{{ date }}</h2>
 		<h3>{{ month }}</h3>
+        <p> Message: {{ todoHovered }} </p>
 		<button @click="">Prev</button>
         <button @click="update()">scl</button>
         <button @click="updateScaling()">UPD SCL</button>
@@ -34,7 +35,8 @@ window.MonthViewComponent = Vue.component('month-view', {
     svg: [],
     groups: [],
     test: [],
-    waitData: []
+    waitData: [],
+    todoHovered: "hover smth"
   }),
   watch: {
     month: function(oldValue, newValue) { 
@@ -229,7 +231,15 @@ window.MonthViewComponent = Vue.component('month-view', {
         .append('svg:title')
         .text(({ webstrateId, activities }) => webstrateId + "\n" + activities.radius) // added info about radius ~ to activity
 
+      this.groups.on("mouseover", this.showMessage)
+
       
+    },
+    showMessage(d) {
+      this.todoHovered = `${Object.keys(d)}`
+      this.todoHovered = d
+      console.dir(this.groups.data())
+      console.dir(this.todoHovered)
     },
     resolvePromises: async function(promises, days){
       days = await Promise.all(promises);
