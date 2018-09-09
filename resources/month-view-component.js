@@ -55,9 +55,52 @@ window.MonthViewComponent = Vue.component('month-view', {
       const colorQuantileScaling = (data) => d3.scaleQuantile().domain(data).range(['blue', 'red', "yellow"])
       const colorQuantizeScaling = (data) => d3.scaleQuantize().domain(d3.extent(data)).range(['blue', 'red', "yellow"])
       return { colorQuantileScaling, colorQuantizeScaling }
+    },
+    circleCoords() {
+
+      var calculateCircleCoodrinates = (circles, scalar, cellSize) => new Promise((accept, reject) => {
+        
+        if (!circles || Object.keys(circles).length === 0) {
+          accept([]);
+        }
+
+        let x = 0, y = -100;
+        
+        circles = Object.keys(circles).map((webstrateId) => {
+          const radius = Math.max(cellSize / 25, Math.log(circles[webstrateId]) * scalar);
+          if (x + radius >= cellSize / 5) {
+            x = radius;
+            y += (cellSize / 6) % cellSize;
+          } else {
+            x += radius;
+          }
+          return {
+            id: webstrateId,
+            radius: radius,
+            position: {
+              x: x, //random( radius, cellSize - radius ),
+              y: y //random( radius, cellSize - radius )
+            }
+          }
+          
+        })
+
+        const packerOptions = {
+          target: { x: cellSize / 2, y: cellSize / 2 },
+          bounds: { width: cellSize, height: cellSize },
+          circles: circles,
+          continuousMode: false,
+          collisionPasses: 150,
+          centeringPasses: 50,
+          onMove: accept}
+        
+        const packer = new CirclePacker(packerOptions);
+        packer.update()
+        
+      })
+      return { calculateCircleCoodrinates }
     }
   },
-
   methods: {
     updateScaling() {
       this.groups.selectAll('circle.activity')
@@ -100,7 +143,6 @@ window.MonthViewComponent = Vue.component('month-view', {
         .text(d => d.getDate())
 
     },
-
     mainD3Second: function(days, d3colorsQuantizeMonth, d3colorsQuantileMonth) {
 
       this.groups.selectAll('circle.activity')
@@ -146,60 +188,6 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       
     },
-    
-    // calculateCircleCoodrinates: function(circles, scalar, cellSize) {
-    // (circles, scalar, cellSize) => new Promise((accept, reject) => {
-    calculateCircleCoodrinates: function(circles, scalar, cellSize) {
-
-      new Promise((accept, reject) => {
-        
-        if (!circles || Object.keys(circles).length === 0) {
-          accept([]);
-        }
-
-        let x = 0, y = -100;
-        // console.log(x)
-        
-        circles = Object.keys(circles).map((webstrateId) => {
-          
-          const radius = Math.max(cellSize / 25, Math.log(circles[webstrateId]) * scalar);
-          
-          if (x + radius >= cellSize / 5) {
-            x = radius;
-            // console.log("Inside if stm")
-            y += (cellSize / 6) % cellSize;
-          } else {
-            x += radius;
-            // console.log("Inside else stm")
-          }
-          return {
-            id: webstrateId,
-            radius: radius,
-            position: {
-              x: x, //random( radius, cellSize - radius ),
-              y: y //random( radius, cellSize - radius )
-            }
-          }
-          
-        })
-
-        // console.log(y,x)
-        
-        const packerOptions = {
-          target: { x: cellSize / 2, y: cellSize / 2 },
-          bounds: { width: cellSize, height: cellSize },
-          circles: circles,
-          continuousMode: false,
-          collisionPasses: 150,
-          centeringPasses: 50,
-          onMove: accept
-        }
-
-        const packer = new CirclePacker(packerOptions);
-        packer.update()
-        
-      })
-    },
     resolvePromises: async function(promises, days){
       days = await Promise.all(promises);
       for (let i = days.length; i; --i) {
@@ -217,7 +205,6 @@ window.MonthViewComponent = Vue.component('month-view', {
         }, 6000) 
       })       
     },
-
     async callDays(days){
       let call1 = await this.getMonth() // let call = await dataFetcher('month', { month, year, maxWebstrates })
     },
@@ -239,7 +226,6 @@ window.MonthViewComponent = Vue.component('month-view', {
   
   async mounted() {
 
-  
     // var1 = new Promise((resolve,reject) => {
     //    setTimeout(() => {
     //      const month = this.month
@@ -254,12 +240,12 @@ window.MonthViewComponent = Vue.component('month-view', {
     // do chaining
 
     // var1.then((month, year, maxWebstrates) => {dataFetcher('month', {month, year, maxWebstrates })}
-    //          )
-    
+    //          )    
         
     const month = this.month
     const year = this.year
-    const maxWebstrates = this.maxWebstrates    
+    const maxWebstrates = this.maxWebstrates
+    
     this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
       month: 'long', year: 'numeric'})
     
@@ -292,12 +278,10 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       
       // days is here indexed properly, starting from 1.
-      const promises = Object.keys(days).map(day =>
-        calculateCircleCoordinates(days[day], this.scalar, this.cellSize));
+      const promises = Object.keys(days).map(day => this.circleCoords.calculateCircleCoodrinates(days[day], this.scalar, this.cellSize));
       // days has now become zero-indexed, so the data for the 1st of the month is at index position
       // 0 and so on. We'll correct this, so it now corresponds to what days looked like above.
 
-      // this.resolvePromises(promises, days)
       
       days = await Promise.all(promises);
       for (let i = days.length; i; --i) {
@@ -326,43 +310,4 @@ window.MonthViewComponent = Vue.component('month-view', {
       
     });
   }
-});
-
-
-const calculateCircleCoordinates = (circles, scalar, cellSize) => new Promise((accept, reject) => {
-  if (!circles || Object.keys(circles).length === 0) {
-    accept([]);
-  }
-
-  let x = 0, y = -100;
-  circles = Object.keys(circles).map((webstrateId) => {
-    const radius = Math.max(cellSize / 25, Math.log(circles[webstrateId]) * scalar);
-    if (x + radius >= cellSize / 5) {
-      x = radius;
-      y += (cellSize / 6) % cellSize;
-    } else {
-      x += radius;
-    }
-    return {
-      id: webstrateId,
-      radius: radius,
-      position: {
-        x: x, //random( radius, cellSize - radius ),
-        y: y //random( radius, cellSize - radius )
-      }
-    };
-  });
-
-  const packerOptions = {
-    target: { x: cellSize / 2, y: cellSize / 2 },
-    bounds: { width: cellSize, height: cellSize },
-    circles: circles,
-    continuousMode: false,
-    collisionPasses: 150,
-    centeringPasses: 50,
-    onMove: accept
-  };
-
-  const packer = new CirclePacker(packerOptions);
-  packer.update();
 });
