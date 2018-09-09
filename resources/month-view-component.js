@@ -30,11 +30,6 @@ window.MonthViewComponent = Vue.component('month-view', {
     scalar: 0,
     groups: []
   }),
-
-  // created: function(month, year, maxWebstrates) {
-  //     return {month, year, maxWebstrates}
-  // },
-
   watch: {
     month: function(oldValue, newValue) { 
     }
@@ -56,6 +51,11 @@ window.MonthViewComponent = Vue.component('month-view', {
       const dayRange = d3.timeDays(new Date(this.year, this.month - 1, 1), new Date(this.year, this.month, 1))
       const d3day = (date) => d3.timeFormat("%u")(date) - 1
       return { d3week, dayRange, d3day }
+    },
+    d3Scaling() {
+      const colorQuantileScaling = (data) => d3.scaleQuantile().domain(data).range(['blue', 'red', "yellow"])
+      const colorQuantizeScaling = (data) => d3.scaleQuantize().domain(d3.extent(data)).range(['blue', 'red', "yellow"])
+      return { colorQuantileScaling, colorQuantizeScaling }
     }
   },
 
@@ -63,12 +63,21 @@ window.MonthViewComponent = Vue.component('month-view', {
     updateScaling() {
       this.groups.selectAll('circle.activity')
         .style('fill', ({ scaling, colorMonthQ, colorQ }) => (colorMonthQ)) // MONTHLY BASIS
-
     },
     update() {
       this.groups.selectAll('circle.activity')
         .style('fill', ({}) => ("yellow"))
     },
+    // colorQuantileScaling: function(data) {
+    //   d3.scaleQuantile()
+    //     .domain(data) // pass the whole dataset
+    //     .range(['blue', 'red', "yellow"])
+    // },
+    // colorQuantizeScaling: function(data){
+    //   d3.scaleQuantize()
+    //     .domain(d3.extent(data)) // max and min of data
+    //     .range(['blue', 'red', "yellow"])
+    // },
     firstMethod: function(groups, cellSize, date, d3week, d3day) {
       groups
         .append('rect')
@@ -172,7 +181,7 @@ window.MonthViewComponent = Vue.component('month-view', {
 
   
   async mounted() {
-    let transformedScaling = "default"
+
   
     // var1 = new Promise((resolve,reject) => {
     //    setTimeout(() => {
@@ -183,21 +192,14 @@ window.MonthViewComponent = Vue.component('month-view', {
     //      resolve()
     //    }, 6000) 
     // })
+    
     // main issue here is that month is not defined right from start, so
     // do chaining
 
-
     // var1.then((month, year, maxWebstrates) => {dataFetcher('month', {month, year, maxWebstrates })}
     //          )
     
-    
-    // main issue here is that month is not defined right from start, so
-    // do chaining    
-    // var1.then((month, year, maxWebstrates) => {dataFetcher('month', {month, year, maxWebstrates })}
-    //          )
-    // this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
-    //   month: 'long', year: 'numeric'})
-    
+        
     const month = this.month
     const year = this.year
     const maxWebstrates = this.maxWebstrates    
@@ -219,11 +221,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       })
 
       
-
-      // console.log('emit', this.$refs);
-      // setTimeout(() => console.log(this.$refs), 1000);
-      // this.$emit('webstrateIds', webstrateIds, d3colorsQuant);
-
       webstrateIds = Array.from(webstrateIds).sort();
       
       d3colors = d3.scaleOrdinal(d3.schemeCategory20);
@@ -243,8 +240,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       this.maxOps = Math.log(d3.max(Object.values(days), (day) => d3.max(Object.values(day)))) / 2;
       this.scalar = 1 / (this.maxOps / (this.cellSize / 19)); // after all, changes the diameter of the webstrates actitivity
 
-
-      // ALL IN THE ABOVE MIGHT BE MOVED to ANOTHER BLOCK
       
       // days is here indexed properly, starting from 1.
       const promises = Object.keys(days).map(day =>
@@ -275,22 +270,13 @@ window.MonthViewComponent = Vue.component('month-view', {
         console.dir("Undefined is caught")
       }
       
-      var d3colorsQuantizeMonth = d3.scaleQuantize()
-        .domain(d3.extent(this.totalAcitvityPerMotnh)) // mix and man of data
-        .range(['blue', 'red', "yellow"])
-      var d3colorsQuantileMonth = d3.scaleQuantile()
-        .domain(this.totalAcitvityPerMotnh) // pass the whole dataset
-        .range(['blue', 'red', "yellow"])
+      var d3colorsQuantizeMonth = this.d3Scaling.colorQuantizeScaling(this.totalAcitvityPerMotnh)
+      var d3colorsQuantileMonth = this.d3Scaling.colorQuantileScaling(this.totalAcitvityPerMotnh)
 
       
-      
-      // const d3week = d3.timeFormat("%V");
-      // const dayRange = d3.timeDays(new Date(year, month - 1, 1), new Date(year, month, 1));
-      // const d3day = (date) => d3.timeFormat("%u")(date) - 1;
-
       const svg = d3.select(this.$el.querySelector('svg'))
-        .attr("width", this.padded.width)
-        .attr("height", this.padded.height)
+            .attr("width", this.padded.width)
+            .attr("height", this.padded.height)
             .append("g")
             .attr("transform", "translate(" + (this.margin.left + (this.padded.width - this.cellSize * 7) / 2) + ","
                   + (this.margin.top + (this.padded.height - this.cellSize * 6) / 2) + ")");
@@ -332,13 +318,8 @@ window.MonthViewComponent = Vue.component('month-view', {
           x.forEach(webstrateId => { webstrateId.radius = webstrateId.activities.radius; })
           var arrayRadius = x.map(webstrateId => webstrateId.radius) // ADDED THIS TO DATA
         
-          
-          var d3colorsQuantile = d3.scaleQuantile()
-              .domain(arrayRadius) // pass the whole dataset
-              .range(['blue', 'red', "yellow"])
-          var d3colorsQuantize = d3.scaleQuantize()
-              .domain(d3.extent(arrayRadius)) // mix and man of data
-              .range(['blue', 'red', "yellow"])
+          var d3colorsQuantile = this.d3Scaling.colorQuantileScaling(arrayRadius)
+          var d3colorsQuantize = this.d3Scaling.colorQuantizeScaling(arrayRadius)
 
           // ----------- Day-based Scaling
           x.forEach(webstrateId => { webstrateId.color = d3colorsQuantile(webstrateId.radius) })
@@ -360,8 +341,8 @@ window.MonthViewComponent = Vue.component('month-view', {
           date.getMonth(), 1))) * this.cellSize + activities.position.y + activities.radius / 2)
         .attr('r', ({ activities }) => activities.radius)
         // .style('fill', ({ webstrateId }) => d3colors(webstrateId)) // OLD VERSION
-        // .style('fill', ({ colorQ }) => colorQ) // DAILY BASIS
-        .style('fill', ({ scaling, colorMonthQ, colorQ }) => (transformedScaling == "changed") ? colorMonthQ : colorQ) // MONTHLY BASIS
+        .style('fill', ({ colorQ }) => colorQ) // DAILY BASIS
+        // .style('fill', ({ scaling, colorMonthQ, colorQ }) => (transformedScaling == "changed") ? colorMonthQ : colorQ) // MONTHLY BASIS
         .attr('webstrateId', ({ webstrateId }) => webstrateId)
         .append('svg:title')
         .text(({ webstrateId, activities }) => webstrateId + "\n" + activities.radius) // added info about radius ~ to activity
