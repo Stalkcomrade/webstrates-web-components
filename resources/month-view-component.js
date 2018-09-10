@@ -21,6 +21,10 @@ window.MonthViewComponent = Vue.component('month-view', {
         <button @click="updateScaling()">UPD SCL</button>
 
 		<svg></svg>
+
+         
+       <p> Message: {{ usersPerWs }} </p>
+
 		<webstrate-legend/>
             	</div>`,  
   components: {
@@ -34,8 +38,8 @@ window.MonthViewComponent = Vue.component('month-view', {
     selected: 'A',
     options: [
       { text: 'Default', value: 'A' },
-      { text: 'Month', value: 'B' },
-      { text: 'Yellow', value: 'C' }
+      { text: 'Month',   value: 'B' },
+      { text: 'Yellow',  value: 'C' }
     ],
     maxWebstrates: '',
     scaling: ['default', 'yellow', 'month'],
@@ -53,7 +57,8 @@ window.MonthViewComponent = Vue.component('month-view', {
     groups: [],
     test: [],
     waitData: [],
-    todoHovered: "hover smth"
+    todoHovered: "hover smth",
+    usersPerWs: ""
   }),
   watch: {
     month: function(oldValue, newValue) {
@@ -263,7 +268,7 @@ window.MonthViewComponent = Vue.component('month-view', {
           const date = index
           
           date.setMonth(8)
-          console.log(date.getDate())
+          // console.log(date.getDate())
           
           var x = Object.keys(days[date.getDate()] || {})
               .map(webstrateId => ({
@@ -308,7 +313,7 @@ window.MonthViewComponent = Vue.component('month-view', {
     },
     showMessage: function(d) {
       this.todoHovered = `${d}`
-      this.fetchActivity(d)
+      this.fetchActivity(d)      
     },
     resolvePromises: async function(promises, days) {
       days = await Promise.all(promises);
@@ -321,27 +326,28 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       const toDate = new Date()
       const fromDate = new Date()
-      
       fromDate.setDate(fromDate.getDate() - 7)
 
       const activityPromise = dataFetcher('activities', { webstrateId: webstrateIdInst, toDate, fromDate })
 
-      let usersPerWs = new Set()
+      let usersPerWsSet = new Set()
+      let arrFromSet = []
       
       activityPromise.then((data) => {
 
         Object.values(data).forEach(int => {
           Object.values(int).forEach(intN => {
-            usersPerWs.add(intN.userId)
+            usersPerWsSet.add(intN.userId)
             // console.dir(intN.userId)
           })
         })
-        console.dir(usersPerWs)
-        // console.dir(data)
-      })      
+       
+        arrFromSet = Array.from(usersPerWsSet)
+        this.usersPerWs = `${arrFromSet}`
+      })
+
     }
   },
-
   
   // async mounted() {
   mounted() {
@@ -413,3 +419,5 @@ window.MonthViewComponent = Vue.component('month-view', {
   updated() {}
     
 })
+
+
