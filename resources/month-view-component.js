@@ -6,9 +6,20 @@ window.MonthViewComponent = Vue.component('month-view', {
 		<h2>{{ date }}</h2>
 		<h3>{{ month }}</h3>
         <p> Message: {{ todoHovered }} </p>
-		<button @click="">Prev</button>
+
+        <select v-model="selected">
+          <option v-for="option in options" v-bind:value="option.value">
+               {{ option.text }}
+          </option>
+        </select>
+
+        <span>Selected: {{ selected }}</span>
+        <br><br>
+
+		<button @click="previousMonth()">Prev</button>
         <button @click="update()">scl</button>
         <button @click="updateScaling()">UPD SCL</button>
+
 		<svg></svg>
 		<webstrate-legend/>
             	</div>`,  
@@ -20,8 +31,14 @@ window.MonthViewComponent = Vue.component('month-view', {
     date: '',
     month: '',
     year: '',
+    selected: 'A',
+    options: [
+      { text: 'Default', value: 'A' },
+      { text: 'Month', value: 'B' },
+      { text: 'Yellow', value: 'C' }
+    ],
     maxWebstrates: '',
-    scaling: 'default',
+    scaling: ['default', 'yellow', 'month'],
     cellSize: 185,
     margin: {
       left: 0,
@@ -39,7 +56,21 @@ window.MonthViewComponent = Vue.component('month-view', {
     todoHovered: "hover smth"
   }),
   watch: {
-    month: function(oldValue, newValue) { 
+    month: function(oldValue, newValue) {
+      console.log(oldValue, newValue)
+    },
+    selected: function(oldValue, newValue) {
+      
+      if (this.selected == "A") {
+        this.groups.selectAll('circle.activity')
+          .style('fill', ({ scaling, colorMonthQ, colorQ }) => ("yellow"))
+      } else if (this.selected == "B") {
+        this.groups.selectAll('circle.activity')
+          .style('fill', ({ scaling, colorMonthQ, colorQ }) => (colorMonthQ))
+      } else {
+        this.groups.selectAll('circle.activity')
+          .style('fill', ({ scaling, colorMonthQ, colorQ }) => (colorQ))
+      }
     }
   },
   
@@ -54,8 +85,20 @@ window.MonthViewComponent = Vue.component('month-view', {
       this.year = this.yearProp
       this.maxWebstrates = this.maxWebstratesProp
       this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
-      month: 'long', year: 'numeric'})
+        month: 'long', year: 'numeric'})
 
+      this.fetchActivity()
+      
+      // const t = ((new Date).getMonth())
+      // console.log(t)
+      // const y = Number(this.year) || (new Date).getFullYear()
+      // const m = 20
+
+      // const month = Number(this.month) || ((new Date).getMonth() + 1);
+      // const maxWebstrates = this.maxWebstrates || 20;
+      // const year = Number(this.year) || (new Date).getFullYear();
+
+      // dataFetcher('month', {t, y, m}).then((days) => {
       dataFetcher('month').then((days) => {
       
       let webstrateIds = new Set();
@@ -75,8 +118,6 @@ window.MonthViewComponent = Vue.component('month-view', {
       webstrateIds = Array.from(webstrateIds).sort()
         this.test = Array.from(webstrateIds).sort()
 
-
-        
         // const date = index;
         // var x = Object.keys(days[date.getDate()] || {})
         //     .map(webstrateId => ({
@@ -170,6 +211,9 @@ window.MonthViewComponent = Vue.component('month-view', {
     }
   },
   methods: {
+    previousMonth() {
+      console.dir(this.month)
+    },
     updateScaling() {
       this.groups.selectAll('circle.activity')
         .style('fill', ({ scaling, colorMonthQ, colorQ }) => (colorMonthQ)) // MONTHLY BASIS
@@ -216,7 +260,11 @@ window.MonthViewComponent = Vue.component('month-view', {
       this.groups.selectAll('circle.activity')
         .data((index, data, x) => {
           // console.dir(x)
-          const date = index;
+          const date = index
+          
+          date.setMonth(8)
+          console.log(date.getDate())
+          
           var x = Object.keys(days[date.getDate()] || {})
               .map(webstrateId => ({
                 date, webstrateId, activities: days[date.getDate()][webstrateId],
@@ -260,39 +308,37 @@ window.MonthViewComponent = Vue.component('month-view', {
     },
     showMessage: function(d) {
       this.todoHovered = `${d}`
+      this.fetchActivity(d)
     },
-    resolvePromises: async function(promises, days){
+    resolvePromises: async function(promises, days) {
       days = await Promise.all(promises);
       for (let i = days.length; i; --i) {
         days[i + 1] = days[i];
       }      
       delete days[0];
     },
-    methodMonth: function() {
-      return new Promise((resolve,reject) => {
-        setTimeout(() => {
-          const month = this.month
-          const year = this.year
-          const maxWebstrates = this.maxWebstrates
-          console.log(month)
-        }, 6000) 
-      })       
-    },
-    async callDays(days){
-      let call1 = await this.getMonth() // let call = await dataFetcher('month', { month, year, maxWebstrates })
-    },
-    async nestedFunction() {
-      // const month = this.month
-      // const year = this.year
-      // const maxWebstrates = this.maxWebstrates      
-      // console.log(this.month)
-      await dataFetcher('month', {month, year, maxWebstrates })
-      console.log('success')
+    fetchActivity: function(webstrateIdInst) {
+
+      const toDate = new Date()
+      const fromDate = new Date()
       
-    },
-    // I am using this for construction of async functions
-    getMonthAsync: function() {
-      this.getMonth().then(this.nestedFunction())
+      fromDate.setDate(fromDate.getDate() - 7)
+
+      const activityPromise = dataFetcher('activities', { webstrateId: webstrateIdInst, toDate, fromDate })
+
+      let usersPerWs = new Set()
+      
+      activityPromise.then((data) => {
+
+        Object.values(data).forEach(int => {
+          Object.values(int).forEach(intN => {
+            usersPerWs.add(intN.userId)
+            // console.dir(intN.userId)
+          })
+        })
+        console.dir(usersPerWs)
+        // console.dir(data)
+      })      
     }
   },
 
@@ -300,7 +346,6 @@ window.MonthViewComponent = Vue.component('month-view', {
   // async mounted() {
   mounted() {
     
-
     this.waitData.then(() => console.dir(this.test))
       
 
@@ -363,5 +408,8 @@ window.MonthViewComponent = Vue.component('month-view', {
       this.mainD3Second(days, d3colorsQuantizeMonth, d3colorsQuantileMonth)
       
     })
-  }
+  },
+
+  updated() {}
+    
 })
