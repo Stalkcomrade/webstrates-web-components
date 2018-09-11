@@ -51,6 +51,9 @@ window.MonthViewComponent = Vue.component('month-view', {
       bottom: 10
     },
     totalAcitvityPerMotnh: [],
+    arrayRadius: [],
+    breaks: [],
+    colorQ: [],
     maxOps: 0,
     scalar: 0,
     svg: [],
@@ -62,7 +65,7 @@ window.MonthViewComponent = Vue.component('month-view', {
   }),
   watch: {
     month: function(oldValue, newValue) {
-      console.log(oldValue, newValue)
+   //   console.log(oldValue, newValue)
     },
     selected: function(oldValue, newValue) {
       
@@ -143,10 +146,6 @@ window.MonthViewComponent = Vue.component('month-view', {
         // // ----------- Month-based Scaling
         // x.forEach(webstrateId => { webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius) })
         // x.forEach(webstrateId => { webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius) })
-
-
-
-
         
       
     }).then(() => resolve())
@@ -167,7 +166,9 @@ window.MonthViewComponent = Vue.component('month-view', {
     },
     d3Scaling() {
       const colorQuantileScaling = (data) => d3.scaleQuantile().domain(data).range(['blue', 'red', "yellow"])
-      const colorQuantizeScaling = (data) => d3.scaleQuantize().domain(d3.extent(data)).range(['blue', 'red', "yellow"])
+      const colorQuantizeScaling = (data) => d3.scaleQuantize()
+            .domain(d3.extent(data))
+            .range(['blue', 'red', "yellow"])
       return { colorQuantileScaling, colorQuantizeScaling }
     },
     circleCoords() {
@@ -217,7 +218,7 @@ window.MonthViewComponent = Vue.component('month-view', {
   },
   methods: {
     previousMonth() {
-      console.dir(this.month)
+  //    console.dir(this.month)
     },
     updateScaling() {
       this.groups.selectAll('circle.activity')
@@ -265,11 +266,7 @@ window.MonthViewComponent = Vue.component('month-view', {
       this.groups.selectAll('circle.activity')
         .data((index, data, x) => {
           // console.dir(x)
-          const date = index
-          
-          date.setMonth(8)
-          // console.log(date.getDate())
-          
+          const date = index 
           var x = Object.keys(days[date.getDate()] || {})
               .map(webstrateId => ({
                 date, webstrateId, activities: days[date.getDate()][webstrateId],
@@ -279,19 +276,37 @@ window.MonthViewComponent = Vue.component('month-view', {
 
           x.forEach(webstrateId => { webstrateId.radius = webstrateId.activities.radius; })
           var arrayRadius = x.map(webstrateId => webstrateId.radius) // ADDED THIS TO DATA
+          this.arrayRadius = arrayRadius
           
           var d3colorsQuantile = this.d3Scaling.colorQuantileScaling(arrayRadius)
           var d3colorsQuantize = this.d3Scaling.colorQuantizeScaling(arrayRadius)
-
+          let colorQSet = new Set()
+          
           // ----------- Day-based Scaling
           x.forEach(webstrateId => { webstrateId.color = d3colorsQuantile(webstrateId.radius) })
-          x.forEach(webstrateId => { webstrateId.colorQ = d3colorsQuantize(webstrateId.radius) })
+          x.forEach(webstrateId => {
+            
+            webstrateId.colorQ = d3colorsQuantize(webstrateId.radius)
+            colorQSet.add(webstrateId.colorq)
+
+          })
+
+
+          this.colorQ = colorQSet
+          
           // ----------- Month-based Scaling
-          x.forEach(webstrateId => { webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius) })
+          x.forEach(webstrateId => {
+            
+            webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius)
+
+          })
           x.forEach(webstrateId => { webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius) })
 
-          return x;
+          // this.$emit('webstrateIds', this.colorQ, this.arrayRadius) // is used to trigger listener in another component
+          
+          return x
         }
+ 
              )
         .enter()
         .append('a')
@@ -352,13 +367,12 @@ window.MonthViewComponent = Vue.component('month-view', {
   // async mounted() {
   mounted() {
     
-    this.waitData.then(() => console.dir(this.test))
-      
+    this.waitData.then(() => console.dir(this.test))      
 
     dataFetcher('month').then(async (days) => {
       
-      let webstrateIds = new Set();
-      let effortTotal = new Set();
+      let webstrateIds = new Set()
+      let effortTotal = new Set()
       
       Object.values(days).forEach(day => {
         Object.keys(day).forEach(webstrateId => {
@@ -371,6 +385,7 @@ window.MonthViewComponent = Vue.component('month-view', {
       })
 
       webstrateIds = Array.from(webstrateIds).sort()
+      // this.$emit('webstrateIds', webstrateIds) // is used to trigger listener in another component
       
       // scalar is used to calculate the sizes of the circles. They need to be different sizes,
       // so we can distinguish very active webstrates from not-so-active webstrates. However, a
@@ -378,8 +393,8 @@ window.MonthViewComponent = Vue.component('month-view', {
       // random trial-and-error Math here. There's no great insight to be had, other than the fact
       // that we're using a logarithmic scale.
 
-      this.maxOps = Math.log(d3.max(Object.values(days), (day) => d3.max(Object.values(day)))) / 2;
-      this.scalar = 1 / (this.maxOps / (this.cellSize / 19)); // after all, changes the diameter of the webstrates actitivity
+      this.maxOps = Math.log(d3.max(Object.values(days), (day) => d3.max(Object.values(day)))) / 2
+      this.scalar = 1 / (this.maxOps / (this.cellSize / 19)) // after all, changes the diameter of the webstrates actitivity
 
       
       // days is here indexed properly, starting from 1.
@@ -408,6 +423,18 @@ window.MonthViewComponent = Vue.component('month-view', {
       }
       
       var d3colorsQuantizeMonth = this.d3Scaling.colorQuantizeScaling(this.totalAcitvityPerMotnh)
+      this.d3colorsQuantizeMonth = d3colorsQuantizeMonth
+
+
+      var dom = d3colorsQuantizeMonth.domain(),
+          l = (dom[1] - dom[0])/d3colorsQuantizeMonth.range().length,
+          breaks = d3.range(0, d3colorsQuantizeMonth.range().length).map(function(i) { return i * l; })
+      
+      console.dir(breaks)
+      this.breaks = breaks
+
+      this.$emit('webstrateIds', this.colorQ, this.breaks) // is used to trigger listener in another component
+      
       var d3colorsQuantileMonth = this.d3Scaling.colorQuantileScaling(this.totalAcitvityPerMotnh)
 
       this.mainD3()

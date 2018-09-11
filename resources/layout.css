@@ -10,3 +10,7 @@ svg {
 svg text {
   fill: #000;
 }
+/* adding new class */
+.listStyle { 
+    color: ''
+}
