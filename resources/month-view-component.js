@@ -2,7 +2,8 @@ window.MonthViewComponent = Vue.component('month-view', {
   
   props: ['monthProp', 'yearProp', 'maxWebstratesProp'],
   
-  template: `<div>
+  template: `
+                <div>
 		<h2>{{ date }}</h2>
 		<h3>{{ month }}</h3>
         <p> Message: {{ todoHovered }} </p>
@@ -22,11 +23,21 @@ window.MonthViewComponent = Vue.component('month-view', {
 
 		<svg></svg>
 
+        <b-container class="bv-example-row">
+                <b-row>
+                   <b-col> Message: {{ usersPerWs }} </b-col>
+                   <b-col>2 of 3</b-col>
+                   <b-col>	<webstrate-legend/> </b-col>
+                </b-row>
+        </b-container>
          
-       <p> Message: {{ usersPerWs }} </p>
+            	</div>`,
 
-		<webstrate-legend/>
-            	</div>`,  
+        // <p> Message: {{ usersPerWs }} </p>
+
+		// <webstrate-legend/>
+
+  
   components: {
     'webstrate-legend-component': WebstrateLegendComponent
   },
@@ -44,7 +55,7 @@ window.MonthViewComponent = Vue.component('month-view', {
     maxWebstrates: '',
     scaling: ['default', 'yellow', 'month'],
     cellSize: 185,
-    margin: {
+    margin:{ 
       left: 0,
       right: 0,
       top: 185,
@@ -428,11 +439,15 @@ window.MonthViewComponent = Vue.component('month-view', {
 
       var dom = d3colorsQuantizeMonth.domain(),
           l = (dom[1] - dom[0])/d3colorsQuantizeMonth.range().length,
-          breaks = d3.range(0, d3colorsQuantizeMonth.range().length).map(function(i) { return i * l; })
-      
-      console.dir(breaks)
-      this.breaks = breaks
+          breaks = d3.range(dom[0], dom[1], l)
 
+      // console.dir(trueBreaks)
+      // console.dir(this.d3colorsQuantizeMonth(trueBreaks[0]))
+      // console.dir(this.d3colorsQuantizeMonth(trueBreaks[1]))
+      // console.dir(this.d3colorsQuantizeMonth(trueBreaks[2]))
+
+      
+      this.breaks = breaks
       this.$emit('webstrateIds', this.colorQ, this.breaks) // is used to trigger listener in another component
       
       var d3colorsQuantileMonth = this.d3Scaling.colorQuantileScaling(this.totalAcitvityPerMotnh)

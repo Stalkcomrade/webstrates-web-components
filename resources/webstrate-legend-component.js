@@ -15,36 +15,38 @@ window.WebstrateLegendComponent = Vue.component('webstrate-legend', {
       this.$parent.$on('webstrateIds', () => {
 	    // console.log('got it?', this.$parent.arrayRadius)
 
+        var lineheight = 14,
+            boxmargin = 4
+        
+        var title = ['Activity Thresholds'],
+            titleheight = title.length * lineheight + boxmargin
+        
         const legend = d3.select('ul#legend')
 
-	    const legendList = legend.selectAll('li')
+        legend.selectAll("text")
+          .data(title)
+          .enter()
+          .append("text")
+          .attr("class", "legend-title")
+          .attr("y", (d,i) => {return (i+1) * lineheight - 2})
+          .text((d) => {return d})
+
+        
+	    const legendList = legend.selectAll('div')
 			  .data(this.$parent.breaks)
 			  .enter()
-			  .append('li')
+			  .append('div')
 			  .attr('break', d => d)
-
-	    // legendList
-		//   .append('span')
-		//   .attr('class', 'color')
-		//   .style('background-color', d => this.$parent.d3colorsQuantizeMonth(d+0.1))
 
         legendList
 		  .append('svg')
           .attr('height', 20)
-          .attr('width', 20)
-
-        // legendListItems = legend.list.selectAll("")
-        
+          .attr('width', 20)  
           .append('circle')
           .attr('cx', 10)
           .attr('cy', 14.5)
           .attr('r', 5)
-		  // .attr('class', 'color')
 		  .style('fill', d => this.$parent.d3colorsQuantizeMonth(d))
-
-        console.dir(this.$parent.d3colorsQuantizeMonth(0))
-        console.dir(this.$parent.d3colorsQuantizeMonth(5))
-        console.dir(this.$parent.d3colorsQuantizeMonth(15))
         
 	    legendList
 		  .append('span')
