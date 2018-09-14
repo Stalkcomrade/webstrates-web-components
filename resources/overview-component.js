@@ -1,5 +1,9 @@
-window.OverviewComponent = Vue.component('overview', {
-	template: '<div>Overview</div>',
+
+window.OverviewComponent = Vue.component('overview', {  
+  template: `
+                <div>
+
+               </div>`,
 	data: () => ({
 		date: 'Loading...'
 	})
