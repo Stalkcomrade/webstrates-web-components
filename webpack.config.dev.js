@@ -1,9 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 
-const {
-  VueLoaderPlugin
-} = require('vue-loader')
+const { VueLoaderPlugin } = require('vue-loader')
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -12,10 +10,6 @@ function resolve (dir) {
 //     mode: 'development',
 
 module.exports = {
-  // chainWebpack: config => {
-  //   config.output.chunkFilename(`[name].[id].[chunkhash:8].js`)
-
-  // },
   entry: './resources/script.js',
   // entry: './resources/d3-metric-component-web.js',
   // entry: './resources/d3-metric-component.js',
@@ -26,6 +20,10 @@ module.exports = {
     path: path.resolve(__dirname, 'resources'),
     // publicPath: "/"
   },
+  // optimization: {
+  //        splitChunks: {
+  //          chunks: 'all'
+  //        },
   module: {
     rules: [{
       test: /\.vue$/,
@@ -44,45 +42,13 @@ module.exports = {
           ],
         },
         cacheBursting: true,
+        
       },
     },
-            // was working
-            // {
-            //   test: /\leaflet.css$/,
-            //   use: [{
-            //     loader: "style-loader"
-            //   },
-            //         {
-            //           loader: "css-loader"
-            //         }
-            //        ]
-            // },
             {
               test: /\.css$/,
               loader: 'style-loader!css-loader',
              },
-            // {
-            //   test: /\.css$/,
-            //   exclude: /\leaflet.css$/,
-            //   loaders: [
-            //     require.resolve('style-loader'),
-            //     require.resolve('css-loader')
-            //   ]
-            // },
-            // {
-            //   test: /\.css$/,
-            //   exclude: /\leaflet.fullscreen.css$/,
-            //   use: [
-            //     {loader: 'style-loader'},
-            //     {loader: 'extract-loader'},
-            //     {loader: 'css-loader',
-            //      options: {
-            //        modules: true
-            //        // url: false
-            //      }
-            //     }
-            //   ]
-            // },
             {
               test: /\.(png|jpg|gif|svg)$/,
               loader: 'file-loader',
@@ -90,11 +56,6 @@ module.exports = {
                 name: '[name].[ext]?[hash]'
               }
             },
-            // {
-            //      test: /\.js$/,
-            //      loader: 'babel-loader',
-            //   // exclude: /node_modules/,
-            //  },
            ]
   },
   plugins: [

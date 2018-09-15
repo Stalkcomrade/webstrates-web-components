@@ -1,11 +1,12 @@
 // const d3Metric = () => import('../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
 // const d3Metric = () => import('../node_modules/d3-vs/src/components/d3Metric/d3Metric.js')
 
-import Vs from 'd3-vs'
+// import Vs from 'd3-vs'
 
 
-webstrate.on('loaded', (Vs) => {
+webstrate.on('loaded', () => {
 
+//   const d3Metric = () => import(/* webpackPreload: true */ '../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
   // console.dir(d3Metric)
 
     Vue.config.ignoredElements = ['transient'];
@@ -16,6 +17,37 @@ webstrate.on('loaded', (Vs) => {
     const appTemplate = document.querySelector('#appTemplate');
     containerElement.appendChild(appTemplate.content.cloneNode(true));
     document.body.appendChild(containerElement);
+
+    // () => {
+
+    //     new Promise(resolve,rehect) => {}
+
+
+    // }
+
+    console.dir("!!!!");
+
+    Vue.component('d3Metric', (resolve) => {
+        // import(/* webpackChunkName: "d3Metric" */ '../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
+        import(/* webpackChunkName: "d3Metric" */ 'keen-ui')
+        .then(( {UiAlert }) => {
+            console.dir("smth");
+            console.dir(UiAlert);
+            console.dir(UiAlert.default);
+            resolve(UiAlert.default);
+            // console.dir(d3Metric.default);
+        });
+        // import(/* webpackChunkName: "d3Metric" */ 'd3-vs')
+        // .then(( {d3Metric }) => {
+        //     console.dir("smth");
+        //     console.dir(d3Metric.default.template);
+        //     console.dir(d3Metric.default);
+        //     resolve(d3Metric.default);
+        //     // console.dir(d3Metric.default);
+        // });
+    });
+  
+  console.dir("!!!!");
 
 
     // Define Vue Router.
@@ -28,10 +60,15 @@ webstrate.on('loaded', (Vs) => {
                 path: '/calendar',
                 component: CalendarView
             },
-                 {
-                path: '/dt',
-                component: d3InstanceComponent
-            },
+            // {
+            //     path: '/dt',
+            //   component: d3Metric
+            // },
+
+            //            {
+            //         path: '/not',
+            //     component: d3InstanceComponent
+            // },
 
                  // {
                  //   path: '/dt',
@@ -59,6 +96,6 @@ webstrate.on('loaded', (Vs) => {
         router
     }).$mount(containerElement)
 
-  app.use(Vs)
+  // app.use(Vs)
 
 });
