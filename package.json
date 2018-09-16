@@ -20,19 +20,23 @@
   "dependencies": {
     "d3-vs": "^0.7.7",
     "keen-ui": "^1.0.1",
-    "rollup-plugin-vue": "^4.3.2"
+    "loadash": "^1.0.0",
+    "rollup-plugin-vue": "^4.3.2",
+    "tooltip": "^1.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.0.1",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.0.2",
     "babel-plugin-dynamic-import-webpack": "^1.0.2",
+    "babel-plugin-lodash": "^3.3.4",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-2": "^6.24.1",
     "css-loader": "^1.0.0",
     "extract-loader": "^3.0.0",
     "file-loader": "^2.0.0",
     "html-webpack-plugin": "^3.2.0",
+    "lodash-webpack-plugin": "^0.11.5",
     "style-loader": "^0.23.0",
     "vue-loader": "^15.4.2",
     "vue-style-loader": "^4.1.2",

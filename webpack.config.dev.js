@@ -1,4 +1,5 @@
 const path = require('path');
+var LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const webpack = require('webpack');
 
 const { VueLoaderPlugin } = require('vue-loader')
@@ -56,10 +57,20 @@ module.exports = {
                 name: '[name].[ext]?[hash]'
               }
             },
+            {
+              test: /\.js$/,
+              loader: 'babel-loader',
+              exclude: /node_modules/,
+              options: {
+              plugins: ['lodash'],
+                // 'presets': [['env', { 'modules': false, 'targets': { 'node': 4 } }]]
+              }
+            }
            ]
   },
   plugins: [
     new VueLoaderPlugin(),
+    new LodashModuleReplacementPlugin    
   ],
   resolveLoader: {
     modules: ['/home/stlk/projects/jolly-fish-42/node_modules'],
