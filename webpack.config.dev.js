@@ -1,30 +1,23 @@
 const path = require('path');
-var LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
+// var LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const webpack = require('webpack');
-
 const { VueLoaderPlugin } = require('vue-loader')
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
 }
 
-//     mode: 'development',
 
 module.exports = {
-  entry: './resources/script.js',
-  // entry: './resources/d3-metric-component-web.js',
-  // entry: './resources/d3-metric-component.js',
-  // entry: './resources/d3-metric-component.js',
+  // entry: './resources/script.js',
+  entry: './resources/d3-metric.js',
+    // entry: './resources/libraries.js',
   output: {
     filename: '[name].js',
     chunkFilename: '[name].js',
     path: path.resolve(__dirname, 'resources'),
-    // publicPath: "/"
+    publicPath: "/"
   },
-  // optimization: {
-  //        splitChunks: {
-  //          chunks: 'all'
-  //        },
   module: {
     rules: [{
       test: /\.vue$/,
@@ -47,6 +40,20 @@ module.exports = {
       },
     },
             {
+              test: /\.js$/,
+              // exclude: path.resolve(__dirname, 'node_modules/'),
+              loader: 'babel-loader',
+              options: {
+                // plugins: ['lodash'],
+                // plugins: ['dynaimic-import-webpack'],
+                presets: [
+                  ['vue'],
+                  ['env', { 'modules': false, 'targets': { 'node': 4 }}]
+                ]
+                // 'presets': [['env', { 'modules': false, 'targets': { 'node': 4 } }]]
+              }
+            },
+            {
               test: /\.css$/,
               loader: 'style-loader!css-loader',
              },
@@ -57,26 +64,16 @@ module.exports = {
                 name: '[name].[ext]?[hash]'
               }
             },
-            {
-              test: /\.js$/,
-              loader: 'babel-loader',
-              exclude: /node_modules/,
-              options: {
-              plugins: ['lodash'],
-                // 'presets': [['env', { 'modules': false, 'targets': { 'node': 4 } }]]
-              }
-            }
            ]
   },
   plugins: [
     new VueLoaderPlugin(),
-    new LodashModuleReplacementPlugin    
+    // new LodashModuleReplacementPlugin
   ],
   resolveLoader: {
     modules: ['/home/stlk/projects/jolly-fish-42/node_modules'],
   },
   resolve: {
-    // extensions: ['.vue']
     modules: ['/home/stlk/projects/jolly-fish-42/node_modules'],
     alias: {
       '../../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css': path.resolve(__dirname, "./node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css"),

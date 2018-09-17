@@ -1,15 +1,27 @@
 // const d3Metric = () => import('../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
 // const d3Metric = () => import('../node_modules/d3-vs/src/components/d3Metric/d3Metric.js')
 // import Vs from 'd3-vs'
-// import { isNull, isNumber, debounce} from 'lodash';
+// window._ = require('loadash')
+// var isNull = require('loadash/isNull');
+// var isNumber = require('loadash/isNumber');
+// var debounce = require('loadash/debounce');
+// import isNull from 'lodash-es';
+// import isNumber from 'lodash-es';
+// import debounce from 'lodash-es';
 // import { showTip, hideTip } from 'tooltip';
-
 // import { debounce } from 'lodash';
 
-webstrate.on('loaded', () => {
-    
+// import Vs from 'd3-vs';
 
-//   const d3Metric = () => import(/* webpackPreload: true */ '../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
+
+webstrate.on('loaded', () => {
+
+
+  // Object.defineProperty(Vue.prototype, '$isNull', { value: isNull });
+  // Object.defineProperty(Vue.prototype, '$isNull', { value: isNull });
+  
+
+  // const d3Metric = () => import(/* webpackPreload: true */ '../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
   // console.dir(d3Metric)
     Vue.config.ignoredElements = ['transient'];
     // Create container and instantiate template.
@@ -22,14 +34,11 @@ webstrate.on('loaded', () => {
     console.dir("!!!!");
 
     // Vue.component('d3Metric', (resolve) => {
-    //     // import(/* webpackChunkName: "d3Metric" */ '../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
-    //     import(/* webpackChunkName: "d3Metric" */ 'keen-ui')
-    //     .then(( {UiAlert }) => {
-    //         console.dir("smth");
-    //         console.dir(UiAlert);
-    //         console.dir(UiAlert.default);
-    //         resolve(UiAlert.default);
-    //         // console.dir(d3Metric.default);
+    //   import(/* webpackChunkName: "d3Metric" */ '../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
+    //   // import(/* webpackChunkName: "d3Metric" */ '../node_modules/d3-vs')
+    //     // .then(( { d3Metric }) => {
+    //     //   console.dir("smth");
+    //     //   resolve(d3Metric.default);
     //     });
         // import(/* webpackChunkName: "d3Metric" */ 'd3-vs')
         // .then(( {d3Metric }) => {

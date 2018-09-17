@@ -1,3 +1,7 @@
+import isNull from 'lodash-es';
+import isNumber from 'lodash-es';
+import debounce from 'lodash-es';
+
 var metric = {
     
     props: {
