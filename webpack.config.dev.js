@@ -1,5 +1,4 @@
 const path = require('path');
-// var LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const webpack = require('webpack');
 const { VueLoaderPlugin } = require('vue-loader')
 
@@ -10,8 +9,10 @@ function resolve (dir) {
 
 module.exports = {
   // entry: './resources/script.js',
-  entry: './resources/d3-metric.js',
-    // entry: './resources/libraries.js',
+  entry: {
+    component: './resources/d3-metric.js',
+    libraries: './resources/librariesOriginal.js'
+  },
   output: {
     filename: '[name].js',
     chunkFilename: '[name].js',
@@ -41,16 +42,14 @@ module.exports = {
     },
             {
               test: /\.js$/,
-              // exclude: path.resolve(__dirname, 'node_modules/'),
               loader: 'babel-loader',
+              // exclude: path.resolve(__dirname, 'node_modules/'),
               options: {
-                // plugins: ['lodash'],
                 // plugins: ['dynaimic-import-webpack'],
                 presets: [
                   ['vue'],
                   ['env', { 'modules': false, 'targets': { 'node': 4 }}]
                 ]
-                // 'presets': [['env', { 'modules': false, 'targets': { 'node': 4 } }]]
               }
             },
             {
