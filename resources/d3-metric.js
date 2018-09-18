@@ -2,7 +2,10 @@ import isNull from 'lodash';
 import isNumber from 'lodash';
 import debounce from 'lodash';
 
-import { showTip, hideTip } from 'tooltip';
+// import showTip from 'tooltip';
+// import hideTip from 'tooltip';
+
+import { showTip, hideTip } from './librariesOriginal'
 
 var metric = {
     

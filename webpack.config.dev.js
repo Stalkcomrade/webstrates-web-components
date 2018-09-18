@@ -2,16 +2,11 @@ const path = require('path');
 const webpack = require('webpack');
 const { VueLoaderPlugin } = require('vue-loader')
 
-function resolve (dir) {
-  return path.join(__dirname, '..', dir)
-}
-
-
 module.exports = {
   // entry: './resources/script.js',
   entry: {
-    component: './resources/d3-metric.js',
-    libraries: './resources/librariesOriginal.js'
+    component: path.resolve(__dirname, './resources/d3-metric.js'),
+    libraries: path.resolve(__dirname,'./resources/librariesOriginal.js')
   },
   output: {
     filename: '[name].js',
@@ -42,14 +37,16 @@ module.exports = {
     },
             {
               test: /\.js$/,
-              loader: 'babel-loader',
               // exclude: path.resolve(__dirname, 'node_modules/'),
-              options: {
+              use: {
+                loader: 'babel-loader',
+                options: {
                 // plugins: ['dynaimic-import-webpack'],
-                presets: [
-                  ['vue'],
-                  ['env', { 'modules': false, 'targets': { 'node': 4 }}]
-                ]
+                  presets: [
+                    ['vue'],
+                    ['@babel/preset-env', { 'modules': false, 'targets': { 'node': 4 }}]
+                  ]
+                }
               }
             },
             {
@@ -69,12 +66,18 @@ module.exports = {
     new VueLoaderPlugin(),
     // new LodashModuleReplacementPlugin
   ],
-  resolveLoader: {
-    modules: ['/home/stlk/projects/jolly-fish-42/node_modules'],
-  },
+  // resolveLoader: {
+  //   modules: ['/home/stlk/projects/jolly-fish-42/node_modules'],
+  // error like cannot resolve babel-loader was due to the above line
+  // },
   resolve: {
-    modules: ['/home/stlk/projects/jolly-fish-42/node_modules'],
+    modules: [path.resolve(__dirname, 'node_modules')],
     alias: {
+      'babel-loader': path.resolve(__dirname, "./node_modules/babel-loader"),
+      'document-offset': path.resolve(__dirname, "./node_modules/document-offset"),
+      'lodash': path.resolve(__dirname, "./node_modules/lodash"),
+      '@babel/preset-env': path.resolve(__dirname, "./node_modules/@babel/preset-env"),
+      'vue': path.resolve(__dirname, "./node_modules/babel-preset-vue"),
       '../../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css': path.resolve(__dirname, "./node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css"),
       '../../node_modules/leaflet/dist/leaflet.css': path.resolve(__dirname, "./node_modules/leaflet/dist/leaflet.css"),
       "./images/layers.png$": path.resolve(__dirname, "./node_modules/leaflet/dist/images/layers.png"),
