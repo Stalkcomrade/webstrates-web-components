@@ -1,6 +1,8 @@
-import isNull from 'lodash-es';
-import isNumber from 'lodash-es';
-import debounce from 'lodash-es';
+import isNull from 'lodash';
+import isNumber from 'lodash';
+import debounce from 'lodash';
+
+import { showTip, hideTip } from 'tooltip';
 
 var metric = {
     
