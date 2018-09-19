@@ -6,7 +6,9 @@ module.exports = {
   // entry: './resources/script.js',
   entry: {
     component: path.resolve(__dirname, './resources/d3-metric.js'),
-    libraries: path.resolve(__dirname,'./resources/librariesOriginal.js')
+    // libraries: path.resolve(__dirname,'./resources/librariesOriginal.js'),
+    // full:      path.resolve(__dirname, "./resources/d3-full.js"),
+    // main:      path.resolve(__dirname, "./resources/script.js")
   },
   output: {
     filename: '[name].js',
@@ -18,8 +20,8 @@ module.exports = {
     rules: [{
       test: /\.vue$/,
        include: [
-                path.resolve(__dirname, 'node_modules'),
-                path.resolve(__dirname, './node_modules/d3-vs/src/components/d3Metric/d3Metric.vue'), // <== This solved the issue
+                path.resolve(__dirname, 'node_modules/'),
+                // path.resolve(__dirname, './node_modules/d3-vs/src/components/d3Metric/d3Metric.vue'), // <== This solved the issue
             ],
       loader: 'vue-loader',
       options: {
@@ -37,11 +39,12 @@ module.exports = {
     },
             {
               test: /\.js$/,
-              // exclude: path.resolve(__dirname, 'node_modules/'),
+              exclude: path.resolve(__dirname, 'node_modules/'),
               use: {
                 loader: 'babel-loader',
                 options: {
-                // plugins: ['dynaimic-import-webpack'],
+                  plugins: ['dynamic-import-webpack'],
+                  // plugins: ['@babel/plugin-syntax-dynamic-import'],
                   presets: [
                     ['vue'],
                     ['@babel/preset-env', { 'modules': false, 'targets': { 'node': 4 }}]
@@ -66,13 +69,16 @@ module.exports = {
     new VueLoaderPlugin(),
     // new LodashModuleReplacementPlugin
   ],
-  // resolveLoader: {
-  //   modules: ['/home/stlk/projects/jolly-fish-42/node_modules'],
+  resolveLoader: {
+  modules: [path.resolve(__dirname, './node_modules')],
   // error like cannot resolve babel-loader was due to the above line
-  // },
+  },
   resolve: {
-    modules: [path.resolve(__dirname, 'node_modules')],
+    modules: [path.resolve(__dirname, './node_modules')],
+    // extensions: ['.js'],
     alias: {
+      // 'vue': '',
+      // 'dynaimic-import-webpack': path.resolve(__dirname, "./node_modules/babel-plugin-dynaimic-import-webpack"),
       'babel-loader': path.resolve(__dirname, "./node_modules/babel-loader"),
       'document-offset': path.resolve(__dirname, "./node_modules/document-offset"),
       'lodash': path.resolve(__dirname, "./node_modules/lodash"),

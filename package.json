@@ -21,10 +21,11 @@
         "babel-preset-vue": "^2.0.2",
         "d3-vs": "^0.7.7",
         "document-offset": "^1.0.4",
-        "lodash": "^4.17.11",
+        "lodash": "^4.17.11"
     },
     "devDependencies": {
         "@babel/core": "^7.0.1",
+        "@babel/plugin-syntax-dynamic-import": "^7.0.0",
         "@babel/preset-env": "^7.1.0",
         "babel-loader": "^8.0.2",
         "babel-plugin-dynamic-import-webpack": "^1.0.2",

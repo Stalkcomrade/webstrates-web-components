@@ -1,28 +1,9 @@
 // const d3Metric = () => import('../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
-// const d3Metric = () => import('../node_modules/d3-vs/src/components/d3Metric/d3Metric.js')
-// import Vs from 'd3-vs'
-// window._ = require('loadash')
-// var isNull = require('loadash/isNull');
-// var isNumber = require('loadash/isNumber');
-// var debounce = require('loadash/debounce');
-// import isNull from 'lodash-es';
-// import isNumber from 'lodash-es';
-// import debounce from 'lodash-es';
-// import { showTip, hideTip } from 'tooltip';
-// import { debounce } from 'lodash';
-
 // import Vs from 'd3-vs';
 
 
 webstrate.on('loaded', () => {
 
-
-  // Object.defineProperty(Vue.prototype, '$isNull', { value: isNull });
-  // Object.defineProperty(Vue.prototype, '$isNull', { value: isNull });
-  
-
-  // const d3Metric = () => import(/* webpackPreload: true */ '../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
-  // console.dir(d3Metric)
     Vue.config.ignoredElements = ['transient'];
     // Create container and instantiate template.
     const containerElement = document.createElement('transient');
@@ -31,7 +12,6 @@ webstrate.on('loaded', () => {
     containerElement.appendChild(appTemplate.content.cloneNode(true));
     document.body.appendChild(containerElement);
     
-    console.dir("!!!!");
 
     // Vue.component('d3Metric', (resolve) => {
     //   import(/* webpackChunkName: "d3Metric" */ '../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
@@ -49,10 +29,7 @@ webstrate.on('loaded', () => {
         //     // console.dir(d3Metric.default);
         // });
     // });
-  
-  console.dir("!!!!");
-
-
+ 
     // Define Vue Router.
     const router = new VueRouter({
         routes: [{
