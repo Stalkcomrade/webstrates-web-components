@@ -2,6 +2,8 @@ import isNull from 'lodash';
 import isNumber from 'lodash';
 import debounce from 'lodash';
 
+import mixins from '../node_modules/d3-vs/src/mixins';
+
 // import showTip from 'tooltip';
 // import hideTip from 'tooltip';
 
@@ -113,16 +115,17 @@ var metric = {
     };
 
 window.d3InstanceComponent = Vue.component('d3-metric', {
-    // name: 'd3-metric',
-    // mixins: [mixins],
-    mixins: [metric],
+    name: 'd3-metric',
+    mixins: [mixins],
+    // mixins: [metric],
     template: `
     <div class="d3-metric" :style="{ 'width' : width, 'height' : height}"></div> 
 `,
 
     methods: {
-        drawMetric() {
-            const data = this.data,
+      drawMetric() {
+        const data = 25000,
+            // const data = this.data,
                 {
                     axisXLabel = null,
                     axisLabelFontSize = 12,

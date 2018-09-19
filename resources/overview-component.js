@@ -1,13 +1,16 @@
 window.OverviewComponent = Vue.component('overview', {  
-  // :options="options"
   // :margin="margin"
+  // :data=40000
+  // :options="{ axisLabelFontSize: 100 }"
   template: `
   <d3-metric
-  :data=40000
   width="100%"
-  height="300px"> 
+  height="600px"> 
   </d3-metric>
   `,
+  // components: {
+  //   'd3-metric': d3InstanceComponent
+  // }
 	// data: () => ({
 	// 	date: 'Loading...'
 	// })

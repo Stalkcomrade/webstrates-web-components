@@ -13,6 +13,9 @@ webstrate.on('loaded', () => {
     document.body.appendChild(containerElement);
     
 
+  console.dir(window.d3InstanceComponent)
+  console.dir(window.d3InstanceTimelineComponent)
+  
     // Vue.component('d3Metric', (resolve) => {
     //   import(/* webpackChunkName: "d3Metric" */ '../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
     //   // import(/* webpackChunkName: "d3Metric" */ '../node_modules/d3-vs')
@@ -40,21 +43,10 @@ webstrate.on('loaded', () => {
                 path: '/calendar',
                 component: CalendarView
             },
-            // {
-            //     path: '/dt',
-            //     component: d3InstanceComponent
-            // },
-
-                 // {
-                 //   path: '/dt',
-                 //   component: d3InstanceComponent
-                 //   // component: {
-                 //     // d3Metric: () => import('../node_modules/d3-vs/src/components/d3Metric/index.js')
-                 //     // d3Metric: () => import('../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
-                 //   // }
-                 //   // component: () => import('../node_modules/d3-vs/src/components/d3Metric/d3Metric.vue')
-                 // },
-
+            {
+                path: '/real-time',
+              component: RealtimeComponent
+            },
             {
                 path: '*',
                 component: {

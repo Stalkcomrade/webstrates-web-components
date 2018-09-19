@@ -6,6 +6,7 @@ module.exports = {
   // entry: './resources/script.js',
   entry: {
     component: path.resolve(__dirname, './resources/d3-metric.js'),
+    componentTimeline: path.resolve(__dirname, './resources/d3-timeline.js')
     // libraries: path.resolve(__dirname,'./resources/librariesOriginal.js'),
     // full:      path.resolve(__dirname, "./resources/d3-full.js"),
     // main:      path.resolve(__dirname, "./resources/script.js")
@@ -39,7 +40,7 @@ module.exports = {
     },
             {
               test: /\.js$/,
-              exclude: path.resolve(__dirname, 'node_modules/'),
+              exclude: path.resolve(__dirname, './node_modules'),
               use: {
                 loader: 'babel-loader',
                 options: {
