@@ -34,7 +34,6 @@ window.MonthViewComponent = Vue.component('month-view', {
             	</div>`,
 
         // <p> Message: {{ usersPerWs }} </p>
-
 		// <webstrate-legend/>
 
   
@@ -348,6 +347,7 @@ window.MonthViewComponent = Vue.component('month-view', {
       }      
       delete days[0];
     },
+    
     fetchActivity: function(webstrateIdInst) {
 
       const toDate = new Date()
@@ -364,7 +364,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         Object.values(data).forEach(int => {
           Object.values(int).forEach(intN => {
             usersPerWsSet.add(intN.userId)
-            // console.dir(intN.userId)
+            console.dir(intN)
           })
         })
        

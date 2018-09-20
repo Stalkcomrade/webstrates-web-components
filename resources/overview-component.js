@@ -6,14 +6,27 @@ window.OverviewComponent = Vue.component('overview', {
   // :options="{ axisLabelFontSize: 100 }"
   template: `
   <d3-metric
-  data=3000
+  v-bind:data="counter"
   width="100%"
   height="600px"> 
   </d3-metric>
   `,
   components: {
     'd3-metric': d3Metric
+  },
+
+  data: ()  => ({
+    counter: '35000'
+  }),
+
+  mounted() {
+
+
+    this.counter = 45000
+
   }
+
+  
 	// data: () => ({
 	// 	date: 'Loading...'
 	// })
