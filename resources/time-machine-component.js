@@ -9,24 +9,13 @@ window.TimeMachineComponent = Vue.component('time-machine', {
   },
 
     data: () => ({
-    date: '',
-    month: '',
-    year: '',
-    selected: '',
-    options: [
-      // { text: 'Default', value: 'A' },
-      // { text: 'Month',   value: 'B' },
-      // { text: 'Yellow',  value: 'C' }
-    ],
-    maxWebstrates: '',
-    scaling: ['default', 'yellow', 'month'],
-    cellSize: 185,
-    margin:{ 
-      left: 0,
-      right: 0,
-      top: 185,
-      bottom: 10
-    },
+      date: '',
+      wbsAuthor: '',
+      month: '',
+      year: '',
+      selected: '',
+      options: [],
+      maxWebstrates: '',
       totalAcitvityPerMotnh: [],
       arrayRadius: [],
       breaks: [],
@@ -53,22 +42,21 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     height="300px">
 </d3-timeline>
 
-        <select v-model="selected" @change="getVersioningJson()">
+    <select v-model="selected" @change="getVersioningJson()">
           <option v-for="option in options" v-bind:value="option">
                {{ option }}
           </option>
         </select>
 
+        <button @click="fetchActivity(selected)">UPD SCL</button>
 
 </div>
 
 
   `,
-    components: {
-    'd3-timeline': d3Timeline
-    },
+    components: { 'd3-timeline': d3Timeline },
 
-
+        // <select v-model="selected" @change="fetchAll(selected)">
   // watch: {
 
   //   selected: function(oldValue, newValue) {
@@ -107,30 +95,53 @@ window.TimeMachineComponent = Vue.component('time-machine', {
         })
       })
 
-      
         webstrateIds = Array.from(webstrateIds).sort()
         this.options = webstrateIds
-        // this.test = Array.from(webstrateIds).sort()        
-      
+            
     }).then(() => resolve())
-    })
-
-
-    
-    // this.getVersioningJson()
-    
-    // this.waitData = new Promise((resolve, reject) => {
-      
-    //   this.getVersioningJson()
-    //   resolve()
-
-    // })
-    
+    })    
 
     },
 
   methods: {
 
+
+    fetchActivity: function(webstrateIdInst) {
+
+      const toDate = new Date()
+      const fromDate = new Date()
+      fromDate.setDate(fromDate.getDate() - 14)
+
+      const activityPromise = dataFetcher('activities', { webstrateId: webstrateIdInst, toDate, fromDate })
+      
+      activityPromise.then((data) => {
+
+        Object.values(data).forEach(int => {
+          Object.values(int).forEach(intN => {
+            this.intPerWs.push(intN)
+          })
+        })
+
+        // console.dir(this.intPerWs)
+        // console.dir(this.intPerWs[0])
+
+        var dt1 = this.intPerWs.map(int => ({
+          at:        new Date(int.timestamp),
+          title:     Math.random().toString(),
+          group:     int.type,
+          className: (int.type === "clientPart") ? 'entry--point--warn' : 'entry--point--info',
+          symbol:    (int.type === "clientPart") ? 'symbolDiamond' : 'symbolSquare',
+          link:      0
+        }))
+
+        // return dt1
+        console.dir(dt1)
+        this.dt = this.dt.concat(dt1)
+        
+      })
+
+    },
+    
     getVersioningJson: function() {
 
       fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
@@ -143,6 +154,16 @@ window.TimeMachineComponent = Vue.component('time-machine', {
 
           this.versioningRaw = JSON.parse(this.versioningRaw)
 
+          try {
+            
+            this.wbsAuthor = this.versioningRaw[0].session.userId
+            console.dir(this.wbsAuthor)
+            
+          } catch(err) {
+            console.error(err)
+          }
+          
+
           this.dt = this.versioningRaw.map(int => ({
             at:        new Date(int.m.ts),
             title:     int.v,
@@ -151,25 +172,45 @@ window.TimeMachineComponent = Vue.component('time-machine', {
             symbol:    (Object.keys(int).indexOf('create') !== -1) ? 'symbolCross' : 'symbolTriangle',
             link:      int.v
           }))
+
           
+          
+          // return dt2 
 
         })
     },
-            
-  mounted() {
 
-    // this.getVersioningJson()
+    fetchAll: function(webstrateIdInst) {
 
-    // this.waitData.then(() => {
+      // new Promise((resolve, reject) => {
+      // const [ dt1Promise, dt2Promise ] = await Promise.all([this.getVersioningJson() , this.fetchActivity(webstrateIdInst) ]);
+      // thsi.getVersioningJson
+        // resolve()
+      // }).then((response) => {
+        // console.dir('after promise')
+        // console.dir(response.dt2, "Dt 2")
+      // let dt2Promise = await this.fetchActivity(webstrateIdInst)
+      let dt1Inst = this.getVersioningJson()
+      let dt2Inst = this.fetchActivity(webstrateIdInst)
+      this.dt = dt1Inst.concat(dt2Inst)
+        
+      // }).then((dt1, dt2) => {
+        // console.dir(dt1, "Dt1")
+      // Promise.all(dt1, dt2)
+      // try {
+      // Promise.all([this.getVersioningJson() , this.fetchActivity(webstrateIdInst) ].then((results) => {
+      //   this.dt = results[0].concat(results[1])
+      // })
+      // } catch(err) {
+        // console.error(err)
+        // this.dt = dt1Promise
+      // }
+        // })
+
+      }
     
-      // d3.selectAll('path.entry.entry--point--default')
-      //   .data(this.dt)
-      //   .attr('href', ({ int }) => "https://webstrates.cs.au.dk/black-frog-24/?v:" + int.v )
+  },
   
-    // })
-    
-    
-  }
-  }
+  mounted() {}
           
   });
