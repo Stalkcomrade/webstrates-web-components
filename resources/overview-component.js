@@ -26,8 +26,4 @@ window.OverviewComponent = Vue.component('overview', {
 
   }
 
-  
-	// data: () => ({
-	// 	date: 'Loading...'
-	// })
 });

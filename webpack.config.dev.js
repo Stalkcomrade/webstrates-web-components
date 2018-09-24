@@ -4,8 +4,9 @@ const { VueLoaderPlugin } = require('vue-loader')
 
 module.exports = {
   entry: {
-    component: path.resolve(__dirname, './resources/overview-component.js'),
-    componentTimeline: path.resolve(__dirname, './resources/realtime-component.js')
+    // component: path.resolve(__dirname, './resources/overview-component.js'),
+    // componentTimeline: path.resolve(__dirname, './resources/realtime-component.js'),
+    componentTimeMachine: path.resolve(__dirname, './resources/time-machine-component.js')
   },
   output: {
     filename: '[name].js',

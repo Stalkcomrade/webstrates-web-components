@@ -24,6 +24,10 @@ webstrate.on('loaded', () => {
                 path: '/real-time',
               component: RealtimeComponent
             },
+                 {
+                   path: '/time-machine',
+                   component: TimeMachineComponent
+                 },
             {
                 path: '*',
                 component: {
