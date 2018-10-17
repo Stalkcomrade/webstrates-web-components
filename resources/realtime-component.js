@@ -62,7 +62,6 @@ window.RealtimeComponent = Vue.component('realtime', {
     'd3-timeline': d3Timeline
     },
 
-
     created: function() {
 
 

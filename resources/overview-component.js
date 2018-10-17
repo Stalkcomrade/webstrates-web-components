@@ -1,5 +1,10 @@
+// import '../Vs.min.js';
+// Vue.use(Vs);
 import { d3Metric } from '../node_modules/d3-vs';
-
+// console.dir(_.chunk(['a', 'b', 'c', 'd'], 2));
+// import Vs from '../assets/Vs.min.js';
+// require("../assets/Vs.min.js")
+// Vue.use(Vs);
 window.OverviewComponent = Vue.component('overview', {  
   // :margin="margin"
   // :data=40000
@@ -14,7 +19,6 @@ window.OverviewComponent = Vue.component('overview', {
   components: {
     'd3-metric': d3Metric
   },
-
   data: ()  => ({
     counter: '35000'
   }),

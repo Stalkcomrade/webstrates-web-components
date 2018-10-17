@@ -1,16 +1,17 @@
 import { d3Timeline } from '../node_modules/d3-vs';
+// import { d3Timeline } from 'Vs.min.js';
+// import d3Timeline from 'Vs.min.js';
 
 window.TimeMachineComponent = Vue.component('time-machine', {  
   props: {
-
     monthProp: '9',
     yearProp: '2018',
     maxWebstratesProp: '20'
   },
-
     data: () => ({
       date: '',
       wbsAuthor: '',
+      lastChange: '',
       month: '',
       year: '',
       selected: '',
@@ -56,12 +57,9 @@ window.TimeMachineComponent = Vue.component('time-machine', {
   `,
     components: { 'd3-timeline': d3Timeline },
 
-        // <select v-model="selected" @change="fetchAll(selected)">
+  // <select v-model="selected" @change="fetchAll(selected)">
   // watch: {
-
   //   selected: function(oldValue, newValue) {
-
-      
 
   //   }
     
@@ -106,7 +104,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
   methods: {
 
 
-    fetchActivity: function(webstrateIdInst) {
+    fetchActivity:  function(webstrateIdInst) {
 
       const toDate = new Date()
       const fromDate = new Date()
@@ -131,7 +129,8 @@ window.TimeMachineComponent = Vue.component('time-machine', {
           group:     int.type,
           className: (int.type === "clientPart") ? 'entry--point--warn' : 'entry--point--info',
           symbol:    (int.type === "clientPart") ? 'symbolDiamond' : 'symbolSquare',
-          link:      0
+          link:      0,
+          webstrateId: this.selected
         }))
 
         // return dt1
@@ -155,9 +154,27 @@ window.TimeMachineComponent = Vue.component('time-machine', {
           this.versioningRaw = JSON.parse(this.versioningRaw)
 
           try {
-            
+
+            // parsing author of webstrate
             this.wbsAuthor = this.versioningRaw[0].session.userId
             console.dir(this.wbsAuthor)
+
+            // parsing the last change made on the webstrate
+
+
+            // tmp[tmp.length - 1].op[tmp[tmp.length - 1].op.length - 1].
+              // last element            Object.keys(tmp[tmp.length - 1].op[tmp[tmp.length - 1].op.length - 1])[Object.keys(tmp[tmp.length - 1].op[tmp[tmp.length - 1].op.length - 1]).length - 1]
+
+            this.lastChange = this.versioningRaw[this.versioningRaw.length - 1].
+              op[this.versioningRaw[this.versioningRaw.length - 1].
+                 op.length - 1][Object.keys(this.versioningRaw[this.versioningRaw.length - 1].op[this.versioningRaw[this.versioningRaw.length - 1].
+                                                                                                 op.length - 1])[Object.keys(this.versioningRaw[this.versioningRaw.length - 1].
+                                                                                                                             op[this.versioningRaw[this.versioningRaw.length - 1].
+                                                                                                                                op.length - 1]).length - 1]]
+            
+            // this.lastChange = this.versioningRaw[this.versioningRaw.length - 1].op[this.versioningRaw[this.versioningRaw.length - 1].op.length - 1].sd
+            // this.lastChange = this.versioningRaw[this.versioningRaw.length - 1].op[this.versioningRaw[this.versioningRaw.length - 1].op.length - 1].sd
+            console.dir(this.lastChange)
             
           } catch(err) {
             console.error(err)
@@ -167,10 +184,12 @@ window.TimeMachineComponent = Vue.component('time-machine', {
           this.dt = this.versioningRaw.map(int => ({
             at:        new Date(int.m.ts),
             title:     int.v,
+            // title: 
             group:     (Object.keys(int).indexOf('create') !== -1) ? 'create' : 'edition',
             className: (Object.keys(int).indexOf('create') !== -1) ? 'entry--point--success' : 'entry--point--default',
             symbol:    (Object.keys(int).indexOf('create') !== -1) ? 'symbolCross' : 'symbolTriangle',
-            link:      int.v
+            link:      int.v,
+            webstrateId: this.selected
           }))
 
           
@@ -178,6 +197,20 @@ window.TimeMachineComponent = Vue.component('time-machine', {
           // return dt2 
 
         })
+    },
+
+    getOpsJson: function() {
+
+      fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
+        .then(html => html.text())
+        .then(body => {
+          console.log('Fetched:')
+          this.versioningRaw = body
+        })
+
+
+
+
     },
 
     fetchAll: function(webstrateIdInst) {

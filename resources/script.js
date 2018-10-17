@@ -1,5 +1,7 @@
 webstrate.on('loaded', () => {
 
+  // it might be the cause of the issue
+  
     Vue.config.ignoredElements = ['transient'];
     // Create container and instantiate template.
     const containerElement = document.createElement('transient');
@@ -8,8 +10,7 @@ webstrate.on('loaded', () => {
     containerElement.appendChild(appTemplate.content.cloneNode(true));
     document.body.appendChild(containerElement);
     
-
- 
+  
     // Define Vue Router.
     const router = new VueRouter({
         routes: [{
@@ -43,5 +44,6 @@ webstrate.on('loaded', () => {
     const app = new Vue({
         router
     }).$mount(containerElement)
+
 
 });
