@@ -12,32 +12,36 @@ webstrate.on('loaded', () => {
     
   
     // Define Vue Router.
-    const router = new VueRouter({
-        routes: [{
-                path: '/',
-                component: OverviewComponent
-            },
-            {
-                path: '/calendar',
-                component: CalendarView
-            },
-            {
-                path: '/real-time',
-              component: RealtimeComponent
-            },
-                 {
-                   path: '/time-machine',
-                   component: TimeMachineComponent
-                 },
-            {
-                path: '*',
-                component: {
-                    template: '#template-page-not-found '
-                }
-            }
-        ],
-        linkExactActiveClass: 'active'
-    });
+  const router = new VueRouter({
+    routes: [{
+      path: '/',
+      component: OverviewComponent
+    },
+             {
+               path: '/calendar',
+               component: CalendarView
+             },
+             {
+               path: '/real-time',
+               component: RealtimeComponent
+             },
+             {
+               path: '/time-machine',
+               component: TimeMachineComponent
+             },
+             {
+               path: '*',
+               component: {
+                 template: '#template-page-not-found '
+               }
+             },
+             // {
+             //   path: '/embedded',
+             //   component: Embedded
+             // }
+            ],
+    linkExactActiveClass: 'active'
+  });
 
 
     // Create Vue application and mount in container.

@@ -1,7 +1,6 @@
 window.MonthViewComponent = Vue.component('month-view', {
   
-  props: ['monthProp', 'yearProp', 'maxWebstratesProp'],
-  
+  props: ['monthProp', 'yearProp', 'maxWebstratesProp'],  
   template: `
                 <transitiona name="fade">
                 <div v-if="show">
@@ -17,6 +16,9 @@ window.MonthViewComponent = Vue.component('month-view', {
 
         <span>Selected: {{ selected }}</span>
         <br><br>
+
+        <button v-on:click="show = !show"> Toggle </button>
+
 
         <button v-on:click="show = !show"> Toggle </button>
 	<button @click="previousMonth()">Prev</button>
