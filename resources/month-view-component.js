@@ -3,7 +3,8 @@ window.MonthViewComponent = Vue.component('month-view', {
   props: ['monthProp', 'yearProp', 'maxWebstratesProp'],
   
   template: `
-                <div>
+                <transitiona name="fade">
+                <div v-if="show">
 		<h2>{{ date }}</h2>
 		<h3>{{ month }}</h3>
         <p> Message: {{ todoHovered }} </p>
@@ -17,7 +18,8 @@ window.MonthViewComponent = Vue.component('month-view', {
         <span>Selected: {{ selected }}</span>
         <br><br>
 
-		<button @click="previousMonth()">Prev</button>
+        <button v-on:click="show = !show"> Toggle </button>
+	<button @click="previousMonth()">Prev</button>
         <button @click="update()">scl</button>
         <button @click="updateScaling()">UPD SCL</button>
 
@@ -31,7 +33,10 @@ window.MonthViewComponent = Vue.component('month-view', {
                 </b-row>
         </b-container>
          
-            	</div>`,
+            	</div>
+
+            </transition>
+`,
 
         // <p> Message: {{ usersPerWs }} </p>
 		// <webstrate-legend/>
@@ -42,6 +47,7 @@ window.MonthViewComponent = Vue.component('month-view', {
   },
 
   data: () => ({
+    show: true,
     date: '',
     month: '',
     year: '',
