@@ -1,4 +1,5 @@
 window.Embedded = Vue.component('embedded', {
+  // <component v-bind:is="view" ></component>
   template: `
 <transition name="component-fade" mode="out-in">
   <component v-bind:is="view" ></component>
@@ -15,10 +16,19 @@ window.Embedded = Vue.component('embedded', {
     }
   },
   data: () => ({
-    view: "test",
-    // webstrateId: "terrible-chipmunk-57",
+    is: "",
+    view,
     webstrateIdProp,
     tabs: ["month-view-component"]
   }),
-  updated() {}
+  methods: {
+    changeView() {
+      this.view = "time-machine"
+      console.dir("clicked")
+    }
+
+  },
+  created() {
+    // this.changeView()
+  }
 })

@@ -1,9 +1,9 @@
 window.MonthViewComponent = Vue.component('month-view', {
-  
+  mixins: [mixin],
+  // mixins: [window.mixin],
   props: ['monthProp', 'yearProp', 'maxWebstratesProp'],
-  
   template: `
-                <transitiona name="fade">
+                <transition name="fade">
                 <div v-if="show">
 		<h2>{{ date }}</h2>
 		<h3>{{ month }}</h3>
@@ -47,6 +47,8 @@ window.MonthViewComponent = Vue.component('month-view', {
   },
 
   data: () => ({
+    webstrateIdProp,
+    view,
     show: true,
     date: '',
     month: '',
@@ -326,8 +328,16 @@ window.MonthViewComponent = Vue.component('month-view', {
              )
         .enter()
         .append('a')
-        .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
-        .on("mouseover", ({webstrateId}) => this.showMessage(webstrateId))
+        // .attr('v-on:click', 'this.$parent.changeView()')
+        // .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
+        // .on("mouseover", ({webstrateId}) => this.showMessage(webstrateId))
+        .on("mouseover", ({webstrateId}) =>  this.changeView())
+        // .on("click", ({ webstrateId }) => {
+        //   this.webstrateIdProp = webstrateId
+        //   this.view = "time-machine"
+        //   view = "time-machine"
+        //   window.view = "time-machine"
+        // }) // Combining views
         .append('circle')
         .attr('class', () => 'activity')
         .attr('cx', ({ date, activities }) => this.d3Const.d3day(date) * this.cellSize + activities.position.x + activities.radius / 2)
@@ -370,7 +380,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         Object.values(data).forEach(int => {
           Object.values(int).forEach(intN => {
             usersPerWsSet.add(intN.userId)
-            console.dir(intN)
+            // console.dir(intN)
           })
         })
        
