@@ -1,62 +1,71 @@
+// require('/wicked-wombat-56/d3-vs.zip/src/components/d3Timeline/index.js');
 import { d3Timeline } from '../node_modules/d3-vs';
-// import { d3Timeline } from 'Vs.min.js';
+// /webstrateId/d3-vs.zip
+// import { d3Timeline } from '/wicked-wombat-56/Vs.min.js';
 // import d3Timeline from 'Vs.min.js';
+// import { d3Timeline } from '/wicked-wombat-56/d3-vs.zip/src/components/d3Timeline';
 
-window.TimeMachineComponent = Vue.component('time-machine', {  
-  props: {
-    monthProp: '9',
-    yearProp: '2018',
-    maxWebstratesProp: '20'
-  },
-    data: () => ({
-      date: '',
-      wbsAuthor: '',
-      lastChange: '',
-      month: '',
-      year: '',
-      selected: '',
-      options: [],
-      maxWebstrates: '',
-      totalAcitvityPerMotnh: [],
-      arrayRadius: [],
-      breaks: [],
-      colorQ: [],
-      maxOps: 0,
-      scalar: 0,
-      svg: [],
-      groups: [],
-      test: [],
-      waitData: [],
-      todoHovered: "hover smth",
-      intPerWs: [],
-      dt: [],
-      versioningRaw: '',
-      versioningArray: []
+window.TimeMachineComponent = Vue.component('time-machine', {
+  // props: {
+  //   monthProp: '9',
+  //   yearProp: '2018',
+  //   maxWebstratesProp: '20',
+  //   webstrateIdProp: ""
+  // },
+  props: [
+    "monthProp",
+    "yearProp",
+    "maxWebstratesProp"
+  ],
+  data: () => ({
+    webstrateIdProp,
+    date: '',
+    wbsAuthor: '',
+    lastChange: '',
+    month: '',
+    year: '',
+    selected: '',
+    options: [],
+    maxWebstrates: '',
+    totalAcitvityPerMotnh: [],
+    arrayRadius: [],
+    breaks: [],
+    colorQ: [],
+    maxOps: 0,
+    scalar: 0,
+    svg: [],
+    groups: [],
+    test: [],
+    waitData: [],
+    todoHovered: "hover smth",
+    intPerWs: [],
+    dt: [],
+    versioningRaw: '',
+    versioningArray: []
   }),
+        // <p> {{ webstrateIdProp }} </p>
   
   template: `
 <div>
-
 <d3-timeline
     v-bind:data="dt"
     width="100%"
     height="300px">
 </d3-timeline>
-
     <select v-model="selected" @change="getVersioningJson()">
           <option v-for="option in options" v-bind:value="option">
                {{ option }}
           </option>
         </select>
-
         <button @click="fetchActivity(selected)">UPD SCL</button>
-
+<h2> {{ webstrateIdProp }} </h2>
+<h3> smth </h3>
 </div>
 
 
   `,
     components: { 'd3-timeline': d3Timeline },
-
+// <h2> {{ webstrateIdProp }} </h2>
   // <select v-model="selected" @change="fetchAll(selected)">
   // watch: {
   //   selected: function(oldValue, newValue) {
@@ -119,9 +128,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
             this.intPerWs.push(intN)
           })
         })
-
-        // console.dir(this.intPerWs)
-        // console.dir(this.intPerWs[0])
 
         var dt1 = this.intPerWs.map(int => ({
           at:        new Date(int.timestamp),
