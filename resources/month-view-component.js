@@ -330,16 +330,10 @@ window.MonthViewComponent = Vue.component('month-view', {
              )
         .enter()
         .append('a')
+        .on("mouseover", ({webstrateId}) => this.showMessage(webstrateId))
+        .on("click", ({ webstrateId }) => this.changeView("time-machine")) 
         // .attr(':v-on:click', 'changeView("time-machine")')
         // .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
-        // .on("mouseover", ({webstrateId}) => this.showMessage(webstrateId))
-        .on("mouseover", ({webstrateId}) =>  this.changeView("time-machine"))
-        // .on("click", ({ webstrateId }) => {
-        //   this.webstrateIdProp = webstrateId
-        //   this.view = "time-machine"
-        //   view = "time-machine"
-        //   window.view = "time-machine"
-        // }) // Combining views
         .append('circle')
         .attr('class', () => 'activity')
         .attr('cx', ({ date, activities }) => this.d3Const.d3day(date) * this.cellSize + activities.position.x + activities.radius / 2)

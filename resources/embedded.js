@@ -8,8 +8,6 @@ window.Embedded = Vue.component('embedded', {
 </div>
 `,
   components: {
-    // 'overview': CalendarView,
-    // in v-model parent variable is used for binding
     'overview': {
       template: 
       `<month-view v-bind:monthProp="Number(this.month) || ((new Date).getMonth() + 1)" 
