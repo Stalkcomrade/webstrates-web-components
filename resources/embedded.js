@@ -15,16 +15,14 @@ window.Embedded = Vue.component('embedded', {
       `<month-view v-bind:monthProp="Number(this.month) || ((new Date).getMonth() + 1)" 
                    v-bind:yearProp="Number(this.year) || (new Date).getFullYear()"
                    v-bind:maxWebstratesProp="20"
-                   v-bind:smth.sync="testProp"
         />
 
 `
     },
-    'time-machine': TimeMachineComponent,
-    'test': {
+    // :selectedProp="hungry-cat-75"
+    'time-machine': {
       template: `
-		<time-machine>
-        </time-machine>
+		<time-machine />
 	`
     }
   },

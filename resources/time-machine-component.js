@@ -6,6 +6,7 @@ import { d3Timeline } from '../node_modules/d3-vs';
 // import { d3Timeline } from '/wicked-wombat-56/d3-vs.zip/src/components/d3Timeline';
 
 window.TimeMachineComponent = Vue.component('time-machine', {
+  mixins: [mixin],
   // props: {
   //   monthProp: '9',
   //   yearProp: '2018',
@@ -15,7 +16,8 @@ window.TimeMachineComponent = Vue.component('time-machine', {
   props: [
     "monthProp",
     "yearProp",
-    "maxWebstratesProp"
+    "maxWebstratesProp",
+    "selectedProp"
   ],
   data: () => ({
     webstrateIdProp,
@@ -25,6 +27,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     month: '',
     year: '',
     selected: '',
+    // selected: this.selectedProp,
     options: [],
     maxWebstrates: '',
     totalAcitvityPerMotnh: [],
@@ -46,7 +49,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
         // <p> {{ webstrateIdProp }} </p>
   
   template: `
-<div>
+    <div>
 <d3-timeline
     v-bind:data="dt"
     width="100%"
@@ -58,8 +61,8 @@ window.TimeMachineComponent = Vue.component('time-machine', {
           </option>
         </select>
         <button @click="fetchActivity(selected)">UPD SCL</button>
-<h2> {{ webstrateIdProp }} </h2>
-<h3> smth </h3>
+<h2> {{ testProp }} </h2>
+<h3> {{ view }} </h3>
 </div>
 
 
@@ -73,8 +76,9 @@ window.TimeMachineComponent = Vue.component('time-machine', {
   //   }
     
   // },
-  
-  created: function() {
+
+  beforeCreate: function() {
+  // created: function() {
 
     this.waitData = new Promise((resolve,reject) => {
     

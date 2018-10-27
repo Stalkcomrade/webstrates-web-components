@@ -12,9 +12,10 @@ const mixin = Vue.mixin({
     methods: {
       changeView: function(value) {
         this.$parent.$emit('input', value)
+        this.$parent.$emit('update:relationName', value)
       },
       testSync: function(value) {
-        this.$parent.$emit('update:relationName', value)
+         this.$parent.$emit('update:relationName', value)
 
       }
   }
