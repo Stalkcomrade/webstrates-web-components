@@ -1,14 +1,16 @@
 window.MonthViewComponent = Vue.component('month-view', {
   mixins: [mixin],
-  // mixins: [window.mixin],
+  inherit: true,
   props: ['monthProp', 'yearProp', 'maxWebstratesProp'],
   template: `
                 <transition name="fade">
-                <div v-if="show">
+                <div v-if="show" 
+                    v-bind:value="value" 
+                    v-on:input="$emit('input', $event.target.value)">
 		<h2>{{ date }}</h2>
 		<h3>{{ month }}</h3>
         <p> Message: {{ todoHovered }} </p>
-
+        
         <select v-model="selected">
           <option v-for="option in options" v-bind:value="option.value">
                {{ option.text }}
@@ -18,6 +20,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         <span>Selected: {{ selected }}</span>
         <br><br>
 
+        <button @click='changeView("time-machine")'> Change View </button>
         <button v-on:click="show = !show"> Toggle </button>
 	<button @click="previousMonth()">Prev</button>
         <button @click="update()">scl</button>
@@ -48,7 +51,6 @@ window.MonthViewComponent = Vue.component('month-view', {
 
   data: () => ({
     webstrateIdProp,
-    view,
     show: true,
     date: '',
     month: '',
@@ -328,10 +330,10 @@ window.MonthViewComponent = Vue.component('month-view', {
              )
         .enter()
         .append('a')
-        // .attr('v-on:click', 'this.$parent.changeView()')
+        // .attr(':v-on:click', 'changeView("time-machine")')
         // .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
         // .on("mouseover", ({webstrateId}) => this.showMessage(webstrateId))
-        .on("mouseover", ({webstrateId}) =>  this.changeView())
+        .on("mouseover", ({webstrateId}) =>  this.changeView("time-machine"))
         // .on("click", ({ webstrateId }) => {
         //   this.webstrateIdProp = webstrateId
         //   this.view = "time-machine"
