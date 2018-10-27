@@ -1,21 +1,21 @@
 const webstrateIdProp = "terrible-chipmunk-57"
 var view = "overview"
+var testProp = "Not Synchted"
 
 
 const mixin = Vue.mixin({
-  props: ['value'],
+  props: ['value', 'smth', 'testProp', 'relationName'],
   data: () => ({
     inputVal: this.value,
     view
   }),
-  // watch: {
-  //   inputVal(val) {
-  //     this.$emit("input", val)
-  //   }
-  // },
     methods: {
       changeView: function(value) {
         this.$parent.$emit('input', value)
-    }
+      },
+      testSync: function(value) {
+        this.$parent.$emit('update:relationName', value)
+
+      }
   }
 })

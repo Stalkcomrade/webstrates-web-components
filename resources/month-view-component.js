@@ -2,13 +2,17 @@ window.MonthViewComponent = Vue.component('month-view', {
   mixins: [mixin],
   inherit: true,
   props: ['monthProp', 'yearProp', 'maxWebstratesProp'],
+  // v-bind:smth.sync="testProp" 
+  // v-on:sync-input="$emit('update:input', $event.target.value)"
   template: `
                 <transition name="fade">
                 <div v-if="show" 
                     v-bind:value="value" 
-                    v-on:input="$emit('input', $event.target.value)">
+                    v-on:input="$emit('input', $event.target.value)"
+>
 		<h2>{{ date }}</h2>
 		<h3>{{ month }}</h3>
+                <h4> {{ smth }} </h4> 
         <p> Message: {{ todoHovered }} </p>
         
         <select v-model="selected">
@@ -330,8 +334,9 @@ window.MonthViewComponent = Vue.component('month-view', {
              )
         .enter()
         .append('a')
-        .on("mouseover", ({webstrateId}) => this.showMessage(webstrateId))
-        .on("click", ({ webstrateId }) => this.changeView("time-machine")) 
+        // .on("mouseover", ({webstrateId}) => this.showMessage(webstrateId))
+        .on("mouseover", ({webstrateId}) => this.testSync(webstrateId))
+        .on("click", ({webstrateId}) => this.changeView("time-machine")) 
         // .attr(':v-on:click', 'changeView("time-machine")')
         // .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
         .append('circle')
