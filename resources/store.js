@@ -3,7 +3,7 @@ var view = "overview"
 
 
 const mixin = Vue.mixin({
-  props: ['value', 'smth', 'relationName', 'testProp'],
+  props: ['value', 'relationName'],
   data: () => ({
     inputVal: this.value,
     view

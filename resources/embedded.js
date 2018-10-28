@@ -1,11 +1,11 @@
 window.Embedded = Vue.component('embedded', {
+    // <h4> {{ webstrateIdProp }} </h4>
   template: `
 <div>
-  <h2> {{ testProp }} </h2>
   <h3> {{ view }} </h3>
-  <h3> {{ webstrateIdProp }} </h3>
+  <h5>  This is: {{ Id }} </h5>
 <transition name="component-fade" mode="out-in">
-  <component v-bind:is="view" v-model="view" :relation-name.sync="testProp" :relation-name.sync="webstrateIdProp" @click="changeId"></component>
+  <component v-bind:is="view" v-model="view" :relation-name.sync="webstrateIdProp" @click="changeId"></component>
 </transition>
 </div>
 `,
@@ -19,18 +19,18 @@ window.Embedded = Vue.component('embedded', {
 `
     },
     'time-machine': {
-      
+      // :selectedProp="Id"
       template: `
-		<time-machine :selectedProp="webstrateIdProp"/>
+		<time-machine/>
 	`
     }
   },
-  data: {
+  data: () => ({
     view,
     webstrateIdProp,
     tm: "time-machine",
     Id: ""
-  },
+  }),
   methods: {
     changeView: function() {
       this.view = "time-machine"
@@ -47,11 +47,11 @@ window.Embedded = Vue.component('embedded', {
   //     return { Id }
   //   }
   // },
-  // watch: {
-  //   testProp() {
-  //     this.Id = this.testProp
-  //   }
-  // },
+  watch: {
+    webstrateIdProp() {
+      this.Id = this.webstrateIdProp
+    }
+  },
   mounted() {
     // this.$watch(
     // )

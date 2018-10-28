@@ -2,8 +2,6 @@ window.MonthViewComponent = Vue.component('month-view', {
   mixins: [mixin],
   inherit: true,
   props: ['monthProp', 'yearProp', 'maxWebstratesProp'],
-  // v-bind:smth.sync="testProp" 
-  // v-on:sync-input="$emit('update:input', $event.target.value)"
   template: `
                 <transition name="fade">
                 <div v-if="show" 
@@ -12,7 +10,6 @@ window.MonthViewComponent = Vue.component('month-view', {
 >
 		<h2>{{ date }}</h2>
 		<h3>{{ month }}</h3>
-                <h4> {{ smth }} </h4> 
         <p> Message: {{ todoHovered }} </p>
         
         <select v-model="selected">

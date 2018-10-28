@@ -6,7 +6,6 @@
 import { d3Timeline } from '../node_modules/d3-vs';
 
 window.TimeMachineComponent = Vue.component('time-machine', {
-  // mixins: [mixin],
   props: [
     "monthProp",
     "yearProp",
@@ -14,7 +13,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     "selectedProp"
   ],
   data: () => ({
-    webstrateIdProp,
     date: '',
     wbsAuthor: '',
     lastChange: '',
@@ -40,7 +38,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     versioningRaw: '',
     versioningArray: []
   }),
-        // <p> {{ selectedTest }} </p>
+        // <p> {{ this.computedVar }} </p>
   template: `
     <div>
 <d3-timeline
@@ -63,23 +61,32 @@ window.TimeMachineComponent = Vue.component('time-machine', {
 // <h2> {{ webstrateIdProp }} </h2>
   // <select v-model="selected" @change="fetchAll(selected)">
   // watch: {
-  //   selected: function(oldValue, newValue) {
-
+  //   selectedProp: function(oldValue, newValue) {
+  //     console.log("Prop change in child is caught!")
   //   }
-    
   // },
-
-  computed: {
-  },
-  watch: {
-    // selectedProp: function(newValue, oldValue) {
-    //   this.selected = this.selectedProp
-    //   console.dir(newValue + " :this.selected")
+  // computed: {
+    // computedVar: {
+    //   get() {
+    //     return this.selectedProp
+    //   }
     // }
+  // },
+  watch: {
+    selected: function(newValue, oldValue) {
+      // this.selected = this.$parent.relationName
+      this.getVersioningJson()
+      console.dir(newValue + " :this.selected")
+    }
   },
   
-  // beforeCreate: function() {
+  beforeCreate: function() {
+    // console.dir(this.$parent.Id + "TEST!!!")
+    // this.selected = this.$parent.relationName
+    console.dir(this.selected + "beforeCreate")
+  },
   created: function() {
+    console.dir(this.$parent.Id + "TEST!!!")
     this.waitData = new Promise((resolve,reject) => {
     
       this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
@@ -224,7 +231,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     },
 
     fetchAll: function(webstrateIdInst) {
-
       // new Promise((resolve, reject) => {
       // const [ dt1Promise, dt2Promise ] = await Promise.all([this.getVersioningJson() , this.fetchActivity(webstrateIdInst) ]);
       // thsi.getVersioningJson
@@ -236,7 +242,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
       let dt1Inst = this.getVersioningJson()
       let dt2Inst = this.fetchActivity(webstrateIdInst)
       this.dt = dt1Inst.concat(dt2Inst)
-        
       // }).then((dt1, dt2) => {
         // console.dir(dt1, "Dt1")
       // Promise.all(dt1, dt2)
@@ -249,10 +254,15 @@ window.TimeMachineComponent = Vue.component('time-machine', {
         // this.dt = dt1Promise
       // }
         // })
-
       }
     
   },
-  mounted() {}
-          
+  mounted() {
+    // this.selected = this.$parent.relationName
+    this.selected = "hungry-cat-75"
+  },
+  updated() {
+    // this.getVersioningJson()
+  }
+
   });
