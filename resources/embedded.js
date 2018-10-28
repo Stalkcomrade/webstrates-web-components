@@ -4,6 +4,7 @@ window.Embedded = Vue.component('embedded', {
 <div @input="changeView()">
   <h2> {{ testProp }} </h2>
   <h3> {{ view }} </h3>
+  <h4> {{ this.ws.Id }} </h4>
 <transition name="component-fade" mode="out-in">
   <component v-bind:is="view" v-model="view" :relation-name.sync="testProp"></component>
 </transition>
@@ -37,6 +38,19 @@ window.Embedded = Vue.component('embedded', {
       console.dir("I've heard!")
     }
   },
+  computed: {
+    ws() {
+      const Id = this.testProp
+      return { Id }
+    }
+  },
+  // watch: {
+  //   ws() {
+  //     const Id = this.testProp
+  //     return Id
+  //   }
+
+  // },
   mounted() {
     // this.$watch(
     // )
