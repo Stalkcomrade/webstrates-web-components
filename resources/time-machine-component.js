@@ -1,18 +1,12 @@
 // require('/wicked-wombat-56/d3-vs.zip/src/components/d3Timeline/index.js');
-import { d3Timeline } from '../node_modules/d3-vs';
 // /webstrateId/d3-vs.zip
 // import { d3Timeline } from '/wicked-wombat-56/Vs.min.js';
 // import d3Timeline from 'Vs.min.js';
 // import { d3Timeline } from '/wicked-wombat-56/d3-vs.zip/src/components/d3Timeline';
+import { d3Timeline } from '../node_modules/d3-vs';
 
 window.TimeMachineComponent = Vue.component('time-machine', {
   // mixins: [mixin],
-  // props: {
-  //   monthProp: '9',
-  //   yearProp: '2018',
-  //   maxWebstratesProp: '20',
-  //   webstrateIdProp: ""
-  // },
   props: [
     "monthProp",
     "yearProp",
@@ -27,7 +21,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     month: '',
     year: '',
     selected: '',
-    // selected: this.selectedProp,
+    // selectedTest: this.selectedProp,
     options: [],
     maxWebstrates: '',
     totalAcitvityPerMotnh: [],
@@ -46,8 +40,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     versioningRaw: '',
     versioningArray: []
   }),
-        // <p> {{ webstrateIdProp }} </p>
-  
+        // <p> {{ selectedTest }} </p>
   template: `
     <div>
 <d3-timeline
@@ -76,6 +69,14 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     
   // },
 
+  computed: {
+  },
+  watch: {
+    // selectedProp: function(newValue, oldValue) {
+    //   this.selected = this.selectedProp
+    //   console.dir(newValue + " :this.selected")
+    // }
+  },
   
   // beforeCreate: function() {
   created: function() {
@@ -252,7 +253,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
       }
     
   },
-  
   mounted() {}
           
   });

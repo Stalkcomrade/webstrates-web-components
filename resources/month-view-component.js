@@ -44,11 +44,8 @@ window.MonthViewComponent = Vue.component('month-view', {
 
             </transition>
 `,
-
-        // <p> Message: {{ usersPerWs }} </p>
-		// <webstrate-legend/>
-
-  
+  // <p> Message: {{ usersPerWs }} </p>
+  // <webstrate-legend/>
   components: {
     'webstrate-legend-component': WebstrateLegendComponent
   },
@@ -336,7 +333,8 @@ window.MonthViewComponent = Vue.component('month-view', {
         .append('a')
         // .on("mouseover", ({webstrateId}) => this.showMessage(webstrateId))
         .on("mouseover", ({webstrateId}) => this.testSync(webstrateId))
-        .on("click", ({webstrateId}) => this.changeView("time-machine")) 
+        // .on("mouseover", ({webstrateId}) => this.checkEvent(webstrateId))
+        .on("click", ({webstrateId}) => this.changeView("time-machine", webstrateId)) 
         // .attr(':v-on:click', 'changeView("time-machine")')
         // .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
         .append('circle')

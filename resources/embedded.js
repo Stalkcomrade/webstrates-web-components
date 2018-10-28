@@ -1,12 +1,11 @@
 window.Embedded = Vue.component('embedded', {
-  props: ["smth"],
   template: `
-<div @input="changeView()">
+<div>
   <h2> {{ testProp }} </h2>
   <h3> {{ view }} </h3>
-  <h4> {{ this.ws.Id }} </h4>
+  <h3> {{ webstrateIdProp }} </h3>
 <transition name="component-fade" mode="out-in">
-  <component v-bind:is="view" v-model="view" :relation-name.sync="testProp"></component>
+  <component v-bind:is="view" v-model="view" :relation-name.sync="testProp" :relation-name.sync="webstrateIdProp" @click="changeId"></component>
 </transition>
 </div>
 `,
@@ -19,37 +18,39 @@ window.Embedded = Vue.component('embedded', {
         />
 `
     },
-    // :selectedProp="hungry-cat-75"
     'time-machine': {
+      
       template: `
-		<time-machine />
+		<time-machine :selectedProp="webstrateIdProp"/>
 	`
     }
   },
   data: {
     view,
-    testProp,
-    tm: "time-machine",
     webstrateIdProp,
+    tm: "time-machine",
+    Id: ""
   },
   methods: {
     changeView: function() {
       this.view = "time-machine"
       console.dir("I've heard!")
-    }
+    },
+  changeId(value) {
+    this.Id = value
+    console.dir("parent Event:" + this.Id)
+  }
   },
-  computed: {
-    ws() {
-      const Id = this.testProp
-      return { Id }
-    }
-  },
-  // watch: {
+  // computed: {
   //   ws() {
   //     const Id = this.testProp
-  //     return Id
+  //     return { Id }
   //   }
-
+  // },
+  // watch: {
+  //   testProp() {
+  //     this.Id = this.testProp
+  //   }
   // },
   mounted() {
     // this.$watch(
