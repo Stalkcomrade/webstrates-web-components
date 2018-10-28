@@ -1,6 +1,8 @@
 const path = require('path');
-const webpack = require('webpack');
-const { VueLoaderPlugin } = require('vue-loader')
+const definedPath = "/home/stlk/Downloads/node_modules/"
+
+const webpack = require.resolve(path.resolve(definedPath, 'webpack/lib/webpack')); 
+const { VueLoaderPlugin } = require(path.resolve(definedPath, 'vue-loader'));
 
 module.exports = {
   entry: {
@@ -18,10 +20,11 @@ module.exports = {
     rules: [{
       test: /\.vue$/,
        include: [
-                path.resolve(__dirname, 'node_modules/')
+         path.resolve(definedPath)
             ],
       loader: 'vue-loader',
       options: {
+        hotReload: true,
         loaders: {
           css: ['vue-style-loader', {
             loader: 'css-loader',
@@ -36,17 +39,17 @@ module.exports = {
     },
             {
               test: /\.js$/,
-              exclude: path.resolve(__dirname, './node_modules'),
+              exclude: path.resolve(definedPath),
               use: {
                 loader: 'babel-loader',
                 options: {
                   plugins: [
-                    'dynamic-import-webpack',
+                    require.resolve(path.resolve(definedPath, 'babel-plugin-dynamic-import-webpack')),
                   ],
-                  presets: [
-                    ['vue'],
-                    ['@babel/preset-env', { 'modules': false, 'targets': { 'node': 4 }}]
-                  ]
+                    presets: [
+                      [require.resolve(path.resolve(definedPath, "babel-preset-vue"))],
+                      [require.resolve(path.resolve(definedPath, "@babel/preset-env"), { 'modules': false, 'targets': { 'node': 4 }})]
+                    ]
                 }
               }
             },
@@ -67,23 +70,27 @@ module.exports = {
     new VueLoaderPlugin(),
   ],
   resolveLoader: {
-  modules: [path.resolve(__dirname, './node_modules')],
+     modules: [path.resolve(definedPath)],
   },
   resolve: {
-    modules: [path.resolve(__dirname, './node_modules')],
+    modules: [path.resolve(definedPath)],
     alias: {
-      'babel-loader': path.resolve(__dirname, "./node_modules/babel-loader"),
-      'document-offset': path.resolve(__dirname, "./node_modules/document-offset"),
-      'lodash': path.resolve(__dirname, "./node_modules/lodash"),
-      '@babel/preset-env': path.resolve(__dirname, "./node_modules/@babel/preset-env"),
-      'vue': path.resolve(__dirname, "./node_modules/babel-preset-vue"),
-      '../../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css': path.resolve(__dirname, "./node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css"),
-      '../../node_modules/leaflet/dist/leaflet.css': path.resolve(__dirname, "./node_modules/leaflet/dist/leaflet.css"),
-      "./images/layers.png$": path.resolve(__dirname, "./node_modules/leaflet/dist/images/layers.png"),
-      "./images/layers-2x.png$": path.resolve(__dirname, "./node_modules/leaflet/dist/images/layers-2x.png"),
-      "./images/marker-icon.png$": path.resolve(__dirname, "./node_modules/leaflet/dist/images/marker-icon.png"),
-      "./images/marker-icon-2x.png$": path.resolve(__dirname, "./node_modules/leaflet/dist/images/marker-icon-2x.png"),
-      "./images/marker-shadow.png$": path.resolve(__dirname, "./node_modules/leaflet/dist/images/marker-shadow.png")
+      '../node_modules/d3-vs': path.resolve(definedPath, 'd3-vs'),
+      'dynamic-import-webpack': path.resolve("/home/stlk/Downloads/node_modules/babel-plugin-dynamic-import-webpack/lib"),
+      'babel-plugin-dynamic-import-webpack': path.resolve("/home/stlk/Downloads/node_modules/babel-plugin-dynamic-import-webpack/lib"),
+      'babel-loader': path.resolve("/home/stlk/Downloads/node_modules/babel-loader"),
+      'document-offset': path.resolve("/home/stlk/Downloads/node_modules/document-offset"),
+      'lodash': path.resolve(definedPath, "lodash"),
+      '@babel/preset-env': path.resolve("/home/stlk/Downloads/node_modules/@babel/preset-env"),
+      'vue': path.resolve("/home/stlk/Downloads/node_modules/babel-preset-vue"),
+      'babel-preset-vue': path.resolve("/home/stlk/Downloads/node_modules/babel-preset-vue"),
+      '/home/stlk/Downloads/node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css': path.resolve("/home/stlk/Downloads/node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css"),
+      '/home/stlk/Downloads/node_modules/leaflet/dist/leaflet.css': path.resolve("/home/stlk/Downloads/node_modules/leaflet/dist/leaflet.css"),
+      "/images/layers.png$": path.resolve("/home/stlk/Downloads/node_modules/leaflet/dist/images/layers.png"),
+      "/images/layers-2x.png$": path.resolve("/home/stlk/Downloads/node_modules/leaflet/dist/images/layers-2x.png"),
+      "/images/marker-icon.png$": path.resolve("/home/stlk/Downloads/node_modules/leaflet/dist/images/marker-icon.png"),
+      "/images/marker-icon-2x.png$": path.resolve("/home/stlk/Downloads/node_modules/leaflet/dist/images/marker-icon-2x.png"),
+      "/images/marker-shadow.png$": path.resolve("/home/stlk/Downloads/node_modules/leaflet/dist/images/marker-shadow.png")
     }
   }
 }

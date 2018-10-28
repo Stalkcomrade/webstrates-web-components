@@ -16,7 +16,6 @@ window.Embedded = Vue.component('embedded', {
                    v-bind:yearProp="Number(this.year) || (new Date).getFullYear()"
                    v-bind:maxWebstratesProp="20"
         />
-
 `
     },
     // :selectedProp="hungry-cat-75"
@@ -39,10 +38,8 @@ window.Embedded = Vue.component('embedded', {
     }
   },
   mounted() {
-
     // this.$watch(
     // )
-
   },
   created() {
     // this.changeView()

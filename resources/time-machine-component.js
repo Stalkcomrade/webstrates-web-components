@@ -6,7 +6,7 @@ import { d3Timeline } from '../node_modules/d3-vs';
 // import { d3Timeline } from '/wicked-wombat-56/d3-vs.zip/src/components/d3Timeline';
 
 window.TimeMachineComponent = Vue.component('time-machine', {
-  mixins: [mixin],
+  // mixins: [mixin],
   // props: {
   //   monthProp: '9',
   //   yearProp: '2018',
@@ -61,12 +61,11 @@ window.TimeMachineComponent = Vue.component('time-machine', {
           </option>
         </select>
         <button @click="fetchActivity(selected)">UPD SCL</button>
-<h2> {{ testProp }} </h2>
-<h3> {{ view }} </h3>
+
 </div>
-
-
   `,
+  // <h2> {{ testProp }} </h2>
+// <h3> {{ view }} </h3>
     components: { 'd3-timeline': d3Timeline },
 // <h2> {{ webstrateIdProp }} </h2>
   // <select v-model="selected" @change="fetchAll(selected)">
@@ -77,9 +76,9 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     
   // },
 
-  beforeCreate: function() {
-  // created: function() {
-
+  
+  // beforeCreate: function() {
+  created: function() {
     this.waitData = new Promise((resolve,reject) => {
     
       this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
