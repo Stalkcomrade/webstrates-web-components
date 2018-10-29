@@ -4,7 +4,7 @@ window.Embedded = Vue.component('embedded', {
 <div>
   <h3> {{ view }} </h3>
   <h5>  This is: {{ Id }} </h5>
-<transition name="component-fade" mode="out-in">
+<transition name="fade" mode="out-in">
   <component v-bind:is="view" v-model="view" :relation-name.sync="webstrateIdProp" @click="changeId"></component>
 </transition>
 </div>
