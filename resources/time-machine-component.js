@@ -19,7 +19,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     month: '',
     year: '',
     selected: '',
-    // selectedTest: this.selectedProp,
     options: [],
     maxWebstrates: '',
     totalAcitvityPerMotnh: [],
@@ -38,7 +37,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     versioningRaw: '',
     versioningArray: []
   }),
-        // <p> {{ this.computedVar }} </p>
   template: `
     <div>
 <d3-timeline
@@ -55,11 +53,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
 
 </div>
   `,
-  // <h2> {{ testProp }} </h2>
-// <h3> {{ view }} </h3>
     components: { 'd3-timeline': d3Timeline },
-// <h2> {{ webstrateIdProp }} </h2>
-  // <select v-model="selected" @change="fetchAll(selected)">
   // watch: {
   //   selectedProp: function(oldValue, newValue) {
   //     console.log("Prop change in child is caught!")
@@ -81,9 +75,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
   },
   
   beforeCreate: function() {
-    // console.dir(this.$parent.Id + "TEST!!!")
-    // this.selected = this.$parent.relationName
-    console.dir(this.selected + "beforeCreate")
   },
   created: function() {
     console.dir(this.$parent.Id + "TEST!!!")
@@ -177,8 +168,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
             console.dir(this.wbsAuthor)
 
             // parsing the last change made on the webstrate
-
-
             // tmp[tmp.length - 1].op[tmp[tmp.length - 1].op.length - 1].
               // last element            Object.keys(tmp[tmp.length - 1].op[tmp[tmp.length - 1].op.length - 1])[Object.keys(tmp[tmp.length - 1].op[tmp[tmp.length - 1].op.length - 1]).length - 1]
 
@@ -208,11 +197,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
             link:      int.v,
             webstrateId: this.selected
           }))
-
-          
-          
-          // return dt2 
-
         })
     },
 
@@ -224,9 +208,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
           console.log('Fetched:')
           this.versioningRaw = body
         })
-
-
-
 
     },
 
@@ -258,11 +239,8 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     
   },
   mounted() {
-    // this.selected = this.$parent.relationName
-    this.selected = "hungry-cat-75"
+    this.selected = this.$parent.relationName
   },
   updated() {
-    // this.getVersioningJson()
   }
-
   });

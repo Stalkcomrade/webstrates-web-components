@@ -1,7 +1,7 @@
 webstrate.on('loaded', () => {
 
-  // it might be the cause of the issue
-  
+    // it might be the cause of the issue
+
     Vue.config.ignoredElements = ['transient'];
     // Create container and instantiate template.
     const containerElement = document.createElement('transient');
@@ -9,40 +9,40 @@ webstrate.on('loaded', () => {
     const appTemplate = document.querySelector('#appTemplate');
     containerElement.appendChild(appTemplate.content.cloneNode(true));
     document.body.appendChild(containerElement);
-  
-  
-  // Define Vue Router.
-  const router = new VueRouter({
-    routes: [{
-      path: '/',
-      component: OverviewComponent
-    },
-             {
-               path: '/calendar',
-               component: CalendarView
-             },
-             {
-               path: '/real-time',
-               component: RealtimeComponent
-             },
-             {
-               path: '/time-machine',
-               component: TimeMachineComponent
-             },
-             {
-               path: '/embedded',
-               component: Embedded
-             },
 
-             {
-               path: '*',
-               component: {
-                 template: '#template-page-not-found '
-               }
-             }
-            ],
-    linkExactActiveClass: 'active'
-  });
+
+    // Define Vue Router.
+    const router = new VueRouter({
+        routes: [{
+                path: '/',
+                component: OverviewComponent
+            },
+            {
+                path: '/calendar',
+                component: CalendarView
+            },
+            {
+                path: '/time-machine',
+                component: TimeMachineComponent
+            },
+            {
+                path: '/embedded',
+                component: Embedded
+            },
+            {
+                path: '/timeline',
+                component: TimelineComponent
+            },
+
+            {
+                path: '*',
+                component: {
+                    template: '#template-page-not-found '
+                }
+            }
+        ],
+        linkExactActiveClass: 'active'
+    });
 
 
     // Create Vue application and mount in container.
