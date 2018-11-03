@@ -102,43 +102,46 @@ window.TimelineComponent = Vue.component('timeline', {
                 })).value()
             console.dir('Data is Processed Successfully')
         },
-        getHtmlsPerSession: function() {
-            fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
-                .then(html => html.text())
-                .then(body => {
-                    console.log('Fetched: \n' + body)
-                    window.test = body
-                })
-                .catch((error) => {
-                    console.dir("!!! Something happend while fetching Session Html:\n" + error)
-                })
-        },
-        getOpsJson: function() {
-            this.selected = "hungry-cat-75"
-            fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
-                .then(html => html.text())
-                .then(body => {
-                    console.log('Ops History is Fetched Successfully')
-                    this.versioningRaw = body
-                })
-                .then(() => {
-                    this.versioningParsed = JSON.parse(this.versioningRaw)
-                })
-        },
-        createDataObject: function() {
-            this.dt = this.sessionGrouped.map(int => ({
-                from: new Date(int.minConnectTime),
-                to: new Date(int.maxConnectTime),
-                title: "new",
-                label: "new",
-                group: 'edition',
-                className: 'entry--point--default'
-            }))
-            console.dir('Data Object is Created Successfully')
-        },
+        getHtmlsPerSession: async function() {
+                let webpageInitial = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
+                let htmlResultInitial = await webpageInitial.text()
+
+                let webpageLast = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "4000/")
+                let htmlResultLast = await webpageLast.text()
+
+                let results = await Promise.all([
+                    htmlResultInitial,
+                    htmlResultLast
+                ])
+                console.dir(results)
+            },
+            getOpsJson: function() {
+                this.selected = "hungry-cat-75"
+                fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
+                    .then(html => html.text())
+                    .then(body => {
+                        console.log('Ops History is Fetched Successfully')
+                        this.versioningRaw = body
+                    })
+                    .then(() => {
+                        this.versioningParsed = JSON.parse(this.versioningRaw)
+                    })
+            },
+            createDataObject: function() {
+                this.dt = this.sessionGrouped.map(int => ({
+                    from: new Date(int.minConnectTime),
+                    to: new Date(int.maxConnectTime),
+                    title: "new",
+                    label: "new",
+                    group: 'edition',
+                    className: 'entry--point--default'
+                }))
+                console.dir('Data Object is Created Successfully')
+            },
     },
     mounted() {
         this.getOpsJson()
+        this.getHtmlsPerSession()
     },
     updated() {}
 });
