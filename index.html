@@ -1,16 +1,28 @@
 <html __wid="br7VnSkF"><head __wid="dM2VDqcG">
-</head>
+<style id="__web-inspector-hide-shortcut-style__" type="text/css" __wid="948EUsxk">
+.__web-inspector-hide-shortcut__, .__web-inspector-hide-shortcut__ *, .__web-inspector-hidebefore-shortcut__::before, .__web-inspector-hideafter-shortcut__::after
+{
+    visibility: hidden !important;
+}
+</style></head>
 
 <body __wid="ybRFWQ6D">
     <transient id="imports">
 
         <!-- <script type="text/javascript" src="      https://requirejs.org/docs/release/2.3.6/minified/require.js"></script> -->
+        <style __wid="3C4TCyDa" type="text/css" file="layout.css" media="screen"></style>
     </transient>
 
 
+    <!-- <style __wid="3C4TCyDa" type="text/css" file="layout.css" media="screen"></style> -->
+
+
+    <script>
+        (function(){a={_b:0,c:function(){this._b++;return this.b;}};HTMLElement.prototype.pseudoStyle=function(d,e,f){var g="pseudoStyles";var h=document.head||document.getElementsByTagName('head')[0];var i=document.getElementById(g)||document.createElement('style');i.id=g;var j="pseudoStyle"+a.c();this.className+=" "+j;i.innerHTML+=" ."+j+":"+d+"{"+e+":"+f+"}";h.appendChild(i);return this;};})();
+    </script>
 
     <link __wid="mpHfKsST" rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB&quot;" crossorigin="anonymous"/>
-    <link __wid="XA5kaPbH" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" type="text/css"/>
+    <link __wid="XA5kaPbH" type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
 
     <link __wid="FmTxDnDk" type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"/>
 
@@ -27,8 +39,8 @@
     <script __wid="pDuRG8Lf" file="data-fetcher.js"></script>
 
 
-    <script __wid="DFVcaJie" file="template-topmenu.html" id="template-topmenu" type="text/x-template"></script>
-    <script __wid="qGEgvmNf" file="template-page-not-found.html" id="template-page-not-found" type="text/x-template"></script>
+    <script file="template-topmenu.html" __wid="DFVcaJie" id="template-topmenu" type="text/x-template"></script>
+    <script file="template-page-not-found.html" __wid="qGEgvmNf" id="template-page-not-found" type="text/x-template"></script>
 
 
 
@@ -36,9 +48,9 @@
 
 
 
-    <script __wid="HyEZnZR8" file="top-menu-component.js"></script>
+    <script file="top-menu-component.js" __wid="HyEZnZR8"></script>
 
-    <script __wid="AaxCVLp2" file="view-calendar.js"></script>
+    <script file="view-calendar.js" __wid="AaxCVLp2"></script>
 
     <script file="webstrate-legend-component.js" __wid="cY3rCagr"></script>
 
@@ -58,10 +70,10 @@
 
     <script file="dom-tree-component.js"></script>
 
+    <script file="css-test-component.js"></script>
+
     <script __wid="gayJyze3" file="script.js"></script>
 
-
-    <style __wid="3C4TCyDa" type="text/css" file="layout.css" media="screen"></style>
 
     <template __wid="YPHJVtbu" id="appTemplate">
         <top-menu __wid="AkH5SKmt"></top-menu>
@@ -69,6 +81,7 @@
             <router-view __wid="xBeC9rik"></router-view>
         </div>
     </template>
+
 
 
 

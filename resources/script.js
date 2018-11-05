@@ -38,6 +38,10 @@ webstrate.on('loaded', () => {
                 component: DomTreeComponent
             },
             {
+                path: '/css-test',
+                component: CssTestComponent
+            },
+            {
                 path: '*',
                 component: {
                     template: '#template-page-not-found '
