@@ -2,6 +2,11 @@ import {
     d3Timeline
 } from '../node_modules/d3-vs';
 
+window.jsdiff = require('json0-ot-diff')
+// window.path = require('path') // FIXME get rid of it
+// window.coreJsonML = require.resolve(window.path.resolve("/home/stlk/Downloads/node_modules/webstratesModules/coreJsonML.js"));
+// window.coreJsonML = require.resolve('coreJsonML')
+
 window.TimelineComponent = Vue.component('timeline', {
     props: [
         "monthProp",
@@ -23,7 +28,8 @@ window.TimelineComponent = Vue.component('timeline', {
         htmlData: "",
         sessionGrouped: '',
         options: '',
-        versioningParsed: ""
+        versioningParsed: "",
+        intermSession: ""
     }),
     template: `
       <d3-timeline
@@ -114,6 +120,8 @@ window.TimelineComponent = Vue.component('timeline', {
                     htmlResultLast
                 ])
                 console.dir(results)
+
+                return results
             },
             getOpsJson: function() {
                 this.selected = "hungry-cat-75"
@@ -139,9 +147,11 @@ window.TimelineComponent = Vue.component('timeline', {
                 console.dir('Data Object is Created Successfully')
             },
     },
-    mounted() {
+    async mounted() {
         this.getOpsJson()
         this.getHtmlsPerSession()
+        this.intermSession = await this.getHtmlsPerSession()
+        window.intermSession = this.intermSession
     },
     updated() {}
 });
