@@ -3,9 +3,7 @@ import {
 } from '../node_modules/d3-vs';
 
 window.jsdiff = require('json0-ot-diff')
-// window.path = require('path') // FIXME get rid of it
-// window.coreJsonML = require.resolve(window.path.resolve("/home/stlk/Downloads/node_modules/webstratesModules/coreJsonML.js"));
-// window.coreJsonML = require.resolve('coreJsonML')
+window.js = require('html-to-jsonml')
 
 window.TimelineComponent = Vue.component('timeline', {
     props: [
@@ -109,10 +107,12 @@ window.TimelineComponent = Vue.component('timeline', {
             console.dir('Data is Processed Successfully')
         },
         getHtmlsPerSession: async function() {
-                let webpageInitial = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
+                // let webpageInitial = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
+                let webpageInitial = await fetch("https://webstrates.cs.au.dk/wicked-wombat-56/" + "10/")
                 let htmlResultInitial = await webpageInitial.text()
 
-                let webpageLast = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "4000/")
+                // let webpageLast = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "4000/")
+                let webpageLast = await fetch("https://webstrates.cs.au.dk/wicked-wombat-56/" + "3570/")
                 let htmlResultLast = await webpageLast.text()
 
                 let results = await Promise.all([
