@@ -36,7 +36,10 @@ window.DomTreeComponent = Vue.component('dom-tree', {
     methods: {
 
         getHtmlsPerSession: async function() {
-                let webpageInitial = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
+                // let wsId = "massive-skunk-85"
+                // let wsId = "hungry-cat-75"
+                let wsId = "wonderful-newt-54/"
+                let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + "282/?raw")
                 let htmlResultInitial = await webpageInitial.text()
                 console.dir('html is fetched successfully')
                 return htmlResultInitial
@@ -83,12 +86,15 @@ window.DomTreeComponent = Vue.component('dom-tree', {
             init: function() {
                 console.dir("init starts")
                 var $el = this.htmlObject.getElementsByTagName("BODY")[0]
+                console.dir($el)
                 this.walk($el.children[0], node => {
+                    console.dir(node)
                     var levelNodes = this.getLevelNodes(node)
                     var childIndex = this.getChildIndex(node)
                     var width = 90 / levelNodes.length
                     var leftSlice = 100 / levelNodes.length
                     var left = leftSlice * childIndex
+                    // var wsElementId = node.attributes[2].value // TODO: check that 2nd index is always wsID
                     this.clearInside(node)
                     this.tagNodeName(node)
                     this.handleImage(node)
@@ -100,6 +106,7 @@ window.DomTreeComponent = Vue.component('dom-tree', {
       `
                 })
                 this.finalHtml = $el.innerHTML
+                // TODO: map w_ids
             }
     },
     beforeCreate() {},

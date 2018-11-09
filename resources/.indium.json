@@ -1,0 +1,8 @@
+{
+    "configurations": [{
+        "name": "Web project",
+        "type": "chrome",
+        "command": "chromium-browser",
+        "url": "https://webstrates.cs.au.dk/wicked-wombat-56/#/timeline"
+    }]
+}

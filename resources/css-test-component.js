@@ -50,11 +50,11 @@ window.CssTestComponent = Vue.component('css-test', {
     },
     methods: {
 
-        getLevelNodes: function(node) {
+        getLevelNodes: function(node) { // used for indexing
             return Array.from(node.parentNode.children)
         },
 
-        getChildIndex: function(node) {
+        getChildIndex: function(node) { // used for indexing
             return this.getLevelNodes(node).indexOf(node)
         },
 
@@ -77,7 +77,7 @@ window.CssTestComponent = Vue.component('css-test', {
                 node.alt = 'IMG'
             }
         },
-
+        // used for recursive walk
         walk: function(node, cb) {
             cb(node)
             if (node.children.length) {
@@ -90,10 +90,13 @@ window.CssTestComponent = Vue.component('css-test', {
 
         init: function() {
             console.dir("init starts")
-            // var $el = document.getElementsByClassName('treeUnique')[0].children
             var $el = document.getElementById('treeUnique')
+            // var $el = document.getElementsByClassName('treeUnique')[0].children
             // window.element = this.htmlFromData.htmlObject.getElementById('tree')
+            // d3.selectAll('div')
             this.walk($el.children[0], node => {
+                // d3.select(node)
+                //     .attr("wsId", node.attributes[2].value)
                 var levelNodes = this.getLevelNodes(node)
                 var childIndex = this.getChildIndex(node)
                 var width = 90 / levelNodes.length
@@ -119,12 +122,6 @@ window.CssTestComponent = Vue.component('css-test', {
         color: #fff;
         transition: all .3s;
       `
-                // document.styleSheets[0].insertRule('#elid:hover { background-color: red; }', 0);
-                // node.pseudoStyle("hover", "background", "purple")
-                // populate children with v-style tag
-                // node.setAttribute('style', 'color: red')
-                // node.setAttribute('v-bind:style', 'customStyle')
-                // v-bind:style="customStyle"
             })
             this.finalHtml = $el.innerHTML
         }

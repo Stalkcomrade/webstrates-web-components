@@ -4,6 +4,7 @@ import {
 
 window.jsdiff = require('json0-ot-diff')
 window.js = require('html-to-jsonml')
+window.jsdiffTrue = require('diff')
 
 window.TimelineComponent = Vue.component('timeline', {
     props: [
@@ -27,7 +28,8 @@ window.TimelineComponent = Vue.component('timeline', {
         sessionGrouped: '',
         options: '',
         versioningParsed: "",
-        intermSession: ""
+        intermSession: "",
+        wsId: ''
     }),
     template: `
       <d3-timeline
@@ -107,17 +109,35 @@ window.TimelineComponent = Vue.component('timeline', {
             console.dir('Data is Processed Successfully')
         },
         getHtmlsPerSession: async function() {
+
+                // this.wsId = "hungry-cat-75"
+                this.wsId = "massive-skunk-85"
+
+                let numberInitial = 2
+                let numberLast = 177
+
+
                 // let webpageInitial = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
-                let webpageInitial = await fetch("https://webstrates.cs.au.dk/wicked-wombat-56/" + "10/")
+                // let webpageInitial = await fetch("https://webstrates.cs.au.dk/wicked-wombat-56/" + "3000/?raw")
+                let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberInitial + "/?raw")
                 let htmlResultInitial = await webpageInitial.text()
 
+                let webpageInitialJson = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberInitial + "/?json")
+                let htmlResultInitialJson = await webpageInitialJson.text()
+
                 // let webpageLast = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "4000/")
-                let webpageLast = await fetch("https://webstrates.cs.au.dk/wicked-wombat-56/" + "3570/")
+                let webpageLast = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberLast + "/?raw")
                 let htmlResultLast = await webpageLast.text()
+
+                let webpageLastJson = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberLast + "/?json")
+                let htmlResultLastJson = await webpageLastJson.text()
+
 
                 let results = await Promise.all([
                     htmlResultInitial,
-                    htmlResultLast
+                    htmlResultLast,
+                    htmlResultInitialJson,
+                    htmlResultLastJson
                 ])
                 console.dir(results)
 
