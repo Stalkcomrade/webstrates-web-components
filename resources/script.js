@@ -22,12 +22,12 @@ webstrate.on('loaded', () => {
                 component: CalendarView
             },
             {
-                path: '/time-machine',
-                component: TimeMachineComponent
+                path: '/small-multiples',
+                component: smallMultiplesComponent
             },
             {
-                path: '/embedded',
-                component: Embedded
+                path: '/time-machine',
+                component: TimeMachineComponent
             },
             {
                 path: '/timeline',
@@ -40,6 +40,10 @@ webstrate.on('loaded', () => {
             {
                 path: '/css-test',
                 component: CssTestComponent
+            },
+            {
+                path: '/embedded',
+                component: Embedded
             },
             {
                 path: '*',
