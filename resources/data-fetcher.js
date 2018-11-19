@@ -1,4 +1,6 @@
-const userId = 'cklokmose:github'; //webstrate.user.userId;
+// const userId = 'cklokmose:github'; //webstrate.user.userId;
+const userId = webstrate.user.userId // const userId = 'Stalkcomrade:github'
+console.dir(webstrate.user.userId)
 const ws = new WebSocket('wss://webstrates.cs.au.dk/_monitor');
 
 // Generate random string to be used as tokens.
@@ -10,67 +12,77 @@ const promises = new Map();
 // Every 25 second or so we send a ping message to keep the connection alive.
 let interval;
 ws.onopen = (e) => {
-	setInterval(() => {
-		sendMsg({ type: 'ping' });
-	}, 25 * 1000);
+    setInterval(() => {
+        sendMsg({
+            type: 'ping'
+        });
+    }, 25 * 1000);
 };
 
-ws.onclose = (e) =>  {
-	clearInterval(interval);
+ws.onclose = (e) => {
+    clearInterval(interval);
 };
 
 // This is where we handle incoming messages!
 ws.onmessage = (msg) => {
-	msg = JSON.parse(msg.data);
+    msg = JSON.parse(msg.data);
 
-	// We set a token on messages we expect an answer to. This token is included in the answer we get
-	// from the server. Or it should be. If it isn't there, we don't know what the message is an
-	// answer to, so we toss it out.
-	if (!msg.token) {
-		console.error('Received msg without token', msg);
-		return;
-	}
+    // We set a token on messages we expect an answer to. This token is included in the answer we get
+    // from the server. Or it should be. If it isn't there, we don't know what the message is an
+    // answer to, so we toss it out.
+    if (!msg.token) {
+        console.error('Received msg without token', msg);
+        return;
+    }
 
-	// promises is a map from tokens to callbacks. If there's no callback associated with the token we
-	// got back, we can't do anything with the answer, so we toss it out.
-	if (!promises.has(msg.token)) {
-		console.error('Found no callback for token', msg);
-		return;
-	}
+    // promises is a map from tokens to callbacks. If there's no callback associated with the token we
+    // got back, we can't do anything with the answer, so we toss it out.
+    if (!promises.has(msg.token)) {
+        console.error('Found no callback for token', msg);
+        return;
+    }
 
-	// Finally! If there's a token and it belongs to a callback, we call the callback with the answer
-	// from the server.
-	const [resolve, reject] = promises.get(msg.token);
-	promises.delete(msg.token);
-	resolve(msg.payload);
+    // Finally! If there's a token and it belongs to a callback, we call the callback with the answer
+    // from the server.
+    const [resolve, reject] = promises.get(msg.token);
+    promises.delete(msg.token);
+    resolve(msg.payload);
 };
 
 const sendMsg = (msg) => {
-	switch (ws.readyState) {
+    switch (ws.readyState) {
 
-		// If the websocket is about to connect, we wait 100 ms and try again.
-		case WebSocket.CONNECTING: {
-			setTimeout(sendMsg, 100, msg);
-			break;
-		}
+        // If the websocket is about to connect, we wait 100 ms and try again.
+        case WebSocket.CONNECTING:
+            {
+                setTimeout(sendMsg, 100, msg);
+                break;
+            }
 
-		// If the websocket is open and ready to use, we send the message as requested.
-		case WebSocket.OPEN: {
-			ws.send(JSON.stringify(msg));
-			break;
-		}
+            // If the websocket is open and ready to use, we send the message as requested.
+        case WebSocket.OPEN:
+            {
+                ws.send(JSON.stringify(msg));
+                break;
+            }
 
-		// If the websocket is closing or closed, we throw an error.
-		case WebSocket.CLOSING:
-		case WebSocket.CLOSED: {
-			throw new Error('Websocket closing');
-		}
+            // If the websocket is closing or closed, we throw an error.
+        case WebSocket.CLOSING:
+        case WebSocket.CLOSED:
+            {
+                throw new Error('Websocket closing');
+            }
 
-	}
+    }
 };
 
 const dataFetcher = window.dataFetcher = (type, options) => new Promise((resolve, reject) => {
-	const token = randomString();
-	promises.set(token, [resolve, reject]);
-	sendMsg({ type, token, options, userId });
+    const token = randomString();
+    promises.set(token, [resolve, reject]);
+    sendMsg({
+        type,
+        token,
+        options,
+        userId
+    });
 });

@@ -1,27 +1,38 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary" id="topmenu">
-    <a class="navbar-brand mr-auto" href="">Dashboard</a>
+  <a class="navbar-brand mr-auto" href="">Dashboard</a>
+   <div class="dropdown">
+      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Overview
+        <span class="caret"></span></button>
+      <ul class="dropdown-menu">
+        <li><a href="#/calendar">Calendar</a></li>
+        <li><a href="#/">Overview</a></li>
+        <li><a href="#/small-multiples">Small Multiples</a></li>
+      </ul>
+    </div>
+    <div class="dropdown">
+      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Time-Machine
+        <span class="caret"></span></button>
+      <ul class="dropdown-menu">
+        <li><a href="#/time-machine">Version Timeline</a></li>
+        <li><a href="#/timeline">Session Timeline</a></li>
+      </ul>
+    </div>
+    <div class="dropdown">
+      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Element-Wise Inspection
+        <span class="caret"></span></button>
+      <ul class="dropdown-menu">
+        <li><a href="#/dom-tree">DOM Tree</a></li>
+        <li><a href="#/css-test">CSS Test</a></li>
+      </ul>
+    </div>
+    <div class="dropdown">
+      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Embedded Components
+        <span class="caret"></span></button>
+      <ul class="dropdown-menu">
+        <li><a href="#/embedded">Calendar with Version Timeline</a></li>
+      </ul>
+    </div>
     <ul class="navbar-nav">
-        <li class="nav-item">
-            <router-link class="nav-link" to="/time-machine">Time-Machine</router-link>
-        </li>
-        <li class="nav-item">
-            <router-link class="nav-link" to="/">Overview</router-link>
-        </li>
-        <li class="nav-item">
-            <router-link class="nav-link" to="/embedded">Embedded</router-link>
-        </li>
-        <li class="nav-item">
-            <router-link class="nav-link" to="/timeline">Session Timeline</router-link>
-        </li>
-        <li class="nav-item">
-            <router-link class="nav-link" to="/dom-tree">DOM Tree</router-link>
-        </li>
-        <li class="nav-item">
-            <router-link class="nav-link" to="/css-test">CSS Test</router-link>
-        </li>
-        <li class="nav-item">
-            <router-link class="nav-link" to="/calendar">Calendar</router-link>
-        </li>
         <li class="nav-item">
             <router-link class="nav-link" to="/recent">Recent</router-link>
         </li>

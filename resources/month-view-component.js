@@ -433,7 +433,9 @@ window.MonthViewComponent = Vue.component('month-view', {
                 const activityPromise = dataFetcher('activities', {
                     webstrateId: webstrateIdInst,
                     toDate,
-                    fromDate
+                    fromDate,
+                    // userId: 'Stalkcomrade:github' // TODO: add userID
+                    // userId: 
                 })
 
                 let usersPerWsSet = new Set()

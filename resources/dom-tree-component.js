@@ -39,7 +39,8 @@ window.DomTreeComponent = Vue.component('dom-tree', {
                 // let wsId = "massive-skunk-85"
                 // let wsId = "hungry-cat-75"
                 let wsId = "wonderful-newt-54/"
-                let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + "282/?raw")
+                let version = 305
+                let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + version + "/?raw")
                 let htmlResultInitial = await webpageInitial.text()
                 console.dir('html is fetched successfully')
                 return htmlResultInitial
@@ -61,7 +62,6 @@ window.DomTreeComponent = Vue.component('dom-tree', {
                 Array.from(node.childNodes).forEach(child => {
                     if (child.nodeName === '#text') {
                         child.remove()
-
                     }
                 })
             },
@@ -73,6 +73,7 @@ window.DomTreeComponent = Vue.component('dom-tree', {
                 }
             },
 
+            // recurcive functions are awesome
             walk: function(node, cb) {
                 cb(node)
                 if (node.children.length) {
@@ -86,15 +87,27 @@ window.DomTreeComponent = Vue.component('dom-tree', {
             init: function() {
                 console.dir("init starts")
                 var $el = this.htmlObject.getElementsByTagName("BODY")[0]
-                console.dir($el)
+                window.el = $el.children[0]
+                // console.dir($el)
+                // checking inner HTML or code block
+
                 this.walk($el.children[0], node => {
-                    console.dir(node)
                     var levelNodes = this.getLevelNodes(node)
                     var childIndex = this.getChildIndex(node)
                     var width = 90 / levelNodes.length
                     var leftSlice = 100 / levelNodes.length
                     var left = leftSlice * childIndex
-                    // var wsElementId = node.attributes[2].value // TODO: check that 2nd index is always wsID
+
+                    // d3.select(node) //
+                    //     .on("click", function() {
+                    //         console.dir(node.innerHTML)
+                    //     })
+                    // .attr("color", "red")
+                    // .attr("href", "https://google.com")
+                    // .on("mouseover", console.dir(node.innerHTML))
+                    // TODO: filter and map only this element kqEjdGY2
+                    // FIXME: kuTCTU7A - it is a parent of previous id element
+
                     this.clearInside(node)
                     this.tagNodeName(node)
                     this.handleImage(node)
@@ -104,9 +117,25 @@ window.DomTreeComponent = Vue.component('dom-tree', {
         left:  ${left}%;
         line-height: 2.5vw;
       `
+                    // console.dir(node.getAttribute("__wid"))
+                    // Parent Element
+                    if (node.getAttribute("__wid") === "kuTCTU7A") {
+                        // console.dir(node.innerHTML)
+                    }
+                    // Child Element
+                    if (node.getAttribute("__wid") === "kqEjdGY2") {
+                        // console.dir(node.innerHTML)
+                    }
+
+
+                    d3.select(node) //
+                        // .append('svg')
+                        .on("click", function() {
+                            console.dir("node.innerHTML")
+                        })
+
                 })
                 this.finalHtml = $el.innerHTML
-                // TODO: map w_ids
             }
     },
     beforeCreate() {},
