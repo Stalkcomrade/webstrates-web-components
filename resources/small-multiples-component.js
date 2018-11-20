@@ -37,6 +37,8 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
             });
 
 
+
+
         // TODO: filter values of original d instead
         var areaSelected = d3.area()
             .x(function(d) {
@@ -67,7 +69,7 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                 // }
             });
 
-        console.dir(areaSelected)
+        // console.dir(areaSelected)
 
         var line = d3.line()
             .x(function(d) {
@@ -92,17 +94,23 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                 })
                 .entries(data);
 
-            console.dir(symbols)
+            // console.dir(symbols)
 
-            var parseDate = d3.timeParse("%b %Y")
+            // var parseDate = d3.timeParse("%b %Y")
 
-            function flt(value) {
-                return ((value.date > parseDate('Jan 2002')) && (value.date < parseDate('Jan 2003')))
-            }
+            // function flt(d) {
+            //     return ((d.date > parseDate('Jan 2002')) && (d.date < parseDate('Jan 2003')))
+
+            // }
 
 
-            window.symbols = symbols
-            window.flt = symbols.forEach(elem => elem.values.filter(flt))
+            // window.flt = symbols.forEach(elem => elem.values.filter(flt))
+
+
+            // window.symbols.forEach(function(elem) {
+            //   elem.values.forEach(function(d))
+            // })
+
 
             // Compute the maximum price per symbol, needed for the y-domain.
             symbols.forEach(function(s) {
@@ -121,6 +129,13 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                     }
                 });
             });
+
+
+            window.symbols = symbols
+            // console.dir(symbols)
+
+
+
 
 
 
@@ -173,7 +188,7 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                 .attr("fill", "red")
                 .attr("d", function(d) {
                     y.domain([0, d.maxPriceSelected]);
-                    return areaSelected(d.values);
+                    return areaSelected(d.values); // d.values
                 });
 
 

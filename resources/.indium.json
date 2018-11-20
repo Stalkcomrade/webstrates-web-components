@@ -2,7 +2,7 @@
     "configurations": [{
         "name": "Web project",
         "type": "chrome",
-        "command": "chromium-browser",
+        "command": "chromium-browser --remote-debugging-port=9222 --incognito",
         "url": "https://webstrates.cs.au.dk/wicked-wombat-56/#/timeline"
     }]
 }
