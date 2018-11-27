@@ -5,10 +5,12 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 <br>
 <br>
 <br>
-  <div class="treeUnique" v-html="finalHtml"></div>
+  <div class="treeUnique"></div>
 </div>
 `,
     data: () => ({
+        d3Data: [],
+        d3Object: {},
         finalHtml: '',
         htmlObjectReady: false,
         htmlObject: '',
@@ -46,10 +48,12 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 return htmlResultInitial
             },
 
+            // get children from parentnoted
             getLevelNodes: function(node) {
                 return Array.from(node.parentNode.children)
             },
 
+            // get index of child
             getChildIndex: function(node) {
                 return this.getLevelNodes(node).indexOf(node)
             },
@@ -65,14 +69,12 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                     }
                 })
             },
-
             handleImage: function(node) {
                 if (node.nodeName === 'IMG') {
                     node.src = ''
                     node.alt = 'IMG'
                 }
             },
-
             // recurcive functions are awesome
             walk: function(node, cb) {
                 cb(node)
@@ -83,7 +85,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                     this.walk(node.nextElementSibling, cb)
                 }
             },
-
             init: function() {
                 console.dir("init starts")
                 var $el = this.htmlObject.getElementsByTagName("BODY")[0]
@@ -91,45 +92,19 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 // checking inner HTML or code block
 
                 this.walk($el.children[0], node => {
+                    // this.d3Data = Array.push()
+
                     var levelNodes = this.getLevelNodes(node)
-                    var childIndex = this.getChildIndex(node)
-                    var width = 90 / levelNodes.length
-                    var leftSlice = 100 / levelNodes.length
-                    var left = leftSlice * childIndex
 
-                    // d3.select(node) //
-                    //     .on("click", function() {
-                    //         console.dir(node.innerHTML)
-                    //     })
-                    // .attr("color", "red")
-                    // .attr("href", "https://google.com")
-                    // .on("mouseover", console.dir(node.innerHTML))
+                    this.d3Data.push(levelNodes)
+                    // console.dir(levelNodes)
+                    // this.d3Object.name = Object.values(levelNodes) // get type and class of element
+                    // this.d3Object.children.push()
 
-                    this.clearInside(node)
-                    this.tagNodeName(node)
-                    this.handleImage(node)
-                    // it is important not to specify color and background in case of :hover usage
-                    node.style.cssText += `;
-        width: ${width}%;
-        left:  ${left}%;
-        line-height: 2.5vw;
-      `
-                    // console.dir(node.getAttribute("__wid"))
-                    // Parent Element
-                    if (node.getAttribute("__wid") === "kuTCTU7A") {
-                        // console.dir(node.innerHTML)
-                    }
-                    // Child Element
-                    if (node.getAttribute("__wid") === "kqEjdGY2") {
-                        // console.dir(node.innerHTML)
-                    }
-                    d3.select(node) //
-                        .on("click", function() {
-                            console.dir("node.innerHTML")
-                        })
                 })
                 this.finalHtml = $el.innerHTML
-            }
+            },
+            // aggregateData: function() {}
     },
     beforeCreate() {},
     async created() {},
@@ -137,5 +112,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
         this.htmlString = await this.getHtmlsPerSession()
         this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
         this.init()
+        window.d3Data = this.d3Data
     }
 })
