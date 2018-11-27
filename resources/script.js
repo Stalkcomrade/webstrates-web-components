@@ -1,7 +1,5 @@
 webstrate.on('loaded', () => {
 
-    // it might be the cause of the issue
-
     Vue.config.ignoredElements = ['transient'];
     // Create container and instantiate template.
     const containerElement = document.createElement('transient');
@@ -36,6 +34,10 @@ webstrate.on('loaded', () => {
             {
                 path: '/dom-tree',
                 component: DomTreeComponent
+            },
+            {
+                path: '/dom-tree-d3',
+                component: DomTreeD3Component
             },
             {
                 path: '/css-test',

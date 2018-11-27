@@ -1,4 +1,4 @@
-window.DomTreeComponent = Vue.component('dom-tree', {
+window.DomTreeD3Component = Vue.component('dom-tree-d3', {
     template: `
 <div>
 <br>
