@@ -1,5 +1,6 @@
 // const userId = 'cklokmose:github'; //webstrate.user.userId;
-const userId = webstrate.user.userId // const userId = 'Stalkcomrade:github'
+// const userId = webstrate.user.userId // const userId = 'Stalkcomrade:github'
+const userId = 'Stalkcomrade:github'
 console.dir(webstrate.user.userId)
 const ws = new WebSocket('wss://webstrates.cs.au.dk/_monitor');
 

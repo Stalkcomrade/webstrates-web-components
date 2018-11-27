@@ -36,40 +36,17 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                 return y(d.price)
             });
 
+        var parseDate = d3.timeParse("%b %Y")
 
-
-
-        // TODO: filter values of original d instead
         var areaSelected = d3.area()
             .x(function(d) {
-                var parseDate = d3.timeParse("%b %Y")
-                if (d.date > parseDate('Jan 2002') && d.date < parseDate('Jan 2003')) {
-                    return x(d.date);
-                }
-                // else {
-                // return 0
-                // }
+                return x(d.date);
             })
-            .y0(function(d, height) {
-                var parseDate = d3.timeParse("%b %Y")
-                if (d.date > parseDate('Jan 2002') && d.date < parseDate('Jan 2003')) {
-                    return height
-                }
-                // else {
-                // return height
-                // }
-            })
+            .y0(height)
             .y1(function(d) {
-                var parseDate = d3.timeParse("%b %Y")
-                if (d.date > parseDate('Jan 2002') && d.date < parseDate('Jan 2003')) {
-                    return y(d.price);
-                }
-                // else {
-                // return 0
-                // }
+                return y(d.price)
             });
 
-        // console.dir(areaSelected)
 
         var line = d3.line()
             .x(function(d) {
@@ -94,24 +71,6 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                 })
                 .entries(data);
 
-            // console.dir(symbols)
-
-            // var parseDate = d3.timeParse("%b %Y")
-
-            // function flt(d) {
-            //     return ((d.date > parseDate('Jan 2002')) && (d.date < parseDate('Jan 2003')))
-
-            // }
-
-
-            // window.flt = symbols.forEach(elem => elem.values.filter(flt))
-
-
-            // window.symbols.forEach(function(elem) {
-            //   elem.values.forEach(function(d))
-            // })
-
-
             // Compute the maximum price per symbol, needed for the y-domain.
             symbols.forEach(function(s) {
                 s.maxPrice = d3.max(s.values, function(d) {
@@ -130,14 +89,24 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                 });
             });
 
+            // SOLVED: var for selected (user) area
+            var symbols = symbols.map(object => ({
+                key: object.key,
+                maxPrice: object.maxPrice,
+                maxPriceSelected: object.maxPriceSelected,
+                values: object.values,
+                valuesFiltered: _.filter(object.values, function(el) {
+                    return el.date > parseDate('Jan 2002') &&
+                        el.date < parseDate('Jan 2003')
+                }),
+            })).filter(object => {
+                return object.values.some((el) => { // filters objects without this date
+                    return el.date > parseDate('Jan 2002') &&
+                        el.date < parseDate('Jan 2003')
+                })
+            })
 
             window.symbols = symbols
-            // console.dir(symbols)
-
-
-
-
-
 
             // Compute the minimum and maximum date across symbols.
             // We assume values are sorted by date.
@@ -160,7 +129,8 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-            // // Add the area path elements. Note: the y-domain is set per element.
+
+            // Add the area path elements. Note: the y-domain is set per element.
             svg.append("path")
                 .attr("class", "area")
                 .attr("fill", "blue")
@@ -184,13 +154,12 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
             // Add Selected Area
 
             svg.append("path")
-                .attr("class", "areaSelected")
+                .attr("class", "area")
                 .attr("fill", "red")
                 .attr("d", function(d) {
-                    y.domain([0, d.maxPriceSelected]);
-                    return areaSelected(d.values); // d.values
+                    y.domain([0, d.maxPrice]);
+                    return areaSelected(d.valuesFiltered); // d.values
                 });
-
 
             // add a small label for the symbol name.
             svg.append("text")
@@ -200,6 +169,7 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                 .text(function(d) {
                     return d.key;
                 });
+
         });
     }
 })
