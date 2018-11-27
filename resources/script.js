@@ -46,6 +46,10 @@ webstrate.on('loaded', () => {
                 component: Embedded
             },
             {
+                path: '/transclusion1',
+                component: transclusionComponent
+            },
+            {
                 path: '*',
                 component: {
                     template: '#template-page-not-found '
