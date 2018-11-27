@@ -104,8 +104,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                     // .attr("color", "red")
                     // .attr("href", "https://google.com")
                     // .on("mouseover", console.dir(node.innerHTML))
-                    // TODO: filter and map only this element kqEjdGY2
-                    // FIXME: kuTCTU7A - it is a parent of previous id element
 
                     this.clearInside(node)
                     this.tagNodeName(node)
@@ -125,13 +123,10 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                     if (node.getAttribute("__wid") === "kqEjdGY2") {
                         // console.dir(node.innerHTML)
                     }
-
-
                     d3.select(node) //
                         .on("click", function() {
                             console.dir("node.innerHTML")
                         })
-
                 })
                 this.finalHtml = $el.innerHTML
             }
