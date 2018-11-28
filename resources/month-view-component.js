@@ -435,7 +435,6 @@ window.MonthViewComponent = Vue.component('month-view', {
                     toDate,
                     fromDate,
                     // userId: 'Stalkcomrade:github' // TODO: add userID
-                    // userId: 
                 })
 
                 let usersPerWsSet = new Set()
@@ -523,8 +522,6 @@ window.MonthViewComponent = Vue.component('month-view', {
                 breaks = d3.range(dom[0], dom[1], l)
 
             // console.dir(trueBreaks)
-            // console.dir(this.d3colorsQuantizeMonth(trueBreaks[0]))
-            // console.dir(this.d3colorsQuantizeMonth(trueBreaks[1]))
             // console.dir(this.d3colorsQuantizeMonth(trueBreaks[2]))
 
 
