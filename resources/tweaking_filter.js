@@ -156,6 +156,7 @@ var items = [{
     }
 ]
 
+// TODO: seems like this is the major one to change
 function hashing(str) { // TODO: get rid of object in return
 
     var roots = [],
@@ -183,6 +184,7 @@ function hashing(str) { // TODO: get rid of object in return
 
 }
 
+
 // TODO: making it recursive
 // INFO: roots are cleaned every cycle, so it should be accomplished somewhere else
 // FIXME: the function misses middle - level - the initial input is array
@@ -191,7 +193,7 @@ function hashing(str) { // TODO: get rid of object in return
 
 recursiveWalks(hashing(window.el.children)["target"])
 
-function recursiveWalks(roots, cb) { // TODO: either add here a function for each element, either somehow tweak the for loops inside
+function recursiveWalks(roots) { // TODO: either add here a function for each element, either somehow tweak the for loops inside
 
     // var parent = roots[i]
     // var children = {}
@@ -202,6 +204,109 @@ function recursiveWalks(roots, cb) { // TODO: either add here a function for eac
         if (parent.value.childElementCount != 0) {
             console.dir("Child!")
             // parent.children = parent.value.children // TODO: I need to assign here the product of the hashing()
+            parent.children = hashing(parent.value.children)["target"] // FIXME: get rid of it
+
+            // if (parent.children.value.ChildElementCount != 0) { // INFO: whether current child contains children
+            //     childrenExist = childrenExist + 1
+            // }
+
+            for (var i = 0, len = parent.value.children; i < len; ++i) { // INFO: for every child on current level
+                findChildren(parent.children[i])
+
+            }
+        }
+    }
+
+
+    // INFO: I am replacing this with a element-wise loop in the head of function
+    for (var i = 0, len = roots.length; i < len; ++i) {
+        findChildren(roots[i])
+    }
+
+    // if (childrenExist) { // TODO: check whether at least one element contains children with non NULl length
+    //     recursiveWalks(roots) // FIXME: how to indicate the desired level?
+    // }
+
+    return roots // FIXME: put return in the right place
+
+}
+
+
+// complete function
+function rc(str, cb) {
+
+    var roots = [],
+        children = {}
+
+    for (var i = 0, len = str.length; i < len; ++i) {
+        var item = str[i],
+            parent = item.parentNode,
+            target = !parent ? roots : (children[parent] || (children[parent] = [])) // INFO: roots is identical to target
+
+        target.push({
+            value: item,
+            itemWID: item.getAttribute("__wid"),
+            parent: item.parentElement.getAttribute("__wid")
+        })
+
+    }
+
+    // cb(roots)
+    cb(target)
+
+    if (roots.nextElementSibling) { // TODO: check whether at least one element contains children with non NULl length
+        rc(roots.children[0], cb) // FIXME: how to indicate the desired level?
+    }
+
+}
+
+rc(window.el.children, roots => {
+
+    var findChildren = function(parent) {
+        if (parent.value.childElementCount != 0) {
+            console.dir("Child!")
+            parent.children = hashing(parent.value.children)["target"] // FIXME: get rid of it
+
+            // if (parent.children.value.ChildElementCount != 0) { // INFO: whether current child contains children
+            //     childrenExist = childrenExist + 1
+            // }
+
+            for (var i = 0, len = parent.value.children; i < len; ++i) { // INFO: for every child on current level
+                findChildren(parent.children[i])
+            }
+        }
+    }
+
+    // INFO: I am replacing this with a element-wise loop in the head of function
+    for (var i = 0, len = roots.length; i < len; ++i) {
+        findChildren(roots[i])
+    }
+
+    return roots
+
+})
+
+
+
+
+// function rcw(roots, cb) {
+//     cb(roots)
+//     if (childrenExist != 0) { // TODO: check whether at least one element contains children with non NULl length
+//         rcw(roots.children[0], cb) // FIXME: how to indicate the desired level?
+//     }
+//     if (roots.nextElementSibling) { // TODO: check whether at least one element contains children with non NULl length
+//         rcw(roots.children[0], cb) // FIXME: how to indicate the desired level?
+//     }
+// }
+
+
+rcw(hashing(window.el.children)["target"], parent => {
+
+    var childrenExist = 0
+
+    var findChildren = function(parent) {
+        if (parent.value.childElementCount != 0) {
+            console.dir("Child!")
             parent.children = hashing(parent.value.children)["target"] // FIXME: get rid of it
 
             if (parent.children.value.ChildElementCount != 0) { // INFO: whether current child contains children
@@ -215,8 +320,6 @@ function recursiveWalks(roots, cb) { // TODO: either add here a function for eac
         }
     }
 
-
-
     // INFO: I am replacing this with a element-wise loop in the head of function
     for (var i = 0, len = roots.length; i < len; ++i) {
         findChildren(roots[i])
@@ -228,7 +331,20 @@ function recursiveWalks(roots, cb) { // TODO: either add here a function for eac
 
     return roots // FIXME: put return in the right place
 
-}
+})
+
+
+// var walk = function(node, cb) {
+//     cb(node)
+//     if (node.children.length) {
+//         this.walk(node.children[0], cb)
+//     }
+//     if (node.nextElementSibling) {
+//         this.walk(node.nextElementSibling, cb)
+//     }
+// }
+
+
 
 
 //

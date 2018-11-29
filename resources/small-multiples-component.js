@@ -1,6 +1,9 @@
 window.smallMultiplesComponent = Vue.component('small-multiples', {
+    mixins: [dataFetchMixin],
     template: `
-<div class="smallMultiples">
+<div class="smallMultiples" v-bind:monthProp="Number(this.month) || ((new Date).getMonth() + 1)" 
+                    v-bind:yearProp="Number(this.year) || (new Date).getFullYear()"
+                    v-bind:maxWebstratesProp="20" >
 </div>
 
 `,
@@ -8,7 +11,45 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
         parseDate: ''
     }),
     methods: {},
-    created: function() {},
+    created: function() {
+
+        this.waitData = new Promise((resolve, reject) => {
+
+            this.month = this.monthProp
+            this.year = this.yearProp
+            this.maxWebstrates = this.maxWebstratesProp
+            this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
+                month: 'long',
+                year: 'numeric'
+            })
+
+            this.fetchActivity()
+
+            dataFetcher('month').then((days) => {
+
+                let webstrateIds = new Set();
+                let effortTotal = new Set();
+
+                console.dir(days)
+
+                Object.values(days).forEach(day => {
+                    Object.keys(day).forEach(webstrateId => {
+                        webstrateIds.add(webstrateId)
+                    });
+
+                    Object.values(day).forEach(singleEffort => {
+                        effortTotal.add(singleEffort)
+                    })
+                })
+
+
+                webstrateIds = Array.from(webstrateIds).sort()
+                window.effortTotal = effortTotal
+                this.test = Array.from(webstrateIds).sort()
+                window.test = this.test // FIXME: eliminate afterwards or put into mixin
+            })
+        })
+    },
     mounted() {
 
         var margin = {

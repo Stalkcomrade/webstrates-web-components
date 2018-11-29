@@ -25,32 +25,44 @@ const mixin = Vue.mixin({
 })
 
 
-const externalStyle = Vue.component('v-style', {
-    render: function(createElement) {
-        return createElement('style', this.$slots.default)
+const dataFetchMixin = Vue.mixin({
+    props: ["monthProp", "yearProp", "maxWebstratesProp"],
+    data: () => ({
+        month: '',
+        year: '',
+        maxWebstrates: '',
+        data: '',
+        usersPerWs: ''
+    }),
+    methods: {
+        fetchActivity: function(webstrateIdInst) {
+
+            const toDate = new Date()
+            const fromDate = new Date()
+            fromDate.setDate(fromDate.getDate() - 7)
+
+            const activityPromise = dataFetcher('activities', {
+                webstrateId: webstrateIdInst,
+                toDate,
+                fromDate,
+                // userId: 'Stalkcomrade:github' // TODO: add userID
+            })
+
+            let usersPerWsSet = new Set()
+            let arrFromSet = []
+
+            activityPromise.then((data) => {
+
+                Object.values(data).forEach(int => {
+                    Object.values(int).forEach(intN => {
+                        usersPerWsSet.add(intN.userId)
+                    })
+                })
+
+                arrFromSet = Array.from(usersPerWsSet)
+                this.usersPerWs = `${arrFromSet}`
+            })
+
+        }
     }
-});
-
-
-var UID = {
-    _current: 0,
-    getNew: function() {
-        this._current++;
-        return this._current;
-    }
-};
-
-HTMLElement.prototype.pseudoStyle = function(element, prop, value) {
-    var _this = this;
-    var _sheetId = "pseudoStyles";
-    var _head = document.head || document.getElementsByTagName('head')[0];
-    var _sheet = document.getElementById(_sheetId) || document.createElement('style');
-    _sheet.id = _sheetId;
-    var className = "pseudoStyle" + UID.getNew();
-
-    _this.className += " " + className;
-
-    _sheet.innerHTML += " ." + className + ":" + element + "{" + prop + ":" + value + "}";
-    _head.appendChild(_sheet);
-    return this;
-};
+})
