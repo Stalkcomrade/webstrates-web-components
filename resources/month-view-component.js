@@ -23,7 +23,7 @@ window.MonthViewComponent = Vue.component('month-view', {
 
         <button @click='changeView("time-machine")'> Change View </button>
         <button v-on:click="show = !show"> Toggle </button>
-	<button @click="previousMonth()">Prev</button>
+        <button @click="previousMonth()">Previous Month</button>
         <button @click="update()">scl</button>
         <button @click="updateScaling()">UPD SCL</button>
 
@@ -41,6 +41,8 @@ window.MonthViewComponent = Vue.component('month-view', {
 
             </transition>
 `,
+    // FIXME: !use date instead of only month!
+    // <button @click="previousMonth()">Prev</button>
     // <p> Message: {{ usersPerWs }} </p>
     // <webstrate-legend/>
     components: {
@@ -91,7 +93,8 @@ window.MonthViewComponent = Vue.component('month-view', {
     }),
     watch: {
         month: function(oldValue, newValue) {
-            //   console.log(oldValue, newValue)
+            var month = this.month
+            this.mainInit()
         },
         selected: function(oldValue, newValue) {
 
@@ -127,9 +130,9 @@ window.MonthViewComponent = Vue.component('month-view', {
 
         this.waitData = new Promise((resolve, reject) => {
 
-            this.month = this.monthProp
-            this.year = this.yearProp
-            this.maxWebstrates = this.maxWebstratesProp
+            this.month = month = this.monthProp
+            this.year = year = this.yearProp
+            this.maxWebstrates = maxWebstrates = this.maxWebstratesProp
             this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
                 month: 'long',
                 year: 'numeric'
@@ -137,17 +140,15 @@ window.MonthViewComponent = Vue.component('month-view', {
 
             this.fetchActivity()
 
-            // const t = ((new Date).getMonth())
-            // console.log(t)
-            // const y = Number(this.year) || (new Date).getFullYear()
-            // const m = 20
-
             // const month = Number(this.month) || ((new Date).getMonth() + 1);
             // const maxWebstrates = this.maxWebstrates || 20;
             // const year = Number(this.year) || (new Date).getFullYear();
 
-            // dataFetcher('month', {t, y, m}).then((days) => {
-            dataFetcher('month').then((days) => {
+            dataFetcher('month', {
+                month,
+                year,
+                maxWebstrates
+            }).then((days) => {
 
                 let webstrateIds = new Set();
                 let effortTotal = new Set();
@@ -277,9 +278,6 @@ window.MonthViewComponent = Vue.component('month-view', {
         }
     },
     methods: {
-        previousMonth() {
-            //    console.dir(this.month)
-        },
         updateScaling() {
             this.groups.selectAll('circle.activity')
                 .style('fill', ({
@@ -410,57 +408,129 @@ window.MonthViewComponent = Vue.component('month-view', {
                     activities
                 }) => webstrateId + "\n" + activities.radius) // added info about radius ~ to activity
 
-
         },
         showMessage: function(d) {
             this.todoHovered = `${d}`
             this.fetchActivity(d)
         },
-        resolvePromises: async function(promises, days) {
+        fetchActivity: function(webstrateIdInst) {
+
+            const toDate = new Date()
+            const fromDate = new Date()
+            fromDate.setDate(fromDate.getDate() - 7)
+
+            const activityPromise = dataFetcher('activities', {
+                webstrateId: webstrateIdInst,
+                toDate,
+                fromDate,
+                // userId: 'Stalkcomrade:github' // TODO: add userID
+            })
+
+            let usersPerWsSet = new Set()
+            let arrFromSet = []
+
+            activityPromise.then((data) => {
+
+                Object.values(data).forEach(int => {
+                    Object.values(int).forEach(intN => {
+                        usersPerWsSet.add(intN.userId)
+                        // console.dir(intN)
+                    })
+                })
+
+                arrFromSet = Array.from(usersPerWsSet)
+                this.usersPerWs = `${arrFromSet}`
+            })
+
+        },
+        mainInit: function() {
+            var month = this.month
+            var year = 2018
+            console.dir(this.month)
+            dataFetcher('month', {
+                month,
+                year
+                // maxWebstrates
+            }).then(async (days) => {
+
+                let webstrateIds = new Set()
+                let effortTotal = new Set()
+
+                Object.values(days).forEach(day => {
+                    Object.keys(day).forEach(webstrateId => {
+                        webstrateIds.add(webstrateId)
+                    });
+
+                    Object.values(day).forEach(singleEffort => {
+                        effortTotal.add(singleEffort)
+                    })
+                })
+
+                webstrateIds = Array.from(webstrateIds).sort()
+                // this.$emit('webstrateIds', webstrateIds) // is used to trigger listener in another component
+
+                // scalar is used to calculate the sizes of the circles. They need to be different sizes,
+                // so we can distinguish very active webstrates from not-so-active webstrates. However, a
+                // linear scaling usually doesn't give us a very good representation, so we just do some
+                // random trial-and-error Math here. There's no great insight to be had, other than the fact
+                // that we're using a logarithmic scale.
+
+                this.maxOps = Math.log(d3.max(Object.values(days), (day) => d3.max(Object.values(day)))) / 2
+                this.scalar = 1 / (this.maxOps / (this.cellSize / 19)) // after all, changes the diameter of the webstrates actitivity
+
+
+                // days is here indexed properly, starting from 1.
+                const promises = Object.keys(days).map(day => this.circleCoords.calculateCircleCoodrinates(days[day], this.scalar, this.cellSize));
+                // days has now become zero-indexed, so the data for the 1st of the month is at index position
+                // 0 and so on. We'll correct this, so it now corresponds to what days looked like above.
+
+
                 days = await Promise.all(promises);
                 for (let i = days.length; i; --i) {
                     days[i + 1] = days[i];
                 }
+
                 delete days[0];
-            },
 
-            fetchActivity: function(webstrateIdInst) {
-
-                const toDate = new Date()
-                const fromDate = new Date()
-                fromDate.setDate(fromDate.getDate() - 7)
-
-                const activityPromise = dataFetcher('activities', {
-                    webstrateId: webstrateIdInst,
-                    toDate,
-                    fromDate,
-                    // userId: 'Stalkcomrade:github' // TODO: add userID
-                })
-
-                let usersPerWsSet = new Set()
-                let arrFromSet = []
-
-                activityPromise.then((data) => {
-
-                    Object.values(data).forEach(int => {
-                        Object.values(int).forEach(intN => {
-                            usersPerWsSet.add(intN.userId)
-                            // console.dir(intN)
+                try {
+                    Object.values(days).forEach(day => {
+                        Object.values(day).forEach(singleEffort => {
+                            this.totalAcitvityPerMotnh.push(Object.values(singleEffort)[2])
                         })
                     })
+                } catch (err) {
+                    console.dir("Undefined is caught")
+                }
 
-                    arrFromSet = Array.from(usersPerWsSet)
-                    this.usersPerWs = `${arrFromSet}`
-                })
+                var d3colorsQuantizeMonth = this.d3Scaling.colorQuantizeScaling(this.totalAcitvityPerMotnh)
+                this.d3colorsQuantizeMonth = d3colorsQuantizeMonth
 
-            }
+
+                var dom = d3colorsQuantizeMonth.domain(),
+                    l = (dom[1] - dom[0]) / d3colorsQuantizeMonth.range().length,
+                    breaks = d3.range(dom[0], dom[1], l)
+
+                this.breaks = breaks
+                this.$emit('webstrateIds', this.colorQ, this.breaks) // is used to trigger listener in another component
+
+                var d3colorsQuantileMonth = this.d3Scaling.colorQuantileScaling(this.totalAcitvityPerMotnh)
+
+                this.mainD3()
+                this.mainD3Second(days, d3colorsQuantizeMonth, d3colorsQuantileMonth)
+
+            })
+
+        },
+        previousMonth: function() {
+            this.month = this.month - 1
+            this.mainInit()
+        },
     },
-
-    // async mounted() {
     mounted() {
 
         this.waitData.then(() => console.dir(this.test))
 
+        // FIXME: this duplicates created section, try to rewrite
         dataFetcher('month').then(async (days) => {
 
             let webstrateIds = new Set()
@@ -520,10 +590,6 @@ window.MonthViewComponent = Vue.component('month-view', {
             var dom = d3colorsQuantizeMonth.domain(),
                 l = (dom[1] - dom[0]) / d3colorsQuantizeMonth.range().length,
                 breaks = d3.range(dom[0], dom[1], l)
-
-            // console.dir(trueBreaks)
-            // console.dir(this.d3colorsQuantizeMonth(trueBreaks[2]))
-
 
             this.breaks = breaks
             this.$emit('webstrateIds', this.colorQ, this.breaks) // is used to trigger listener in another component
