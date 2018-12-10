@@ -121,6 +121,7 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 // this.d3Data = this.sq(window.el.children)
                 return this.sq(window.el.children)
             },
+            // Thanks, Mike: https://beta.observablehq.com/@mbostock/collapsible-tree
             funTree: function(data) {
 
                 console.dir("INSIDE D3")
