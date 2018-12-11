@@ -1,154 +1,154 @@
 /* inspiration: http://themes.getbootstrap.com/preview/?theme_id=1468 */
 #mainBody {
-margin: 0 auto;
-width: 1050px;
+    margin: 0 auto;
+    width: 1050px;
 }
 
 svg {
-fill: #fff;
+    fill: #fff;
 }
 
 svg text {
-fill: #000;
+    fill: #000;
 }
 
 /* adding new class */
 .listStyle {
-color: ''
+    color: ''
 }
 
 @keyframes show {
-from {
-opacity: 0;
-transform: translateY(5px);
-}
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
 
-to {
-opacity: 1;
-transform: translateY(-10px);
-}
+    to {
+        opacity: 1;
+        transform: translateY(-10px);
+    }
 }
 
 @keyframes spinner-line-fade-more {
 
-0%,
-100% {
-opacity: 0;
-/* minimum opacity */
-}
+    0%,
+    100% {
+        opacity: 0;
+        /* minimum opacity */
+    }
 
-1% {
-opacity: 1;
-}
+    1% {
+        opacity: 1;
+    }
 }
 
 @keyframes spinner-line-fade-quick {
 
-0%,
-39%,
-100% {
-opacity: 0.25;
-/* minimum opacity */
-}
+    0%,
+    39%,
+    100% {
+        opacity: 0.25;
+        /* minimum opacity */
+    }
 
-40% {
-opacity: 1;
-}
+    40% {
+        opacity: 1;
+    }
 }
 
 @keyframes spinner-line-fade-default {
 
-0%,
-100% {
-opacity: 0.22;
-/* minimum opacity */
-}
+    0%,
+    100% {
+        opacity: 0.22;
+        /* minimum opacity */
+    }
 
-1% {
-opacity: 1;
-}
+    1% {
+        opacity: 1;
+    }
 }
 
 .d3-tip.show {
-animation-name: show;
-animation-duration: 300ms;
-animation-fill-mode: forwards;
-animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    animation-name: show;
+    animation-duration: 300ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
 }
 
 /* d3-tip style */
 .d3-tip {
-font-family: sans-serif;
-line-height: 1;
-font-weight: bold;
-padding: 12px;
-background-color: rgba(0, 0, 0, 0.8);
-color: #fff;
-border-radius: 2px;
-pointer-events: none;
-z-index: 9999999;
+    font-family: sans-serif;
+    line-height: 1;
+    font-weight: bold;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 9999999;
 }
 
 /* Creates a small triangle extender for the tooltip */
 .d3-tip::after {
-box-sizing: border-box;
-position: absolute;
-font-size: 10px;
-line-height: 1;
-color: rgba(0, 0, 0, 0.8);
-content: "\25BC";
-left: 50%;
-top: 100%;
--webkit-transform: translate(-50%, 0);
--moz-transform: translate(-50%, 0);
--ms-transform: translate(-50%, 0);
--o-transform: translate(-50%, 0);
-transform: translate(-50%, 0);
-pointer-events: none;
-z-index: 9999999;
+    box-sizing: border-box;
+    position: absolute;
+    font-size: 10px;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.8);
+    content: "\25BC";
+    left: 50%;
+    top: 100%;
+    -webkit-transform: translate(-50%, 0);
+    -moz-transform: translate(-50%, 0);
+    -ms-transform: translate(-50%, 0);
+    -o-transform: translate(-50%, 0);
+    transform: translate(-50%, 0);
+    pointer-events: none;
+    z-index: 9999999;
 }
 
 rect {
-shape-rendering: crispEdges;
+    shape-rendering: crispEdges;
 }
 
 text {
-font-family: BlinkMacSystemFont, -apple-system, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-family: BlinkMacSystemFont, -apple-system, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, Helvetica, Arial, sans-serif;
 }
 
 .leaflet-control-fullscreen a {
-background-color: #fff;
-background-image: url(../assets/images/fullscreen.png);
-background-repeat: no-repeat;
-background-size: 26px 52px;
-background-position: 0px 0px;
+    background-color: #fff;
+    background-image: url(../assets/images/fullscreen.png);
+    background-repeat: no-repeat;
+    background-size: 26px 52px;
+    background-position: 0px 0px;
 }
 
 .d3-metric text {
-cursor: pointer;
+    cursor: pointer;
 }
 
 .d3-timeline .entry--point--default {
-fill: #896bda;
-stroke: #896bda;
-stroke-opacity: 1;
-cursor: pointer;
+    fill: #896bda;
+    stroke: #896bda;
+    stroke-opacity: 1;
+    cursor: pointer;
 }
 
 .d3-timeline .entry--point--error {
-fill: #ff3860;
-;
-stroke: #ff3860;
-stroke-opacity: 1;
-cursor: pointer;
+    fill: #ff3860;
+    ;
+    stroke: #ff3860;
+    stroke-opacity: 1;
+    cursor: pointer;
 }
 
 .d3-timeline .entry--point--success {
-fill: #23d160;
-;
-stroke: #23d160;
-stroke-opacity: 1;
-cursor: pointer;
+    fill: #23d160;
+    ;
+    stroke: #23d160;
+    stroke-opacity: 1;
+    cursor: pointer;
 }
 
 
@@ -156,62 +156,63 @@ cursor: pointer;
 
 .fade-enter-active,
 .fade-leave-active {
-transition: opacity .5s;
+    transition: opacity .5s;
 }
 
 /* Network */
 
 .node {
-cursor: pointer;
+    cursor: pointer;
 }
 
-.overlay{
-background-color:#EEE;
+.overlay {
+    background-color: #EEE;
 }
 
 .node circle {
-fill: #fff;
-stroke: steelblue;
-stroke-width: 1.5px;
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 1.5px;
 }
 
 .node text {
-font-size:10px;
-font-family:sans-serif;
+    font-size: 10px;
+    font-family: sans-serif;
 }
 
 .link {
-fill: none;
-stroke: #ccc;
-stroke-width: 1.5px;
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1.5px;
 }
 
 .templink {
-fill: none;
-stroke: red;
-stroke-width: 3px;
+    fill: none;
+    stroke: red;
+    stroke-width: 3px;
 }
 
-.ghostCircle.show{
-display:block;
+.ghostCircle.show {
+    display: block;
 }
 
-.ghostCircle, .activeDrag .ghostCircle{
-display: none;
+.ghostCircle,
+.activeDrag .ghostCircle {
+    display: none;
 }
 
 
 /* Small-Multiples */
 
 .smallMultiples {
-font: 10px sans-serif;
-margin: 0;
+    font: 10px sans-serif;
+    margin: 0;
 }
 
 .line {
-fill: none;
-stroke: #999;
-stroke-width: 1.5px;
+    fill: none;
+    stroke: #999;
+    stroke-width: 1.5px;
 }
 
 /* .area { */
@@ -223,111 +224,19 @@ stroke-width: 1.5px;
 
 .testClass * {
 
-box-sizing: border-box;
-position: absolute;
-display: block;
-height: $height;
-bottom: $height * -2;
-transform: translateX(5%);
-font-size: .95em;
-text-align: center;
-line-height: $height;
-border: 1px solid transparent;
-border-radius: 3px;
-background: #342;
-color: #fff;
-transition: all .3s;
+    box-sizing: border-box;
+    position: absolute;
+    display: block;
+    height: $height;
+    bottom: $height * -2;
+    transform: translateX(5%);
+    font-size: .95em;
+    text-align: center;
+    line-height: $height;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    background: #342;
+    color: #fff;
+    transition: all .3s;
 
-}
-
-/* DOM-Tree*/
-
-/* $height: 4.5vw; */
-
-/* html, body {
-width: 100%;
-height: 100%;
-}
-
-body {
-font: normal 100 100%/1.5 helvetica, arial, sans-serif;
-perspective: 500px;
-}
-*/
-
-#mainBody {
-perspective: 500px;
-font: normal 100 100%/1.5 helvetica, arial, sans-serif;
-width: 100%;
-height: 100%;
-
-}
-
-.treeUnique {
-position: relative;
-}
-
-.treeUnique * {
-
-box-sizing: border-box;
-position: absolute;
-display: block;
-height: 4.5vw;
-/* bottom: 4.5vw * -2; */
-bottom: -190px;
-transform: translateX(5%);
-font-size: .95em;
-text-align: center;
-/* line-height: 2.5vw; */
-border: 1px solid transparent;
-border-radius: 3px;
-background: #342;
-color: #fff;
-transition: all .3s;
-
-}
-
-.treeUnique *:hover {
-background: #27f;
-border-color: black;
-}
-
-.treeUnique *:hover::before {
-background: black;
-}
-
-/* lines connecting boxes */
-.treeUnique *::before {
-content: "";
-position: absolute;
-top: -4.5vw;
-left: 50%;
-transform: translate(-5%);
-width: 2px;
-height: calc(190px - 75px);
-background: inherit;
-}
-
-/* used for transformation of elements upon resizing windows */
-@media (max-width: 500px) {
-.treeUnique {
-width: 175%;
-}
-
-.treeUnique * {
-height: 30px;
-bottom: -60px;
-line-height: 30px;
-}
-
-.treeUnique *::before {
-top: -30px;
-height: 29px;
-}
-}
-
-@media (max-width: 300px) {
-.treeUnique {
-width: 250%;
-}
 }

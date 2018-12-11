@@ -18,7 +18,7 @@ window.MonthViewComponent = Vue.component('month-view', {
             </option>
         </select>
 
-        <span>Selected Color Scaling: {{ selected }}</span>
+        <span>Selected Color Scaling: {{ selectedText }}</span>
         <br><br>
 
         <button @click='changeView("time-machine")'> Change View </button>
@@ -57,6 +57,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         month: '',
         year: '',
         selected: 'A',
+        selectedText: '',
         options: [{
                 text: 'Default',
                 value: 'A'
@@ -96,6 +97,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         selected: function(oldValue, newValue) {
 
             if (this.selected == "A") {
+                this.selectedText = "Default"
                 this.groups.selectAll('circle.activity')
                     .style('fill', ({
                         scaling,
@@ -103,6 +105,7 @@ window.MonthViewComponent = Vue.component('month-view', {
                         colorQ
                     }) => ("yellow"))
             } else if (this.selected == "B") {
+                this.selectedText = "Month"
                 this.groups.selectAll('circle.activity')
                     .style('fill', ({
                         scaling,
@@ -110,6 +113,7 @@ window.MonthViewComponent = Vue.component('month-view', {
                         colorQ
                     }) => (colorMonthQ))
             } else {
+                this.selectedText = "Day"
                 this.groups.selectAll('circle.activity')
                     .style('fill', ({
                         scaling,
@@ -124,8 +128,6 @@ window.MonthViewComponent = Vue.component('month-view', {
     // storing. Could be accessed in mounted using this.
 
     created: function() {
-
-
 
         this.waitData = new Promise((resolve, reject) => {
 
