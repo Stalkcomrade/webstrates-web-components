@@ -8,32 +8,34 @@ window.MonthViewComponent = Vue.component('month-view', {
                     v-bind:value="value" 
                     v-on:input="$emit('input', $event.target.value)"
 >
-		<h2>{{ date }}</h2>
-		<h3>{{ month }}</h3>
+<h2> {{ this.date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) }} </h2>
+
         <p> Message: {{ todoHovered }} </p>
         
         <select v-model="selected">
-          <option v-for="option in options" v-bind:value="option.value">
+            <option v-for="option in options" v-bind:value="option.value">
                {{ option.text }}
-          </option>
+            </option>
         </select>
 
-        <span>Selected: {{ selected }}</span>
+        <span>Selected Color Scaling: {{ selected }}</span>
         <br><br>
 
         <button @click='changeView("time-machine")'> Change View </button>
         <button v-on:click="show = !show"> Toggle </button>
-        <button @click="previousMonth()">Previous Month</button>
-        <button @click="update()">scl</button>
-        <button @click="updateScaling()">UPD SCL</button>
 
+<br><br>
+<div class="dateButtons">
+        <button class="btn btn-primary" @click="previousMonth()">Previous Month</button>
+        <button class="btn btn-primary" @click="nextMonth()">Next Month</button>
+</div>
 		<svg></svg>
 
         <b-container class="bv-example-row">
                 <b-row>
                    <b-col> Message: {{ usersPerWs }} </b-col>
                    <b-col>2 of 3</b-col>
-                   <b-col>	<webstrate-legend/> </b-col>
+                   <b-col> <webstrate-legend/> </b-col>
                 </b-row>
         </b-container>
          
@@ -41,8 +43,7 @@ window.MonthViewComponent = Vue.component('month-view', {
 
             </transition>
 `,
-    // FIXME: !use date instead of only month!
-    // <button @click="previousMonth()">Prev</button>
+    // SOLVED: !use date instead of only month!
     // <p> Message: {{ usersPerWs }} </p>
     // <webstrate-legend/>
     components: {
@@ -92,10 +93,6 @@ window.MonthViewComponent = Vue.component('month-view', {
         usersPerWs: ""
     }),
     watch: {
-        month: function(oldValue, newValue) {
-            var month = this.month
-            this.mainInit()
-        },
         selected: function(oldValue, newValue) {
 
             if (this.selected == "A") {
@@ -128,21 +125,16 @@ window.MonthViewComponent = Vue.component('month-view', {
 
     created: function() {
 
+
+
         this.waitData = new Promise((resolve, reject) => {
 
             this.month = month = this.monthProp
             this.year = year = this.yearProp
             this.maxWebstrates = maxWebstrates = this.maxWebstratesProp
-            this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
-                month: 'long',
-                year: 'numeric'
-            })
+            this.date = new Date(this.year, this.month - 1)
 
             this.fetchActivity()
-
-            // const month = Number(this.month) || ((new Date).getMonth() + 1);
-            // const maxWebstrates = this.maxWebstrates || 20;
-            // const year = Number(this.year) || (new Date).getFullYear();
 
             dataFetcher('month', {
                 month,
@@ -444,13 +436,12 @@ window.MonthViewComponent = Vue.component('month-view', {
 
         },
         mainInit: function() {
-            var month = this.month
-            var year = 2018
-            console.dir(this.month)
+            var month = this.date.getMonth()
+            var year = this.date.getFullYear()
+
             dataFetcher('month', {
                 month,
                 year
-                // maxWebstrates
             }).then(async (days) => {
 
                 let webstrateIds = new Set()
@@ -522,7 +513,13 @@ window.MonthViewComponent = Vue.component('month-view', {
 
         },
         previousMonth: function() {
-            this.month = this.month - 1
+            var containerMonth = this.date.getMonth()
+            this.date = (new Date(this.date.setMonth(containerMonth - 1)))
+            this.mainInit()
+        },
+        nextMonth: function() {
+            var containerMonth = this.date.getMonth()
+            this.date = (new Date(this.date.setMonth(containerMonth + 1)))
             this.mainInit()
         },
     },
