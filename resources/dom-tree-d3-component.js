@@ -5,7 +5,9 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 <br>
 <br>
 <br>
+<button @contextmenu="handler($event)">r-click</button>
   <div class="treeD3" id="tree-container"></div>
+
 </div>
 `,
     data: () => ({
@@ -15,23 +17,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
         htmlObjectReady: false,
         htmlObject: '',
         htmlString: '',
-        customStyle: {
-            height: "4.5vw",
-            boxSizing: "border-box",
-            position: "absolute",
-            display: "block",
-            height: "$height",
-            bottom: "$height * -2",
-            transform: "translateX(5%)",
-            fontSize: ".95em",
-            textAlign: "center",
-            lineHeight: "$height",
-            border: "1px solid transparent",
-            borderRadius: "3px",
-            background: "#999",
-            color: "#fff",
-            transition: "all .3s"
-        },
     }),
     computed: {},
     watch: {
@@ -45,6 +30,11 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
         }
     },
     methods: {
+
+        handler: function(e) {
+            //do stuff
+            e.preventDefault();
+        },
 
         getHtmlsPerSession: async function() {
                 // let wsId = "massive-skunk-85"
@@ -209,6 +199,10 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                         .on("click", d => {
                             d.children = d.children ? null : d._children;
                             update(d);
+                        })
+                        .on("contextmenu", function(d, i) {
+                            d3.event.preventDefault();
+                            // console.dir("right click")
                         });
 
                     nodeEnter.append("circle")
@@ -279,9 +273,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 }
 
                 update(root);
-
-                console.dir(root)
-
                 d3.select(".treeD3").node().appendChild(svg.node())
 
 
@@ -296,7 +287,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
         // this.d3Test = await this.funTree(this.d3Test)
         // this.init()
         // window.d3Data = this.d3Data
-
 
         console.dir(this.d3Data)
 
