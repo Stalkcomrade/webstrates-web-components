@@ -32,10 +32,6 @@ webstrate.on('loaded', () => {
                 component: TimelineComponent
             },
             {
-                path: '/dom-tree',
-                component: DomTreeComponent
-            },
-            {
                 path: '/dom-tree-d3',
                 component: DomTreeD3Component
             },
