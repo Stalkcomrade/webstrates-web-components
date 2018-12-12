@@ -8,109 +8,141 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
 
 `,
     data: () => ({
-        parseDate: ''
+        parseDate: '',
+        days: '',
+        fetchedData: [],
+        waitData: ''
     }),
     methods: {},
     created: function() {
 
         this.waitData = new Promise((resolve, reject) => {
 
-            this.month = this.monthProp
-            this.year = this.yearProp
+            this.month = month = (new Date).getMonth()
+            this.year = year = (new Date).getFullYear()
             this.maxWebstrates = this.maxWebstratesProp
-            this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
-                month: 'long',
-                year: 'numeric'
-            })
 
             this.fetchActivity()
 
-            dataFetcher('month').then((days) => {
+            window.d = this.fetchedData
 
-                let webstrateIds = new Set();
-                let effortTotal = new Set();
+            dataFetcher('month', {
+                month,
+                year
+            }).then((days) => {
 
-                console.dir(days)
+                Object.keys(days).forEach(day => {
+                    Object.values(days[day]).map((webstrate, index) => {
 
-                Object.values(days).forEach(day => {
-                    Object.keys(day).forEach(webstrateId => {
-                        webstrateIds.add(webstrateId)
-                    });
-
-                    Object.values(day).forEach(singleEffort => {
-                        effortTotal.add(singleEffort)
+                        this.fetchedData.push({
+                            symbol: Object.keys(days[day])[index],
+                            price: webstrate, // FIXME:  get rid of all variables' names
+                            dateInstance: (new Date(this.year, this.month, parseInt(Object.keys(days)[index]))).toLocaleDateString(undefined, {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                            }).toString()
+                        })
                     })
                 })
 
 
-                webstrateIds = Array.from(webstrateIds).sort()
-                window.effortTotal = effortTotal
-                this.test = Array.from(webstrateIds).sort()
-                window.test = this.test // FIXME: eliminate afterwards or put into mixin
-            })
+
+                // this.fetchedData = this.fetchedData.forEach(el => {
+                //     return el.sort(values => {
+                //         a.date - b.date
+                //     })
+                // })
+
+                console.dir(this.fetchedData)
+
+
+            }).then(() => resolve())
         })
     },
     mounted() {
 
-        var margin = {
-                top: 8,
-                right: 10,
-                bottom: 2,
-                left: 10
-            },
-            width = 960 - margin.left - margin.right,
-            height = 69 - margin.top - margin.bottom;
+        // TODO: rebuild parser, include days
 
-        var x = d3.scaleTime()
-            .range([0, width]);
+        this.waitData.then(() => {
 
-        var y = d3.scaleLinear()
-            .range([height, 0]);
+            var margin = {
+                    top: 8,
+                    right: 10,
+                    bottom: 2,
+                    left: 10
+                },
+                width = 960 - margin.left - margin.right,
+                height = 69 - margin.top - margin.bottom;
 
-        // returns only part of values
-        var area = d3.area()
-            .x(function(d) {
-                return x(d.date);
-            })
-            .y0(height)
-            .y1(function(d) {
-                return y(d.price)
-            });
+            var x = d3.scaleTime()
+                .range([0, width]);
 
-        var parseDate = d3.timeParse("%b %Y")
+            var y = d3.scaleLinear()
+                .range([height, 0]);
 
-        var areaSelected = d3.area()
-            .x(function(d) {
-                return x(d.date);
-            })
-            .y0(height)
-            .y1(function(d) {
-                return y(d.price)
-            });
+            // returns only part of values
+            var area = d3.area()
+                .x(function(d) {
+                    return x(d.date);
+                })
+                .y0(height)
+                .y1(function(d) {
+                    return y(d.price)
+                });
+
+            var parseDate = d3.timeParse("%d %b %Y")
+
+            var areaSelected = d3.area()
+                .x(function(d) {
+                    return x(d.date);
+                })
+                .y0(height)
+                .y1(function(d) {
+                    return y(d.price)
+                });
 
 
-        var line = d3.line()
-            .x(function(d) {
-                return x(d.date);
-            })
-            .y(function(d) {
-                return y(d.price);
-            });
+            var line = d3.line()
+                .x(function(d) {
+                    return x(d.date);
+                })
+                .y(function(d) {
+                    return y(d.price);
+                });
 
-        function type(d) {
-            var parseDate = d3.timeParse("%b %Y")
-            d.price = +d.price;
-            d.date = parseDate(d.date);
-            return d;
-        }
+            function type(d) {
+                var parseDate = d3.timeParse("%d %b %Y")
+                d.price = +d.price;
+                d.date = parseDate(d.dateInstance);
+                return d;
+            }
 
-        d3.csv("stock_tmp.csv", type, function(data) {
+            var data = this.fetchedData
+
+            data.forEach(type) // applying data parsing
+
+            // d3.csv("stock_tmp.csv", type, function(data) {
             // Nest data by symbol.
+            // console.dir(data)
+
+            // var process = function(data) {
+
             var symbols = d3.nest()
                 .key(function(d) {
                     return d.symbol;
                 })
                 .entries(data);
+
+            symbols = symbols.map(el => {
+                return {
+                    ...el,
+                    values: _.orderBy(el.values, "date")
+                }
+            })
+
+
+            window.symbols = symbols
 
             // Compute the maximum price per symbol, needed for the y-domain.
             symbols.forEach(function(s) {
