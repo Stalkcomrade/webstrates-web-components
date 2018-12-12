@@ -34,7 +34,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         <b-container class="bv-example-row">
                 <b-row>
                    <b-col> Message: {{ usersPerWs }} </b-col>
-                   <b-col>2 of 3</b-col>
+                   <b-col></b-col>
                    <b-col> <webstrate-legend/> </b-col>
                 </b-row>
         </b-container>
@@ -45,7 +45,6 @@ window.MonthViewComponent = Vue.component('month-view', {
 `,
     // SOLVED: !use date instead of only month!
     // <p> Message: {{ usersPerWs }} </p>
-    // <webstrate-legend/>
     components: {
         'webstrate-legend-component': WebstrateLegendComponent
     },

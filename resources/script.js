@@ -63,5 +63,7 @@ webstrate.on('loaded', () => {
         router
     }).$mount(containerElement)
 
+    window.app = app
+
 
 });

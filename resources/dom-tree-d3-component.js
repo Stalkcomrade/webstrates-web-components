@@ -32,7 +32,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
     methods: {
 
         handler: function(e) {
-            //do stuff
             e.preventDefault();
         },
 
