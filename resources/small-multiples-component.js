@@ -64,6 +64,7 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
         fetchedData: [],
         waitData: ''
     }),
+
     methods: {
         test: function() {
             // this.$forceUpdate()
