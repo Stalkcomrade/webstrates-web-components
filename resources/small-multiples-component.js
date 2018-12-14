@@ -1,73 +1,51 @@
-// template: `
-//   <d3-metric
-//   v-bind:data="counter"
-//   width="100%"
-//   height="600px"> 
-//   </d3-metric>
-//   `,
-//     mounted() {
-//         this.counter = 45000
-//     }
-
-// window.metrics = Vue.extend(d3Metric)
-
-// window.instance = new window.metrics({
-//     propsData: {
-//         type: "primary"
-//     }
-// })
-
-// window.instance.$mount()
-
-// this.$refs.container.appendChild(window.instance.$el)
-// console.dir(this.$refs)
-
-
 window.smallMultiplesComponent = Vue.component('small-multiples', {
     mixins: [dataFetchMixin],
-    // <d3-metric
-    //   v-bind:data="counter"
-    //   width="100%"
-    //   height="600px"> 
-    //   </d3-metric>
-
-    //     <div ref="container">
-    //         <button @click="test">Click to insert</button>
-    // </div>
-    // <div class="main">
-
-
     template: `
+    <div class="main" ref="container">
+    <button @click="test"> add metric </button>
+    <button @click="test2"> test metric </button>
 
-  
-    <div class="main">
 
 
-<div class="smallMultiples" v-bind:monthProp="Number(this.month) || ((new Date).getMonth() + 1)" 
+    <div class="smallMultiples" v-bind:monthProp="Number(this.month) || ((new Date).getMonth() + 1)" 
                     v-bind:yearProp="Number(this.year) || (new Date).getFullYear()"
                     v-bind:maxWebstratesProp="20" >
-</div>
-
+    </div>
+    </div>
 
 `,
-    // </div>
+
+    // <b-container class="bv-example-row">
+    //             <b-row>
+    //                <b-col>   </b-col>
+    //                <b-col>   </b-col>
+    //             </b-row>
+    //     </b-container>
+
+
     components: {
         'd3-metric': window.d3Metric
     },
-    // render(createElement) {
-    //     return createElement("h1", "TESTTESTTEST")
-    // },
     data: () => ({
         parseDate: '',
         counter: '35000',
         days: '',
         fetchedData: [],
-        waitData: ''
+        waitData: '',
+        symbols: '',
+        instance: ''
     }),
 
     methods: {
+        test2: function() {
+
+            // document.body.appendChild(this.instance)
+            // console.dir(this.instance)
+            this.$refs.container.appendChild(this.instance)
+            // this.$refs.emptyChicken66.appendChild(this.instance)
+
+        },
         test: function() {
-            // this.$forceUpdate()
 
             var ComponentClass = Vue.extend(window.d3Metric)
             var instance = new ComponentClass({
@@ -76,19 +54,51 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                 }
             })
 
-            instance.$mount()
-            console.dir(this.$refs)
+            // instance.$mount("#emptyChicken66")
+            // instance.$mount("#warmCougar5")
 
-            console.dir(instance.$el)
+            // window.document.getElementById('warmCougar5')
 
-            this.$refs.container.appendChild(instance.$el)
+            // this.symbols.forEach((el, index) => {
+            //     instance.$mount(("#" + _.camelCase(el.key)).toString())
+            //     // this.$refs[_.camelCase(el.key)].appendChild(instance.$el)
+            // })
 
-            // d3.selectAll("div.d3-metric")
-            //     .attr("v-bind:data", 35000)
+
+            // this.instance = instance.$el
+
+            // this.rf = this.$refs.container
+
+            // this.$refs.container.appendChild(this.instance)
+
+            // this.$refs['test'] = document.body.getElementsByClassName("smallMultiples")[0].children[0]
+            // this.$refs.container.getElementsByClassName("smallMultiples")[0].children[0]
+            // document.body.getElementsByClassName("smallMultiples")[0].children[0].appendChild(instance.$el)
+            // document.body.geappendChild(instance.$el)
+            // this.$refs.container.getElementsByClassName("smallMultiples")[0].children[0].appendChild(instance.$el)
+
+            // this.$refs.empty - chicken - 66
+            // var camelCased = "new-hope".replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+            // document.getElementById("empty-chicken-66").appendChild(instance.$el)
+
+
+            // this.symbols.forEach((el, index) => {
+            //     console.dir(document.body.getElementsByClassName("smallMultiples")[0].children[index])
+            // })
+
+            // this.symbols.forEach((el, index) => {
+            //     this.$refs[_.camelCase(el.key)] = document.body.getElementsByClassName("smallMultiples")[0].children[index]
+            // })
+
+            // // console.dir(this.$refs)
+
+            // this.symbols.forEach((el, index) => {
+            //     this.$refs[_.camelCase(el.key)].appendChild(instance.$el)
+            // })
+
         }
     },
     created: function() {
-        // window.test = this.test()
 
         this.waitData = new Promise((resolve, reject) => {
 
@@ -120,13 +130,6 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                     })
                 })
 
-
-                // this.fetchedData = this.fetchedData.forEach(el => {
-                //     return el.sort(values => {
-                //         a.date - b.date
-                //     })
-                // })
-
                 console.dir(this.fetchedData)
 
             }).then(() => resolve())
@@ -134,7 +137,7 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
     },
     mounted() {
 
-        // TODO: rebuild parser, include days
+        // SOLVED: rebuild parser, include days
 
         this.waitData.then(() => {
 
@@ -198,8 +201,6 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
             // Nest data by symbol.
             // console.dir(data)
 
-            // var process = function(data) {
-
             var symbols = d3.nest()
                 .key(function(d) {
                     return d.symbol;
@@ -236,6 +237,8 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                 });
             });
 
+            this.symbols = symbols
+
             // SOLVED: var for selected (user) area
             // var symbols = symbols.map(object => ({
             //     key: object.key,
@@ -271,12 +274,16 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
             // Add an SVG element for each symbol, with the desired dimensions and margin.
             var svg = d3.select(".smallMultiples")
                 .selectAll("svg")
+                // var svg = d3.create("div")
+                // .attr("class", "tst")
+                // .select("div.tst")
+                // .selectAll("svg")
                 .data(symbols)
                 .enter().append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
-                .attr("id", function(d) {
-                    return d.key;
+                .attr("v-bind:ref", function(d) {
+                    return _.camelCase(d.key)
                 })
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -322,22 +329,22 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
                     return d.key;
                 });
 
-            // TODO: add metric vue component
-            // <d3-metric
-            //   v-bind:data="counter"
-            //   width="100%"
-            //   height="600px"> 
-            //   </d3-metric>
+
+            // Attach element to DOM.
+            d3.select(".smallMultiples")
+                .append(() => svg.node());
 
 
             // TODO: select element by some attrbute or reference from d3
-            console.dir(svg)
-            // window.svg._groups[0][0]
+            // this.test()
+            // console.dir(svg)
+
+            this.$forceUpdate()
+            console.dir(this.$refs);
+            window.rt = this.$refs
             window.svg = svg
+            // window.svg._groups[0][0]
             // this.$refs.container.appendChild(instance.$el)
-
-
-            // <component v-bind:is="view" v-model="view" :relation-name.sync="webstrateIdProp" @click="changeId"></component>
 
             // svg.append("component")
             //     // .class("d3-metric")
@@ -352,8 +359,6 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
             //     .attr("v-bind:data", this.counter)
             //     .style("width", "100%")
             //     .style("height", "600px")
-
-            // this.$forceUpdate()
 
         })
     }
