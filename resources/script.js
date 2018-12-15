@@ -48,6 +48,10 @@ webstrate.on('loaded', () => {
                 component: transclusionComponent
             },
             {
+                path: '/recent',
+                component: recentComponent
+            },
+            {
                 path: '*',
                 component: {
                     template: '#template-page-not-found '

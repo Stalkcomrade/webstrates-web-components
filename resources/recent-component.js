@@ -1,11 +1,9 @@
-window.smallMultiplesComponent = Vue.component('small-multiples', {
+window.recentComponent = Vue.component('recent', {
     mixins: [dataFetchMixin],
     template: `
     <div class="main" ref="container">
     <button @click="test"> add metric </button>
     <button @click="test2"> test metric </button>
-
-
 
     <div class="smallMultiples" v-bind:monthProp="Number(this.month) || ((new Date).getMonth() + 1)" 
                     v-bind:yearProp="Number(this.year) || (new Date).getFullYear()"
