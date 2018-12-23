@@ -24,6 +24,10 @@ webstrate.on('loaded', () => {
                 component: smallMultiplesComponent
             },
             {
+                path: '/small-multiples-d3',
+                component: smallMultiplesD3Component
+            },
+            {
                 path: '/time-machine',
                 component: TimeMachineComponent
             },
