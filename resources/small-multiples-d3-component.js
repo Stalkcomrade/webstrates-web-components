@@ -2,17 +2,74 @@ window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
     mixins: [dataFetchMixin],
     template: `
     <div class="main" ref="container">
-    <button @click="test"> add metric </button>
-    <button @click="test2"> test metric </button>
-
 
     <div class="smallMultiples" v-bind:monthProp="Number(this.month) || ((new Date).getMonth() + 1)" 
                     v-bind:yearProp="Number(this.year) || (new Date).getFullYear()"
                     v-bind:maxWebstratesProp="20" >
-    </div>
-    </div>
 
+
+          <svg v-for="(d,i) in symbols"
+               :width="width"
+               :d="d.maxPrice"
+               :height="height">
+
+             <g
+               class=chosen
+               :transform="transform">
+
+              <path
+                  class=area
+                  fill=blue
+                >
+               </path>
+               
+
+            <g/>
+
+
+
+
+
+          <svg/>    
+
+    </div>
+    </div>
+    
 `,
+
+    //   <path v-for="(d,i) in symbols"
+    //     class=area
+    //     fill=blue
+    //     >
+    // </path>
+
+
+
+    // FIXME: add margin calculations for svg and g
+
+    // SOLVED: +
+    // var svg = d3.select(".smallMultiples")
+    //     .selectAll("svg")
+    //     .data(symbols)
+    //     .enter().append("svg")
+    //     .attr("width", width + margin.left + margin.right)
+    //     .attr("height", height + margin.top + margin.bottom)
+    //     .attr("v-bind:ref", function(d) {
+    //         return _.camelCase(d.key)
+    //     })
+    //     .append("g")
+    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Add the area path elements. Note: the y-domain is set per element.
+    // svg.append("path")
+    //     .attr("class", "area")
+    //     .attr("fill", "blue")
+    //     .attr("d", function(d) {
+    //         y.domain([0, d.maxPrice]);
+    //         return area(d.values);
+    //     });
+
+
 
     // <b-container class="bv-example-row">
     //             <b-row>
@@ -21,11 +78,20 @@ window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
     //             </b-row>
     //     </b-container>
 
+    // <button @click="test"> add metric </button>
+    // <button @click="test2"> test metric </button>
 
     components: {
         'd3-metric': window.d3Metric
     },
     data: () => ({
+        margin: {
+            top: 8,
+            right: 10,
+            bottom: 2,
+            left: 10
+        },
+        data: '',
         parseDate: '',
         counter: '35000',
         days: '',
@@ -35,14 +101,50 @@ window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
         instance: ''
     }),
 
+    // TODO: cannot return value for the path element
+
+    computed: {
+        width() {
+            return 960 - this.margin.left - this.margin.right
+        },
+        height() {
+            return 69 - this.margin.top - this.margin.bottom
+        },
+        transform() {
+            return "translate(" + this.margin.left + ", " + this.margin.top + ")"
+        },
+        yW() {
+            return d3.scaleLinear().range([this.height, 0])
+        },
+        area: function() { // returns only part of values
+            return d3.area()
+                .x(function(d) {
+                    return this.x(d.date);
+                })
+                .y0(this.height)
+                .y1(function(d) {
+                    return this.y(d.price)
+                })
+        },
+        // sss(d) {
+        //     this.y().domain([0, d.maxPrice])
+        //     return this.area(d.values)
+        // },
+        // dPath(d) {
+        //     y.domain([0, d.maxPrice]);
+        //     return area(d.values);
+        // }
+        //         y.domain([0, d.maxPrice]);
+        //         return area(d.values);
+        //     });
+    },
     methods: {
+        sss: function(d) {
+            // console.dir(this.yW.domain([0, d.maxPrice]))
+            return this.area(d.values)
+        },
         test2: function() {
-
-            // document.body.appendChild(this.instance)
-            // console.dir(this.instance)
             this.$refs.container.appendChild(this.instance)
-            // this.$refs.emptyChicken66.appendChild(this.instance)
-
         },
         test: function() {
 
@@ -52,50 +154,70 @@ window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
                     data: 3500
                 }
             })
+        },
 
-            // instance.$mount("#emptyChicken66")
-            // instance.$mount("#warmCougar5")
+        x: function() {
+            return d3.scaleTime()
+                .range([0, this.width])
+        },
 
-            // window.document.getElementById('warmCougar5')
+        y: function() {
+            return d3.scaleLinear()
+                .range([this.height, 0])
+        },
 
-            // this.symbols.forEach((el, index) => {
-            //     instance.$mount(("#" + _.camelCase(el.key)).toString())
-            //     // this.$refs[_.camelCase(el.key)].appendChild(instance.$el)
-            // })
+        area: function() { // returns only part of values
+            return d3.area()
+                .x(function(d) {
+                    return this.x(d.date);
+                })
+                .y0(this.height)
+                .y1(function(d) {
+                    return this.y(d.price)
+                })
+        },
+
+        parseDate: function() {
+            d3.timeParse("%d %b %Y")
+        },
+
+        //     var areaSelected = d3.area()
+        //         .x(function(d) {
+        //             return x(d.date);
+        //         })
+        //         .y0(height)
+        //         .y1(function(d) {
+        //             return y(d.price)
+        //         });
 
 
-            // this.instance = instance.$el
+        line: function() {
+            return d3.line()
+                .x(function(d) {
+                    return this.x(d.date);
+                })
+                .y(function(d) {
+                    return this.y(d.price);
+                })
+        },
 
-            // this.rf = this.$refs.container
+        type: function(d) {
+            var parseDate = d3.timeParse("%d %b %Y")
+            d.price = +d.price
+            d.date = parseDate(d.dateInstance)
+            return d
+        },
 
-            // this.$refs.container.appendChild(this.instance)
+        // var fetchedData = this.fetchedData
+        // fetchedData.forEach(type) // applying data parsing
 
-            // this.$refs['test'] = document.body.getElementsByClassName("smallMultiples")[0].children[0]
-            // this.$refs.container.getElementsByClassName("smallMultiples")[0].children[0]
-            // document.body.getElementsByClassName("smallMultiples")[0].children[0].appendChild(instance.$el)
-            // document.body.geappendChild(instance.$el)
-            // this.$refs.container.getElementsByClassName("smallMultiples")[0].children[0].appendChild(instance.$el)
-
-            // this.$refs.empty - chicken - 66
-            // var camelCased = "new-hope".replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
-            // document.getElementById("empty-chicken-66").appendChild(instance.$el)
-
-
-            // this.symbols.forEach((el, index) => {
-            //     console.dir(document.body.getElementsByClassName("smallMultiples")[0].children[index])
-            // })
-
-            // this.symbols.forEach((el, index) => {
-            //     this.$refs[_.camelCase(el.key)] = document.body.getElementsByClassName("smallMultiples")[0].children[index]
-            // })
-
-            // // console.dir(this.$refs)
-
-            // this.symbols.forEach((el, index) => {
-            //     this.$refs[_.camelCase(el.key)].appendChild(instance.$el)
-            // })
-
-        }
+        symbolsNest: function(fetchedData) {
+            return d3.nest()
+                .key(function(d) {
+                    return d.symbol;
+                })
+                .entries(fetchedData)
+        },
     },
     created: function() {
 
@@ -138,7 +260,11 @@ window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
 
         /// TODO: rewrite fully in Vue JS using Virtual DOM
         // https://codepen.io/terrymun/pen/gmBdKq
+        // SOLVED: figured out how to combine d3 + natural VUE approach
         // SOLVED: rebuild parser, include days
+
+
+        window.area = this.area
 
         this.waitData.then(() => {
 
@@ -194,19 +320,21 @@ window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
                 return d;
             }
 
-            var data = this.fetchedData
-
-            data.forEach(type) // applying data parsing
+            var fetchedData = this.fetchedData
+            fetchedData.forEach(this.type) // applying data parsing
 
             // d3.csv("stock_tmp.csv", type, function(data) {
             // Nest data by symbol.
             // console.dir(data)
 
-            var symbols = d3.nest()
-                .key(function(d) {
-                    return d.symbol;
-                })
-                .entries(data);
+            // var symbols = d3.nest()
+            //     .key(function(d) {
+            //         return d.symbol;
+            //     })
+            //     .entries(fetchedData);
+
+            // FIXME: change this to another name
+            var symbols = this.symbolsNest(fetchedData)
 
             symbols = symbols.map(el => {
                 return {
@@ -262,7 +390,6 @@ window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
             // Compute the minimum and maximum date across symbols.
             // We assume values are sorted by date.
 
-
             x.domain([
                 d3.min(symbols, function(s) {
                     return s.values[0].date;
@@ -272,26 +399,44 @@ window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
                 })
             ]);
 
+            // INFO: binding symbols to data
+            this.data = symbols
+
+
+            // (symbols => ((d, i), {
+            //     return this.sss(d)
+            // })
+
+
+
+            // sss: function(d) {
+            //     this.y().domain([0, d.maxPrice])
+            //     return this.area(d.values)
+            // }
+
+
             // Add an SVG element for each symbol, with the desired dimensions and margin.
-            var svg = d3.select(".smallMultiples")
-                .selectAll("svg")
-                // var svg = d3.create("div")
-                // .attr("class", "tst")
-                // .select("div.tst")
-                // .selectAll("svg")
+            // var svg = d3.select(".smallMultiples")
+            //     .selectAll("svg")
+            //     .data(symbols)
+            //     .enter().append("svg")
+            //     .attr("width", width + margin.left + margin.right)
+            //     .attr("height", height + margin.top + margin.bottom)
+            //     .attr("v-bind:ref", function(d) {
+            //         return _.camelCase(d.key)
+            //     })
+            //     .append("g")
+            //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+            // Add the area path elements.Note: the y - domain is set per element.
+            // svg.append("path")
+            d3.select(".smallMultiples")
+                .selectAll(".chosen")
+                .selectAll("path")
                 .data(symbols)
-                .enter().append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .attr("v-bind:ref", function(d) {
-                    return _.camelCase(d.key)
-                })
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
-            // Add the area path elements. Note: the y-domain is set per element.
-            svg.append("path")
+                .enter()
+                .append("path")
                 .attr("class", "area")
                 .attr("fill", "blue")
                 .attr("d", function(d) {
@@ -300,15 +445,15 @@ window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
                 });
 
             // Add the line path elements. Note: the y-domain is set per element.
-            svg.append("path")
-                .attr("class", "line")
-                .attr("fill", "none")
-                .attr("stroke", "#666")
-                .attr("stroke-width", "1.5px")
-                .attr("d", function(d) {
-                    y.domain([0, d.maxPrice]);
-                    return line(d.values);
-                });
+            // svg.append("path")
+            //     .attr("class", "line")
+            //     .attr("fill", "none")
+            //     .attr("stroke", "#666")
+            //     .attr("stroke-width", "1.5px")
+            //     .attr("d", function(d) {
+            //         y.domain([0, d.maxPrice]);
+            //         return line(d.values);
+            //     });
 
             // Making highlighted periods.
             // Add Selected Area
@@ -322,28 +467,28 @@ window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
             //     });
 
             // add a small label for the symbol name.
-            svg.append("text")
-                .attr("x", width - 6)
-                .attr("y", height - 6)
-                .style("text-anchor", "end")
-                .text(function(d) {
-                    return d.key;
-                });
+            // svg.append("text")
+            //     .attr("x", width - 6)
+            //     .attr("y", height - 6)
+            //     .style("text-anchor", "end")
+            //     .text(function(d) {
+            //         return d.key;
+            //     });
 
 
             // Attach element to DOM.
-            d3.select(".smallMultiples")
-                .append(() => svg.node());
+            // d3.select(".smallMultiples")
+            //     .append(() => svg.node());
 
 
             // TODO: select element by some attrbute or reference from d3
             // this.test()
             // console.dir(svg)
 
-            this.$forceUpdate()
-            console.dir(this.$refs);
-            window.rt = this.$refs
-            window.svg = svg
+            // this.$forceUpdate()
+            // console.dir(this.$refs);
+            // window.rt = this.$refs
+            // window.svg = svg
             // window.svg._groups[0][0]
             // this.$refs.container.appendChild(instance.$el)
 
