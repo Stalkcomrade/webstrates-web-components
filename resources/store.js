@@ -31,7 +31,7 @@ const dataFetchMixin = Vue.mixin({
         month: '',
         year: '',
         maxWebstrates: '',
-        data: '',
+        // data: '', // FIXME: might produce issues
         usersPerWs: ''
     }),
     methods: {
