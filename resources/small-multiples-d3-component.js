@@ -1,5 +1,8 @@
 window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
     mixins: [dataFetchMixin],
+    props: {
+        datum: Number
+    },
     // TODO: data transition from parent to children components
     template: `
 
@@ -16,20 +19,20 @@ window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
                   <path
                       class=area
                       fill=blue
-                      :d="symbols[1].path">
+                      :d="symbols[datum].path">
                   </path>
                   <path
                       class=line
                       fill=none
                       stroke=#666
                       stroke-width=1.5px
-                      :d="symbols[1].line">
+                      :d="symbols[datum].line">
                   </path>
                   <text
                        :x="width - 6"
                        :y="height - 6"
                        style="text-anchor: end;">
-                   {{ symbols[1].key }}
+                   {{ symbols[datum].key }}
                  </text>
             </g>
           </svg>    
