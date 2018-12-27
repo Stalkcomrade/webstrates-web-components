@@ -1,22 +1,32 @@
+// TODO: changing root from computed to function
+
 window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
-    props: ['InnerTextToShow'],
     template: `
 <div>
 <br>
 <br>
 <br>
 <br>
-<button @contextmenu="handler($event)">r-click</button>
-  
 
 <b-container class="container-fluid">
   <b-row>
     <b-col class="col-md-10">
       <div class="treeD3" id="tree-container">
       </div>
+      <svg
+        id="svgMain"
+        :width="width" :height="dx" :viewBox="viewBox"
+        style="font: 10px sans-serif, user-select: none;">
+
+        <g
+          id="gLink"
+          fill="none" stroke="#555" stroke-opacity="0.4" stroke-width="1.5"> </g>
+        <g
+          id="gNode"
+          cursor="pointer"> </g> 
+      </svg>
     </b-col>
     <b-col class="col-md-2 text-left">
-      <p> {{ currentInnerText }} </p>
     </b-col>
   </b-row>
 </b-container>
@@ -32,6 +42,15 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         htmlObjectReady: false,
         htmlObject: '',
         htmlString: '',
+        dx: 10,
+        dy: 162.5,
+        width: 900,
+        margin: {
+            top: 10,
+            right: 120,
+            bottom: 10,
+            left: 40
+        }
     }),
     computed: {},
     watch: {
@@ -40,17 +59,38 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 name: "main",
                 children: this.d3Data
             }
-            // this.Id = this.funTree(this.d3Data)
-            this.Id = this.funTree(container)
-        },
-        // currentInnerText() {
+            this.update(this.root)
 
-        //     this.InnerTextToShow = this.currentInnerText
-        //     console.dir(this.InnerTextToShow)
-        // }
+            // this.Id = this.funTree(container)
+            // funTree: function(data) {
+            //     this.update(this.root);
+            // }
+        },
+    },
+    computed: {
+
+        viewBox() {
+            return [-this.margin.left, -this.margin.top, this.width, this.dx]
+        },
+
+        tree() {
+            return d3.tree().nodeSize([this.dx, this.dy])
+        },
+        diagonal() {
+            return d3.linkHorizontal().x(d => d.y).y(d => d.x)
+        },
+        root() {
+            return d3.hierarchy(this.data)
+                .x0(this.dy / 2)
+                .y0(0)
+                .descendants().forEach((d, i) => {
+                    d.id = i
+                    d._children = d.children
+                    if (d.depth && d.data.name.length !== 7) d.children = null
+                })
+        },
     },
     methods: {
-
         changeCurrent: function(innerText) {
             this.currentInnerText = `${innerText}`
         },
@@ -60,8 +100,6 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         },
 
         getHtmlsPerSession: async function() {
-                // let wsId = "massive-skunk-85"
-                // let wsId = "hungry-cat-75"
                 let wsId = "wonderful-newt-54/"
                 let version = 305
                 let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + version + "/?raw")
@@ -124,198 +162,147 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                     }
                     target.push(children)
                 }
-
                 return target
-
             },
             init: function() {
                 console.dir("init starts")
                 var $el = this.htmlObject.getElementsByTagName("BODY")[0]
                 window.el = $el.children[0]
-                // this.d3Data = this.sq(window.el.children)
                 return this.sq(window.el.children)
             },
-            // Thanks, Mike: https://beta.observablehq.com/@mbostock/collapsible-tree
-            funTree: function(data) {
 
-                // console.dir("INSIDE D3")
+            update: function(source) {
 
-                var dx = 10
-                var dy = 162.5
-                var margin = {
-                    top: 10,
-                    right: 120,
-                    bottom: 10,
-                    left: 40
-                }
-
-                var width = 900
-
-                var tree = d3.tree().nodeSize([dx, dy])
-                var diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
+                const duration = d3.event && d3.event.altKey ? 2500 : 250;
+                const nodes = this.root.descendants().reverse();
+                const links = this.root.links();
 
 
-                // console.dir(data)
-                const root = d3.hierarchy(data);
+                this.tree(this.root) // Compute the new tree layout.
 
-                // console.dir(root)
-
-                root.x0 = dy / 2;
-                root.y0 = 0;
-                root.descendants().forEach((d, i) => {
-                    d.id = i
-                    // d._innerText = d.innerText
-                    d._children = d.children
-                    if (d.depth && d.data.name.length !== 7) d.children = null
+                let left = this.root;
+                let right = this.root;
+                this.root.eachBefore(node => {
+                    if (node.x < left.x) left = node;
+                    if (node.x > right.x) right = node;
                 });
 
-                // d3.select(".treeUnique").append()
-                // const svg = d3.select(".treeD3")
-                const svg = d3.create("svg")
-                    .append("svg")
-                    .attr("width", width)
-                    .attr("height", dx)
-                    .attr("viewBox", [-margin.left, -margin.top, width, dx])
-                    .style("font", "10px sans-serif")
-                    .style("user-select", "none");
+                const height = right.x - left.x + this.margin.top + this.margin.bottom;
 
-                const gLink = svg.append("g")
-                    .attr("fill", "none")
-                    .attr("stroke", "#555")
-                    .attr("stroke-opacity", 0.4)
-                    .attr("stroke-width", 1.5);
+                // const svg = d3.select("#svgMain")
+                // const gLink = svg.append("g")
+                //     .attr("fill", "none")
+                // const gNode = svg.append("g")
+                //     .attr("cursor", "pointer");
 
-                const gNode = svg.append("g")
-                    .attr("cursor", "pointer");
 
-                function update(source) {
-                    const duration = d3.event && d3.event.altKey ? 2500 : 250;
-                    const nodes = root.descendants().reverse();
-                    const links = root.links();
+                const transition = d3.select("#svgMain")
+                    .transition()
+                    .duration(duration)
+                    .attr("height", height)
+                    .attr("viewBox", [-this.margin.left, left.x - this.margin.top, this.width, height])
+                    .tween("resize", window.ResizeObserver ? null : () => () => d3.select("#svgMain").dispatch("toggle"));
 
-                    // Compute the new tree layout.
-                    tree(root);
+                // Update the nodes…
+                const node = d3.select("gNode").selectAll("g")
+                    .data(nodes, d => d.id);
 
-                    let left = root;
-                    let right = root;
-                    root.eachBefore(node => {
-                        if (node.x < left.x) left = node;
-                        if (node.x > right.x) right = node;
+                // Enter any new nodes at the parent's previous position.
+
+                var self = this.changeCurrent
+
+                const nodeEnter = node.enter().append("g")
+                    .attr("transform", d => `translate(${source.y0},${source.x0})`)
+                    .attr("fill-opacity", 0)
+                    .attr("stroke-opacity", 0)
+                    .on("click", d => {
+                        d.children = d.children ? null : d._children
+                        this.update(d)
+                        // self.changeCurrent(d.data.innerText)
+                        // console.dir(d.data.innerText)
+                        // this.currentInnerText = d.data.innerText
+                        // self.currentInnerText = d.data.innerText
+
+                        // console.dir(this.currentInnerText)
+                        // TODO: put into watch section
+                    })
+                    .on("contextmenu", function(d, i) {
+                        d3.event.preventDefault();
+                        // console.dir("right click")
+                    })
+                    .on("mouseover", (d) => {
+                        // console.dir(self)
+                        // self(d.data.innerText)
+                    })
+
+
+                nodeEnter.append("circle")
+                    .attr("r", 2.5)
+                    .attr("fill", d => d._children ? "#555" : "#999");
+
+                nodeEnter.append("text")
+                    .attr("dy", "0.31em")
+                    .attr("x", d => d._children ? -6 : 6)
+                    .attr("text-anchor", d => d._children ? "end" : "start")
+                    .text(d => d.data.name)
+                    .clone(true).lower()
+                    .attr("stroke-linejoin", "round")
+                    .attr("stroke-width", 3)
+                    .attr("stroke", "white");
+
+                // Transition nodes to their new position.
+                const nodeUpdate = node.merge(nodeEnter).transition(transition)
+                    .attr("transform", d => `translate(${d.y},${d.x})`)
+                    .attr("fill-opacity", 1)
+                    .attr("stroke-opacity", 1);
+
+                // Transition exiting nodes to the parent's new position.
+                const nodeExit = node.exit().transition(transition).remove()
+                    .attr("transform", d => `translate(${source.y},${source.x})`)
+                    .attr("fill-opacity", 0)
+                    .attr("stroke-opacity", 0);
+
+                // Update the links…
+                const link = d3.select("#gLink").selectAll("path")
+                    .data(links, d => d.target.id);
+
+                // Enter any new links at the parent's previous position.
+                const linkEnter = link.enter().append("path")
+                    .attr("d", d => {
+                        const o = {
+                            x: source.x0,
+                            y: source.y0
+                        };
+                        return this.diagonal({
+                            source: o,
+                            target: o
+                        });
                     });
 
-                    const height = right.x - left.x + margin.top + margin.bottom;
+                // Transition links to their new position.
+                link.merge(linkEnter).transition(transition)
+                    .attr("d", this.diagonal);
 
-                    const transition = svg.transition()
-                        .duration(duration)
-                        .attr("height", height)
-                        .attr("viewBox", [-margin.left, left.x - margin.top, width, height])
-                        .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
-
-                    // Update the nodes…
-                    const node = gNode.selectAll("g")
-                        .data(nodes, d => d.id);
-
-                    // Enter any new nodes at the parent's previous position.
-
-                    var self = this.changeCurrent
-
-                    const nodeEnter = node.enter().append("g")
-                        .attr("transform", d => `translate(${source.y0},${source.x0})`)
-                        .attr("fill-opacity", 0)
-                        .attr("stroke-opacity", 0)
-                        .on("click", function(d) {
-                            d.children = d.children ? null : d._children
-                            update(d)
-                            // self.changeCurrent(d.data.innerText)
-                            // console.dir(d.data.innerText)
-                            // this.currentInnerText = d.data.innerText
-                            // self.currentInnerText = d.data.innerText
-
-                            // console.dir(this.currentInnerText)
-                            // TODO: put into watch section
-                        })
-                        .on("contextmenu", function(d, i) {
-                            d3.event.preventDefault();
-                            // console.dir("right click")
-                        })
-                        .on("mouseover", (d) => {
-                            console.dir(self)
-                            self(d.data.innerText)
-                        })
-
-
-                    nodeEnter.append("circle")
-                        .attr("r", 2.5)
-                        .attr("fill", d => d._children ? "#555" : "#999");
-
-                    nodeEnter.append("text")
-                        .attr("dy", "0.31em")
-                        .attr("x", d => d._children ? -6 : 6)
-                        .attr("text-anchor", d => d._children ? "end" : "start")
-                        .text(d => d.data.name)
-                        .clone(true).lower()
-                        .attr("stroke-linejoin", "round")
-                        .attr("stroke-width", 3)
-                        .attr("stroke", "white");
-
-                    // Transition nodes to their new position.
-                    const nodeUpdate = node.merge(nodeEnter).transition(transition)
-                        .attr("transform", d => `translate(${d.y},${d.x})`)
-                        .attr("fill-opacity", 1)
-                        .attr("stroke-opacity", 1);
-
-                    // Transition exiting nodes to the parent's new position.
-                    const nodeExit = node.exit().transition(transition).remove()
-                        .attr("transform", d => `translate(${source.y},${source.x})`)
-                        .attr("fill-opacity", 0)
-                        .attr("stroke-opacity", 0);
-
-                    // Update the links…
-                    const link = gLink.selectAll("path")
-                        .data(links, d => d.target.id);
-
-                    // Enter any new links at the parent's previous position.
-                    const linkEnter = link.enter().append("path")
-                        .attr("d", d => {
-                            const o = {
-                                x: source.x0,
-                                y: source.y0
-                            };
-                            return diagonal({
-                                source: o,
-                                target: o
-                            });
+                // Transition exiting nodes to the parent's new position.
+                link.exit().transition(transition).remove()
+                    .attr("d", d => {
+                        const o = {
+                            x: source.x,
+                            y: source.y
+                        };
+                        return this.diagonal({
+                            source: o,
+                            target: o
                         });
-
-                    // Transition links to their new position.
-                    link.merge(linkEnter).transition(transition)
-                        .attr("d", diagonal);
-
-                    // Transition exiting nodes to the parent's new position.
-                    link.exit().transition(transition).remove()
-                        .attr("d", d => {
-                            const o = {
-                                x: source.x,
-                                y: source.y
-                            };
-                            return diagonal({
-                                source: o,
-                                target: o
-                            });
-                        });
-
-                    // Stash the old positions for transition.
-                    root.eachBefore(d => {
-                        d.x0 = d.x;
-                        d.y0 = d.y;
                     });
-                }
 
-                update(root);
-                d3.select(".treeD3").node().appendChild(svg.node())
+                // Stash the old positions for transition.
+                this.root.eachBefore(d => {
+                    d.x0 = d.x;
+                    d.y0 = d.y;
+                });
 
-
-            }
+            },
     },
     beforeCreate() {},
     async created() {},
@@ -323,15 +310,5 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         this.htmlString = await this.getHtmlsPerSession()
         this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
         this.d3Data = await this.init()
-        // this.d3Test = await this.funTree(this.d3Test)
-        // this.init()
-        // window.d3Data = this.d3Data
-
-        // this.changeCurrent("new")
-        // var self = this
-        // self.changeCurrent("new1")
-        // console.dir(this.d3Data)
-
-
     }
 })
