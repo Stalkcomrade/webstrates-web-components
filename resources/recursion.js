@@ -1,19 +1,22 @@
-var walk = function(node, cb) {
-    cb(node)
-    if (node.children.length) {
-        this.walk(node.children[0], cb)
-    }
-    if (node.nextElementSibling) {
-        this.walk(node.nextElementSibling, cb)
-    }
-}
+// var walk = function(node, cb) {
+//     cb(node)
+//     if (node.children.length) {
+//         this.walk(node.children[0], cb)
+//     }
+//     if (node.nextElementSibling) {
+//         this.walk(node.nextElementSibling, cb)
+//     }
+// }
 
-this.walk($el.children[0], node => {
+// this.walk($el.children[0], node => {
 
-    var levelNodes = this.getLevelNodes(node)
-    this.d3Data.push(levelNodes)
+//     var levelNodes = this.getLevelNodes(node)
+//     this.d3Data.push(levelNodes)
 
-})
+// })
+
+window.el.children[0].innerText
+
 
 
 // INFO: Right recursive function, though, I don't understand what is going on with the local scopes variables

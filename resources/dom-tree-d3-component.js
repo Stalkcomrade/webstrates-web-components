@@ -1,4 +1,5 @@
 window.DomTreeD3Component = Vue.component('dom-tree-d3', {
+    props: ['InnerTextToShow'],
     template: `
 <div>
 <br>
@@ -6,11 +7,26 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 <br>
 <br>
 <button @contextmenu="handler($event)">r-click</button>
-  <div class="treeD3" id="tree-container"></div>
+  
+
+<b-container class="container-fluid">
+  <b-row>
+    <b-col class="col-md-10">
+      <div class="treeD3" id="tree-container">
+      </div>
+    </b-col>
+    <b-col class="col-md-2 text-left">
+      <p> {{ currentInnerText }} </p>
+    </b-col>
+  </b-row>
+</b-container>
+
 
 </div>
 `,
+    // <p> {{ InnerTextToShow }} </p>
     data: () => ({
+        currentInnerText: '',
         d3Data: [],
         d3Object: {},
         finalHtml: '',
@@ -27,9 +43,18 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
             }
             // this.Id = this.funTree(this.d3Data)
             this.Id = this.funTree(container)
-        }
+        },
+        // currentInnerText() {
+
+        //     this.InnerTextToShow = this.currentInnerText
+        //     console.dir(this.InnerTextToShow)
+        // }
     },
     methods: {
+
+        changeCurrent: function(innerText) {
+            this.currentInnerText = `${innerText}`
+        },
 
         handler: function(e) {
             e.preventDefault();
@@ -95,7 +120,8 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                         value: item,
                         name: item.getAttribute("__wid"),
                         parent: item.parentElement.getAttribute("__wid"),
-                        children: (item.children ? this.sq(item.children) : "No Children")
+                        children: (item.children ? this.sq(item.children) : "No Children"),
+                        innerText: item.innerText
                     }
                     target.push(children)
                 }
@@ -113,7 +139,7 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
             // Thanks, Mike: https://beta.observablehq.com/@mbostock/collapsible-tree
             funTree: function(data) {
 
-                console.dir("INSIDE D3")
+                // console.dir("INSIDE D3")
 
                 var dx = 10
                 var dy = 162.5
@@ -130,18 +156,18 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 var diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
 
 
-
-                console.dir(data)
+                // console.dir(data)
                 const root = d3.hierarchy(data);
 
-                console.dir(root)
+                // console.dir(root)
 
                 root.x0 = dy / 2;
                 root.y0 = 0;
                 root.descendants().forEach((d, i) => {
-                    d.id = i;
-                    d._children = d.children;
-                    if (d.depth && d.data.name.length !== 7) d.children = null;
+                    d.id = i
+                    // d._innerText = d.innerText
+                    d._children = d.children
+                    if (d.depth && d.data.name.length !== 7) d.children = null
                 });
 
                 // d3.select(".treeUnique").append()
@@ -191,18 +217,33 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                         .data(nodes, d => d.id);
 
                     // Enter any new nodes at the parent's previous position.
+
+                    var self = this.changeCurrent
+
                     const nodeEnter = node.enter().append("g")
                         .attr("transform", d => `translate(${source.y0},${source.x0})`)
                         .attr("fill-opacity", 0)
                         .attr("stroke-opacity", 0)
-                        .on("click", d => {
-                            d.children = d.children ? null : d._children;
-                            update(d);
+                        .on("click", function(d) {
+                            d.children = d.children ? null : d._children
+                            update(d)
+                            // self.changeCurrent(d.data.innerText)
+                            // console.dir(d.data.innerText)
+                            // this.currentInnerText = d.data.innerText
+                            // self.currentInnerText = d.data.innerText
+
+                            // console.dir(this.currentInnerText)
+                            // TODO: put into watch section
                         })
                         .on("contextmenu", function(d, i) {
                             d3.event.preventDefault();
                             // console.dir("right click")
-                        });
+                        })
+                        .on("mouseover", (d) => {
+                            console.dir(self)
+                            self(d.data.innerText)
+                        })
+
 
                     nodeEnter.append("circle")
                         .attr("r", 2.5)
@@ -287,7 +328,10 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
         // this.init()
         // window.d3Data = this.d3Data
 
-        console.dir(this.d3Data)
+        // this.changeCurrent("new")
+        // var self = this
+        // self.changeCurrent("new1")
+        // console.dir(this.d3Data)
 
 
     }

@@ -44,6 +44,10 @@ webstrate.on('loaded', () => {
                 component: DomTreeD3Component
             },
             {
+                path: '/dom-tree-d3-vue',
+                component: DomTreeD3VueComponent
+            },
+            {
                 path: '/css-test',
                 component: CssTestComponent
             },
