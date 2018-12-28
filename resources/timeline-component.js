@@ -1,21 +1,8 @@
-// TODO: import timeline in a different file
-// TODO: mixing for fetched data
-
-// import {
-//     d3Timeline
-// } from '../node_modules/d3-vs';
-
-// window.jsdiff = require('json0-ot-diff')
-// window.js = require('html-to-jsonml')
-// window.jsdiffTrue = require('diff')
+// SOLVED: import timeline in a different file
+// SOLVED: mixing for fetched data
 
 window.TimelineComponent = Vue.component('timeline', {
-    props: [
-        "monthProp",
-        "yearProp",
-        "maxWebstratesProp",
-        "selectedProp"
-    ],
+    mixins: [window.dataFetchMixin],
     data: () => ({
         date: '',
         month: '',
@@ -34,6 +21,7 @@ window.TimelineComponent = Vue.component('timeline', {
         intermSession: "",
         wsId: ''
     }),
+    // TODO: make a simple interface for selections
     template: `
       <d3-timeline
           v-bind:data="dt"
@@ -45,6 +33,7 @@ window.TimelineComponent = Vue.component('timeline', {
         'd3-timeline': window.d3Timeline
     },
     watch: {
+        // TODO: make watchers for selections
         versioningParsed() {
             this.processData()
         },
@@ -54,37 +43,7 @@ window.TimelineComponent = Vue.component('timeline', {
     },
     beforeCreate: function() {},
     created: function() {
-        // FIXME: use mixin instead
-        this.waitData = new Promise((resolve, reject) => {
-
-            this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
-                month: 'long',
-                year: 'numeric'
-            })
-
-            const month = Number(this.month) || ((new Date).getMonth() + 1);
-            const maxWebstrates = this.maxWebstrates || 20;
-            const year = Number(this.year) || (new Date).getFullYear();
-
-            dataFetcher('month').then((days) => {
-
-                let webstrateIds = new Set();
-                let effortTotal = new Set();
-
-                Object.values(days).forEach(day => {
-                    Object.keys(day).forEach(webstrateId => {
-                        webstrateIds.add(webstrateId)
-                    });
-
-                    Object.values(day).forEach(singleEffort => {
-                        effortTotal.add(singleEffort)
-                    })
-                })
-                webstrateIds = Array.from(webstrateIds).sort()
-                this.options = webstrateIds
-                console.dir('List of Webstrates Ids is Fetched Successfully')
-            }).then(() => resolve())
-        })
+        this.waitData = this.fetchActivityTimeline()
     },
     methods: {
         processData: function() {
@@ -99,7 +58,6 @@ window.TimelineComponent = Vue.component('timeline', {
             sessionObject = Object.keys(sessionObject).map(key => sessionObject[key]).filter(element => (element.sessionId !== 0))
 
             // making Set to identify unique session and max/min
-
             this.sessionGrouped = _.chain(sessionObject)
                 .groupBy("sessionId")
                 .map(session => ({
@@ -114,9 +72,12 @@ window.TimelineComponent = Vue.component('timeline', {
         },
         getHtmlsPerSession: async function() {
 
+                // FIXME: transform into parameters
+                this.wsId = this.selected
                 // this.wsId = "hungry-cat-75"
-                this.wsId = "massive-skunk-85"
+                // this.wsId = "massive-skunk-85"
 
+                // FIXME: transform into parameters
                 let numberInitial = 2
                 let numberLast = 177
 
@@ -144,7 +105,6 @@ window.TimelineComponent = Vue.component('timeline', {
                     htmlResultLastJson
                 ])
                 console.dir(results)
-
                 return results
             },
             getOpsJson: function() {
@@ -173,9 +133,11 @@ window.TimelineComponent = Vue.component('timeline', {
     },
     async mounted() {
         this.getOpsJson()
-        this.getHtmlsPerSession()
         this.intermSession = await this.getHtmlsPerSession()
         window.intermSession = this.intermSession
+
+        // TODO: parse all the stuff
+
     },
     updated() {}
 });

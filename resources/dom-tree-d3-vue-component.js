@@ -1,3 +1,5 @@
+// TODO: wait for data from session inspector
+
 window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     template: `
 <div>
@@ -7,6 +9,16 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 <br>
 
 <b-container class="container-fluid">
+
+ <b-row>
+<timeline> </timeline>
+</b-row>
+
+<br>
+<br>
+<br>
+<br>
+
   <b-row>
     <b-col class="col-md-10">
       <div class="treeD3" id="tree-container">
@@ -29,14 +41,8 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     </b-col>
   </b-row>
 
-<br>
-<br>
-<br>
-<br>
 
- <b-row>
-<timeline> </timeline>
-</b-row>
+
 </b-container>
 
 
@@ -91,15 +97,6 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
             this.gLink = d3.select("#gLink")
             this.gNode = d3.select("#gNode")
         },
-        // // TODO: rewrite functions
-        // tree() {
-        //     var self = this
-        //     return d3.tree().nodeSize([self.dx, self.dy])
-        // },
-        // diagonal() {
-        //     // var self = this
-        //     return d3.linkHorizontal().x(d => d.y).y(d => d.x)
-        // },
         // SOLVED: changing root from computed to function
         root: function(data) {
             var hierarchyTemp = d3.hierarchy(data)
@@ -115,12 +112,14 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         },
         changeCurrent: function(innerText) {
             this.currentInnerText = `${innerText}`
-        },
 
+        },
         handler: function(e) {
             e.preventDefault();
         },
 
+        // FIXME: here is already an html
+        // FIXME: put into mixin with additional argument
         getHtmlsPerSession: async function() {
                 let wsId = "wonderful-newt-54/"
                 let version = 305
@@ -129,22 +128,17 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 console.dir('html is fetched successfully')
                 return htmlResultInitial
             },
-
-
             // get children from parentnoted
             getLevelNodes: function(node) {
                 return Array.from(node.parentNode.children)
             },
-
             // get index of child
             getChildIndex: function(node) {
                 return this.getLevelNodes(node).indexOf(node)
             },
-
             tagNodeName: function(node) {
                 node.innerHTML = node.nodeName + node.innerHTML
             },
-
             clearInside: function(node) {
                 Array.from(node.childNodes).forEach(child => {
                     if (child.nodeName === '#text') {
@@ -169,7 +163,6 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 }
             },
             sq: function(input) {
-
                 var target = [] // INFO: local-global scope
                 var children = []
 
@@ -195,7 +188,6 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 return this.sq(window.el.children)
             },
             update: function(source) {
-
                 // SOLVED: root is not calculated
                 // SOLVED: Messed up source and root
                 const duration = d3.event && d3.event.altKey ? 2500 : 250;

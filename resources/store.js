@@ -65,14 +65,10 @@ window.dataFetchMixin = Vue.mixin({
             })
 
         },
+        // TODO: change name of the function
         fetchActivityTimeline: function() {
 
             return new Promise((resolve, reject) => {
-
-                this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
-                    month: 'long',
-                    year: 'numeric'
-                })
 
                 const month = Number(this.month) || ((new Date).getMonth() + 1);
                 const maxWebstrates = this.maxWebstrates || 20;
@@ -98,6 +94,15 @@ window.dataFetchMixin = Vue.mixin({
                 }).then(() => resolve())
             })
 
+        },
+
+        getOpsJsonMixin: function() {
+            fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
+                .then(html => html.text())
+                .then(body => {
+                    console.log('Fetched:\n', this.selected)
+                    this.versioningRaw = body
+                })
         }
     }
 })

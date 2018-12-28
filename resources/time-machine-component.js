@@ -1,19 +1,5 @@
-// require('/wicked-wombat-56/d3-vs.zip/src/components/d3Timeline/index.js');
-// /webstrateId/d3-vs.zip
-// import { d3Timeline } from '/wicked-wombat-56/Vs.min.js';
-// import d3Timeline from 'Vs.min.js';
-// import { d3Timeline } from '/wicked-wombat-56/d3-vs.zip/src/components/d3Timeline';
-// import {
-//     d3Timeline
-// } from '../node_modules/d3-vs';
-
 window.TimeMachineComponent = Vue.component('time-machine', {
-    props: [
-        "monthProp",
-        "yearProp",
-        "maxWebstratesProp",
-        "selectedProp"
-    ],
+    mixins: [window.dataFetchMixin],
     data: () => ({
         date: '',
         wbsAuthor: '',
@@ -67,14 +53,8 @@ window.TimeMachineComponent = Vue.component('time-machine', {
 
     beforeCreate: function() {},
     created: function() {
-        console.dir(this.$parent.Id + "TEST!!!")
+
         this.waitData = new Promise((resolve, reject) => {
-
-            this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
-                month: 'long',
-                year: 'numeric'
-            })
-
 
             const month = Number(this.month) || ((new Date).getMonth() + 1);
             const maxWebstrates = this.maxWebstrates || 20;
@@ -155,9 +135,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
                 .then(() => {
 
                     this.versioningRaw = JSON.parse(this.versioningRaw)
-
                     try {
-
                         // parsing author of webstrate
                         this.wbsAuthor = this.versioningRaw[0].session.userId
                         console.dir(this.wbsAuthor)
@@ -177,11 +155,9 @@ window.TimeMachineComponent = Vue.component('time-machine', {
                         console.error(err)
                     }
 
-
                     this.dt = this.versioningRaw.map(int => ({
                         at: new Date(int.m.ts),
                         title: int.v,
-                        // title: 
                         group: (Object.keys(int).indexOf('create') !== -1) ? 'create' : 'edition',
                         className: (Object.keys(int).indexOf('create') !== -1) ? 'entry--point--success' : 'entry--point--default',
                         symbol: (Object.keys(int).indexOf('create') !== -1) ? 'symbolCross' : 'symbolTriangle',
@@ -190,16 +166,13 @@ window.TimeMachineComponent = Vue.component('time-machine', {
                     }))
                 })
         },
-
         getOpsJson: function() {
-
             fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
                 .then(html => html.text())
                 .then(body => {
                     console.log('Fetched:')
                     this.versioningRaw = body
                 })
-
         },
 
         fetchAll: function(webstrateIdInst) {

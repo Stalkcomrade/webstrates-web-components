@@ -1,7 +1,6 @@
 window.WebstrateLegendComponent = Vue.component('webstrate-legend', {
     inherit: true,
     template: '<ul id="legend"></ul>',
-
     created() {
         console.log('listen to ', this.$parent)
         // this.$parent.$on('webstrateIds', (webstrateIds) => {
@@ -76,9 +75,7 @@ window.WebstrateLegendComponent = Vue.component('webstrate-legend', {
     },
 
     mounted() {
-
         this.mainLegend()
-
     }
 
 })
