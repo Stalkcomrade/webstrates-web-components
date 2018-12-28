@@ -1,10 +1,13 @@
-import {
-    d3Timeline
-} from '../node_modules/d3-vs';
+// TODO: import timeline in a different file
+// TODO: mixing for fetched data
 
-window.jsdiff = require('json0-ot-diff')
-window.js = require('html-to-jsonml')
-window.jsdiffTrue = require('diff')
+// import {
+//     d3Timeline
+// } from '../node_modules/d3-vs';
+
+// window.jsdiff = require('json0-ot-diff')
+// window.js = require('html-to-jsonml')
+// window.jsdiffTrue = require('diff')
 
 window.TimelineComponent = Vue.component('timeline', {
     props: [
@@ -39,7 +42,7 @@ window.TimelineComponent = Vue.component('timeline', {
       </d3-timeline>
   `,
     components: {
-        'd3-timeline': d3Timeline
+        'd3-timeline': window.d3Timeline
     },
     watch: {
         versioningParsed() {
@@ -50,7 +53,8 @@ window.TimelineComponent = Vue.component('timeline', {
         }
     },
     beforeCreate: function() {},
-    created: function() { // FIXME: in future eliminate created
+    created: function() {
+        // FIXME: use mixin instead
         this.waitData = new Promise((resolve, reject) => {
 
             this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {

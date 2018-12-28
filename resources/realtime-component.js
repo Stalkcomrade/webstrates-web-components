@@ -1,6 +1,6 @@
-import {
-    d3Timeline
-} from '../node_modules/d3-vs';
+// import {
+//     d3Timeline
+// } from '../node_modules/d3-vs';
 
 window.RealtimeComponent = Vue.component('realtime', {
     props: {
@@ -69,7 +69,7 @@ window.RealtimeComponent = Vue.component('realtime', {
   `,
     // <pre>{{ this.versioningArray }}</pre>
     components: {
-        'd3-timeline': d3Timeline
+        'd3-timeline': window.d3Timeline
     },
 
     created: function() {

@@ -1,5 +1,5 @@
 window.MonthViewComponent = Vue.component('month-view', {
-    mixins: [mixin],
+    mixins: [window.mixin],
     inherit: true,
     props: ['monthProp', 'yearProp', 'maxWebstratesProp'],
     template: `

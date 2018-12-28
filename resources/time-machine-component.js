@@ -3,9 +3,9 @@
 // import { d3Timeline } from '/wicked-wombat-56/Vs.min.js';
 // import d3Timeline from 'Vs.min.js';
 // import { d3Timeline } from '/wicked-wombat-56/d3-vs.zip/src/components/d3Timeline';
-import {
-    d3Timeline
-} from '../node_modules/d3-vs';
+// import {
+//     d3Timeline
+// } from '../node_modules/d3-vs';
 
 window.TimeMachineComponent = Vue.component('time-machine', {
     props: [
@@ -56,7 +56,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
 </div>
   `,
     components: {
-        'd3-timeline': d3Timeline
+        'd3-timeline': window.d3Timeline
     },
     watch: {
         selected: function(newValue, oldValue) {

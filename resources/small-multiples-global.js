@@ -4,7 +4,7 @@
 ////// SOLVED: use v-for once, just in a row
 
 window.smallMultiplesGlobalComponent = Vue.component('small-multiples-global', {
-    mixins: [dataFetchMixin],
+    mixins: [window.dataFetchMixin],
     template: `
   
 <div>

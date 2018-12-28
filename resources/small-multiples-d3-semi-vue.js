@@ -1,5 +1,5 @@
 window.smallMultiplesD3Component = Vue.component('small-multiples-d3', {
-    mixins: [dataFetchMixin],
+    mixins: [window.dataFetchMixin],
     template: `
     <div class="main" ref="container">
 

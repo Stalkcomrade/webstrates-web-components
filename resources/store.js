@@ -2,7 +2,7 @@ var webstrateIdProp = "terrible-chipmunk-57"
 var view = "overview"
 
 
-const mixin = Vue.mixin({
+window.mixin = Vue.mixin({
     props: ['value', 'relationName'],
     data: () => ({
         inputVal: this.value,
@@ -25,9 +25,10 @@ const mixin = Vue.mixin({
 })
 
 
-const dataFetchMixin = Vue.mixin({
+window.dataFetchMixin = Vue.mixin({
     props: ["monthProp", "yearProp", "maxWebstratesProp"],
     data: () => ({
+        options: '',
         month: '',
         year: '',
         maxWebstrates: '',
@@ -61,6 +62,40 @@ const dataFetchMixin = Vue.mixin({
 
                 arrFromSet = Array.from(usersPerWsSet)
                 this.usersPerWs = `${arrFromSet}`
+            })
+
+        },
+        fetchActivityTimeline: function() {
+
+            return new Promise((resolve, reject) => {
+
+                this.date = (new Date(this.year, this.month - 1)).toLocaleDateString(undefined, {
+                    month: 'long',
+                    year: 'numeric'
+                })
+
+                const month = Number(this.month) || ((new Date).getMonth() + 1);
+                const maxWebstrates = this.maxWebstrates || 20;
+                const year = Number(this.year) || (new Date).getFullYear();
+
+                dataFetcher('month').then((days) => {
+
+                    let webstrateIds = new Set();
+                    let effortTotal = new Set();
+
+                    Object.values(days).forEach(day => {
+                        Object.keys(day).forEach(webstrateId => {
+                            webstrateIds.add(webstrateId)
+                        });
+
+                        Object.values(day).forEach(singleEffort => {
+                            effortTotal.add(singleEffort)
+                        })
+                    })
+                    webstrateIds = Array.from(webstrateIds).sort()
+                    this.options = webstrateIds
+                    console.dir('List of Webstrates Ids is Fetched Successfully')
+                }).then(() => resolve())
             })
 
         }

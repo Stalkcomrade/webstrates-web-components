@@ -8,7 +8,8 @@ const {
 
 module.exports = {
     entry: {
-        component: path.resolve(__dirname, './resources/overview-component.js'),
+        externalComponentsVueImport: path.resolve(__dirname, './resources/external-vue-components-import.js'),
+        // component: path.resolve(__dirname, './resources/overview-component.js'),
         // componentTimeline: path.resolve(__dirname, './resources/realtime-component.js'),
         // componentTimeMachine: path.resolve(__dirname, './resources/time-machine-component.js')
         // componentTimeline: path.resolve(__dirname, './resources/timeline-component.js')

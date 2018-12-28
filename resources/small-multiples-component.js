@@ -1,5 +1,5 @@
 window.smallMultiplesComponent = Vue.component('small-multiples', {
-    mixins: [dataFetchMixin],
+    mixins: [window.dataFetchMixin],
     template: `
     <div class="main" ref="container">
     <button @click="test"> add metric </button>
@@ -23,9 +23,9 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
     //     </b-container>
 
 
-    components: {
-        'd3-metric': window.d3Metric
-    },
+    // components: {
+    //     'd3-metric': window.d3Metric
+    // },
     data: () => ({
         parseDate: '',
         counter: '35000',

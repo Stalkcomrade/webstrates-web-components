@@ -1,9 +1,9 @@
-import {
-    d3Metric
-} from '../node_modules/d3-vs';
+// import {
+//     d3Metric
+// } from '../node_modules/d3-vs';
 // var d3Metric = require("/home/stlk/Downloads/node_modules/d3-vs/src/components/d3Metric")
 
-window.d3Metric = d3Metric
+// window.d3Metric = d3Metric
 
 window.OverviewComponent = Vue.component('overview', {
     // :margin="margin"
@@ -17,17 +17,14 @@ window.OverviewComponent = Vue.component('overview', {
   </d3-metric>
   `,
     components: {
-        'd3-metric': d3Metric
+        'd3-metric': window.d3Metric
     },
     data: () => ({
         counter: '35000'
     }),
 
     mounted() {
-
-
         this.counter = 45000
-
     }
 
 });

@@ -1,5 +1,3 @@
-// TODO: changing root from computed to function
-
 window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     template: `
 <div>
@@ -30,11 +28,23 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
       <p> {{ currentInnerText }} </p>
     </b-col>
   </b-row>
+
+<br>
+<br>
+<br>
+<br>
+
+ <b-row>
+<timeline> </timeline>
+</b-row>
 </b-container>
 
 
 </div>
-`,
+        `,
+    components: {
+        'TimelineComponent': window.TimelineComponent
+    },
     data: () => ({
         currentInnerText: '',
         svg: "",
@@ -76,11 +86,11 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         }
     },
     methods: {
-        // getSelectors: function() {
-        //     this.svg = d3.select("#svgMain")
-        //     this.gLink = d3.select("#gLink")
-        //     this.gNode = d3.select("#gNode")
-        // },
+        getSelectors: function() {
+            this.svg = d3.select("#svgMain")
+            this.gLink = d3.select("#gLink")
+            this.gNode = d3.select("#gNode")
+        },
         // // TODO: rewrite functions
         // tree() {
         //     var self = this
@@ -90,6 +100,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         //     // var self = this
         //     return d3.linkHorizontal().x(d => d.y).y(d => d.x)
         // },
+        // SOLVED: changing root from computed to function
         root: function(data) {
             var hierarchyTemp = d3.hierarchy(data)
             hierarchyTemp.x0 = this.dy / 2
@@ -118,6 +129,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 console.dir('html is fetched successfully')
                 return htmlResultInitial
             },
+
 
             // get children from parentnoted
             getLevelNodes: function(node) {
@@ -167,6 +179,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                     children = {
                         value: item,
                         name: item.getAttribute("__wid"),
+                        class: item.getAttribute("class"),
                         parent: item.parentElement.getAttribute("__wid"),
                         children: (item.children ? this.sq(item.children) : "No Children"),
                         innerText: item.innerText
@@ -184,33 +197,24 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
             update: function(source) {
 
                 // SOLVED: root is not calculated
-                // FIXME: Messed up source and root
+                // SOLVED: Messed up source and root
                 const duration = d3.event && d3.event.altKey ? 2500 : 250;
                 const nodes = this.rootInstance.descendants().reverse()
                 const links = this.rootInstance.links()
 
-                // console.dir("Links: \n", links)
-                // console.dir("I am here")
-                // console.dir(source)
                 this.tree(this.rootInstance) // Compute the new tree layout.
-                // console.dir(source)
 
                 let left = this.rootInstance
                 let right = this.rootInstance
                 this.rootInstance.eachBefore(node => {
                     if (node.x < left.x) left = node;
-                    if (node.x > right.x) right = node;
+                    if (node.x > right.x) right = node
                 });
 
-
-
-                ////
-
-                const height = right.x - left.x + this.margin.top + this.margin.bottom;
+                const height = right.x - left.x + this.margin.top + this.margin.bottom
 
                 var self = this
 
-                // const transition = d3.select("#svgMain")
                 const transition = this.svg
                     .transition()
                     .duration(duration)
@@ -220,21 +224,16 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                         .dispatch("toggle"));
 
                 // Update the nodes…
-                // const node = d3.select("#gNode").selectAll("g")
                 const node = this.gNode.selectAll("g")
                     .data(nodes, d => d.id);
 
                 // Enter any new nodes at the parent's previous position.
-                // var self = this.changeCurrent
-                // console.dir(source.y0)
-
                 const nodeEnter = node.enter().append("g")
                     .attr("transform", d => `translate(${source.y0},${source.x0})`)
                     .attr("fill-opacity", 0)
                     .attr("stroke-opacity", 0)
                     .on("click", (d) => {
                         d.children = d.children ? null : d._children
-                        // this.update(d)
                         self.update(d)
                         this.currentInnerText = d.data.innerText
                     })
@@ -252,6 +251,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                     .attr("x", d => d._children ? -6 : 6)
                     .attr("text-anchor", d => d._children ? "end" : "start")
                     .text(d => d.data.name)
+                    .style("fill", d => d.data.class == "paragraph code-paragraph" ? "red" : "black")
                     .clone(true).lower()
                     .attr("stroke-linejoin", "round")
                     .attr("stroke-width", 3)
@@ -290,7 +290,6 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 // Transition links to their new position.
                 link.merge(linkEnter).transition(transition)
                     .attr("d", self.diagonal);
-                // .attr("d", this.diagonal);
 
 
                 // Transition exiting nodes to the parent's new position.
@@ -321,14 +320,10 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 
         this.tree = d3.tree().nodeSize([this.dx, this.dy])
         this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
-        this.svg = d3.select("#svgMain")
-        this.gLink = d3.select("#gLink")
-        this.gNode = d3.select("#gNode")
+        this.getSelectors()
 
-        // this.getSelectors() // TODO: get selectors baclk
         this.htmlString = await this.getHtmlsPerSession()
         this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
         this.d3Data = await this.init()
-        console.dir("end of parsing")
     }
 })
