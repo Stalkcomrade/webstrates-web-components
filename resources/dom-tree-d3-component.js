@@ -155,7 +155,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 var tree = d3.tree().nodeSize([dx, dy])
                 var diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
 
-
                 // console.dir(data)
                 const root = d3.hierarchy(data);
 
@@ -171,27 +170,47 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 });
 
                 // d3.select(".treeUnique").append()
-                // const svg = d3.select(".treeD3")
-                const svg = d3.create("svg")
+                // const svg = d3.create("svg")
+                // const svg =
+                d3.select(".treeD3")
                     .append("svg")
                     .attr("width", width)
                     .attr("height", dx)
+                    .attr("id", "svg")
                     .attr("viewBox", [-margin.left, -margin.top, width, dx])
                     .style("font", "10px sans-serif")
                     .style("user-select", "none");
 
-                const gLink = svg.append("g")
+                const svg = d3.select("#svg")
+
+                // const gLink =
+                // svg.append("g")
+                d3.select("#svg")
+                    .append("g")
+                    .attr("id", "gLink")
                     .attr("fill", "none")
                     .attr("stroke", "#555")
                     .attr("stroke-opacity", 0.4)
                     .attr("stroke-width", 1.5);
 
-                const gNode = svg.append("g")
+                // const gNode =
+                // svg.append("g")
+                d3.select("#svg")
+                    .append("g")
+                    .attr("id", "gNode")
                     .attr("cursor", "pointer");
+
+                // console.dir(gNode)
+
+                const gLink = d3.select("#gLink")
+                const gNode = d3.select("#gNode")
+                // console.dir(d3.select("#gNode"))
 
                 function update(source) {
                     const duration = d3.event && d3.event.altKey ? 2500 : 250;
                     const nodes = root.descendants().reverse();
+                    // console.dir(source)
+                    // console.dir(nodes)
                     const links = root.links();
 
                     // Compute the new tree layout.
@@ -227,21 +246,9 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                         .on("click", function(d) {
                             d.children = d.children ? null : d._children
                             update(d)
-                            // self.changeCurrent(d.data.innerText)
-                            // console.dir(d.data.innerText)
-                            // this.currentInnerText = d.data.innerText
-                            // self.currentInnerText = d.data.innerText
-
-                            // console.dir(this.currentInnerText)
-                            // TODO: put into watch section
                         })
                         .on("contextmenu", function(d, i) {
                             d3.event.preventDefault();
-                            // console.dir("right click")
-                        })
-                        .on("mouseover", (d) => {
-                            console.dir(self)
-                            self(d.data.innerText)
                         })
 
 

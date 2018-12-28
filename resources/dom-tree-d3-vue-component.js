@@ -16,7 +16,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
       <svg
         id="svgMain"
         :width="width" :height="dx" :viewBox="viewBox"
-        style="font: 10px sans-serif, user-select: none;">
+        style="font: 10px sans-serif; user-select: none;">
 
         <g
           id="gLink"
@@ -27,6 +27,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
       </svg>
     </b-col>
     <b-col class="col-md-2 text-left">
+      <p> {{ currentInnerText }} </p>
     </b-col>
   </b-row>
 </b-container>
@@ -36,7 +37,13 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 `,
     data: () => ({
         currentInnerText: '',
+        svg: "",
+        rootInstance: '',
+        gLink: "",
+        gNode: "",
         d3Data: [],
+        tree: '',
+        diagonal: '',
         d3Object: {},
         finalHtml: '',
         htmlObjectReady: false,
@@ -52,45 +59,49 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
             left: 40
         }
     }),
-    computed: {},
     watch: {
         d3Data() {
             var container = {
                 name: "main",
                 children: this.d3Data
             }
-            this.update(this.root)
+            this.rootInstance = this.root(container)
+            this.update(this.rootInstance)
 
-            // this.Id = this.funTree(container)
-            // funTree: function(data) {
-            //     this.update(this.root);
-            // }
         },
     },
     computed: {
-
         viewBox() {
             return [-this.margin.left, -this.margin.top, this.width, this.dx]
-        },
-
-        tree() {
-            return d3.tree().nodeSize([this.dx, this.dy])
-        },
-        diagonal() {
-            return d3.linkHorizontal().x(d => d.y).y(d => d.x)
-        },
-        root() {
-            return d3.hierarchy(this.data)
-                .x0(this.dy / 2)
-                .y0(0)
-                .descendants().forEach((d, i) => {
-                    d.id = i
-                    d._children = d.children
-                    if (d.depth && d.data.name.length !== 7) d.children = null
-                })
-        },
+        }
     },
     methods: {
+        // getSelectors: function() {
+        //     this.svg = d3.select("#svgMain")
+        //     this.gLink = d3.select("#gLink")
+        //     this.gNode = d3.select("#gNode")
+        // },
+        // // TODO: rewrite functions
+        // tree() {
+        //     var self = this
+        //     return d3.tree().nodeSize([self.dx, self.dy])
+        // },
+        // diagonal() {
+        //     // var self = this
+        //     return d3.linkHorizontal().x(d => d.y).y(d => d.x)
+        // },
+        root: function(data) {
+            var hierarchyTemp = d3.hierarchy(data)
+            hierarchyTemp.x0 = this.dy / 2
+            hierarchyTemp.y0 = 0
+            hierarchyTemp.descendants().forEach((d, i) => {
+                d.id = i
+                d._children = d.children
+                if (d.depth && d.data.name.length !== 7) d.children = null
+            })
+            console.dir(hierarchyTemp)
+            return hierarchyTemp
+        },
         changeCurrent: function(innerText) {
             this.currentInnerText = `${innerText}`
         },
@@ -170,71 +181,67 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 window.el = $el.children[0]
                 return this.sq(window.el.children)
             },
-
             update: function(source) {
 
+                // SOLVED: root is not calculated
+                // FIXME: Messed up source and root
                 const duration = d3.event && d3.event.altKey ? 2500 : 250;
-                const nodes = this.root.descendants().reverse();
-                const links = this.root.links();
+                const nodes = this.rootInstance.descendants().reverse()
+                const links = this.rootInstance.links()
 
+                // console.dir("Links: \n", links)
+                // console.dir("I am here")
+                // console.dir(source)
+                this.tree(this.rootInstance) // Compute the new tree layout.
+                // console.dir(source)
 
-                this.tree(this.root) // Compute the new tree layout.
-
-                let left = this.root;
-                let right = this.root;
-                this.root.eachBefore(node => {
+                let left = this.rootInstance
+                let right = this.rootInstance
+                this.rootInstance.eachBefore(node => {
                     if (node.x < left.x) left = node;
                     if (node.x > right.x) right = node;
                 });
 
+
+
+                ////
+
                 const height = right.x - left.x + this.margin.top + this.margin.bottom;
 
-                // const svg = d3.select("#svgMain")
-                // const gLink = svg.append("g")
-                //     .attr("fill", "none")
-                // const gNode = svg.append("g")
-                //     .attr("cursor", "pointer");
+                var self = this
 
-
-                const transition = d3.select("#svgMain")
+                // const transition = d3.select("#svgMain")
+                const transition = this.svg
                     .transition()
                     .duration(duration)
                     .attr("height", height)
                     .attr("viewBox", [-this.margin.left, left.x - this.margin.top, this.width, height])
-                    .tween("resize", window.ResizeObserver ? null : () => () => d3.select("#svgMain").dispatch("toggle"));
+                    .tween("resize", window.ResizeObserver ? null : () => () => self.svg
+                        .dispatch("toggle"));
 
                 // Update the nodes…
-                const node = d3.select("gNode").selectAll("g")
+                // const node = d3.select("#gNode").selectAll("g")
+                const node = this.gNode.selectAll("g")
                     .data(nodes, d => d.id);
 
                 // Enter any new nodes at the parent's previous position.
-
-                var self = this.changeCurrent
+                // var self = this.changeCurrent
+                // console.dir(source.y0)
 
                 const nodeEnter = node.enter().append("g")
                     .attr("transform", d => `translate(${source.y0},${source.x0})`)
                     .attr("fill-opacity", 0)
                     .attr("stroke-opacity", 0)
-                    .on("click", d => {
+                    .on("click", (d) => {
                         d.children = d.children ? null : d._children
-                        this.update(d)
-                        // self.changeCurrent(d.data.innerText)
-                        // console.dir(d.data.innerText)
-                        // this.currentInnerText = d.data.innerText
-                        // self.currentInnerText = d.data.innerText
-
-                        // console.dir(this.currentInnerText)
-                        // TODO: put into watch section
+                        // this.update(d)
+                        self.update(d)
+                        this.currentInnerText = d.data.innerText
                     })
                     .on("contextmenu", function(d, i) {
                         d3.event.preventDefault();
-                        // console.dir("right click")
                     })
-                    .on("mouseover", (d) => {
-                        // console.dir(self)
-                        // self(d.data.innerText)
-                    })
-
+                    .on("mouseover", (d) => {})
 
                 nodeEnter.append("circle")
                     .attr("r", 2.5)
@@ -263,7 +270,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                     .attr("stroke-opacity", 0);
 
                 // Update the links…
-                const link = d3.select("#gLink").selectAll("path")
+                const link = this.gLink.selectAll("path")
                     .data(links, d => d.target.id);
 
                 // Enter any new links at the parent's previous position.
@@ -273,7 +280,8 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                             x: source.x0,
                             y: source.y0
                         };
-                        return this.diagonal({
+                        // return this.diagonal({
+                        return self.diagonal({
                             source: o,
                             target: o
                         });
@@ -281,7 +289,9 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 
                 // Transition links to their new position.
                 link.merge(linkEnter).transition(transition)
-                    .attr("d", this.diagonal);
+                    .attr("d", self.diagonal);
+                // .attr("d", this.diagonal);
+
 
                 // Transition exiting nodes to the parent's new position.
                 link.exit().transition(transition).remove()
@@ -290,14 +300,15 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                             x: source.x,
                             y: source.y
                         };
-                        return this.diagonal({
+                        // return this.diagonal({
+                        return self.diagonal({
                             source: o,
                             target: o
                         });
                     });
 
                 // Stash the old positions for transition.
-                this.root.eachBefore(d => {
+                this.rootInstance.eachBefore(d => {
                     d.x0 = d.x;
                     d.y0 = d.y;
                 });
@@ -307,8 +318,17 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     beforeCreate() {},
     async created() {},
     async mounted() {
+
+        this.tree = d3.tree().nodeSize([this.dx, this.dy])
+        this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
+        this.svg = d3.select("#svgMain")
+        this.gLink = d3.select("#gLink")
+        this.gNode = d3.select("#gNode")
+
+        // this.getSelectors() // TODO: get selectors baclk
         this.htmlString = await this.getHtmlsPerSession()
         this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
         this.d3Data = await this.init()
+        console.dir("end of parsing")
     }
 })
