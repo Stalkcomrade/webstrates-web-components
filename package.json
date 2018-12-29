@@ -22,7 +22,8 @@
         "d3-vs": "^0.7.7",
         "document-offset": "^1.0.4",
         "lodash": "^4.17.11",
-        "uuid": "^3.3.2"
+        "uuid": "^3.3.2",
+        "vue-slider-component": "^2.8.3"
     },
     "devDependencies": {
         "@babel/core": "^7.0.1",

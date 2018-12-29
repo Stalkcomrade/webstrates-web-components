@@ -1,5 +1,6 @@
 const path = require('path');
 const definedPath = "/home/stlk/Downloads/node_modules/"
+const originalPath = "/home/stlk/projects/wicked-wombat-56/node_modules/"
 
 const webpack = require.resolve(path.resolve(definedPath, 'webpack/lib/webpack'));
 const {
@@ -85,6 +86,7 @@ module.exports = {
         modules: [path.resolve(definedPath)],
         alias: {
             '../node_modules/d3-vs': path.resolve(definedPath, 'd3-vs'),
+            '../node_modules/vue-slider-component': path.resolve(definedPath, 'vue-slider-component'),
             'dynamic-import-webpack': path.resolve("/home/stlk/Downloads/node_modules/babel-plugin-dynamic-import-webpack/lib"),
             'babel-plugin-dynamic-import-webpack': path.resolve("/home/stlk/Downloads/node_modules/babel-plugin-dynamic-import-webpack/lib"),
             'babel-loader': path.resolve("/home/stlk/Downloads/node_modules/babel-loader"),

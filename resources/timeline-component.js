@@ -1,5 +1,8 @@
 // SOLVED: import timeline in a different file
 // SOLVED: mixing for fetched data
+// SOLVED: make a simple interface for selections
+// SOLVED: make watchers for selections
+//// INFO: don't need them, v-model brings this functionality
 
 window.TimelineComponent = Vue.component('timeline', {
     mixins: [window.dataFetchMixin],
@@ -7,8 +10,14 @@ window.TimelineComponent = Vue.component('timeline', {
         date: '',
         month: '',
         year: '',
-        selected: '',
-        options: [],
+        selected: 'hungry-cat-75', // INFO: initial value
+        valueSlider: [1, 3],
+        sliderOptions: { // INFO: used by vue-slider component
+            data: '',
+            min: 0,
+            max: 100
+        },
+        sessionTimeline: '',
         maxWebstrates: '',
         test: [],
         waitData: [],
@@ -16,24 +25,57 @@ window.TimelineComponent = Vue.component('timeline', {
         versioningRaw: '',
         htmlData: "",
         sessionGrouped: '',
-        options: '',
         versioningParsed: "",
         intermSession: "",
         wsId: ''
     }),
-    // TODO: make a simple interface for selections
+    // TODO: try range mode
     template: `
-      <d3-timeline
+
+
+<b-container class="container-fluid">
+
+<vue-slider v-model="valueSlider" ref="slider" 
+              :options="sliderOptions" :piecewise="true" :interval="2"
+              :min="sliderOptions.min" :max="sliderOptions.max"> 
+</vue-slider>
+
+  <b-row>
+<select v-model="selected" @change="getOpsJson()">
+          <option v-for="option in selectOptions" :value="option">
+               {{ option }}
+          </option>
+        </select>
+  </b-row>
+
+  <b-row>
+   <div>
+
+   </div>
+  </b-row>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<b-row>
+<d3-timeline
           v-bind:data="dt"
         width="100%"
         height="300px">
       </d3-timeline>
+  </b-row>
+</b-container>
+      
   `,
     components: {
-        'd3-timeline': window.d3Timeline
+        'd3-timeline': window.d3Timeline,
+        'vue-slider': window.vueSlider
     },
     watch: {
-        // TODO: make watchers for selections
+
         versioningParsed() {
             this.processData()
         },
@@ -47,6 +89,11 @@ window.TimelineComponent = Vue.component('timeline', {
     },
     methods: {
         processData: function() {
+
+            // console.dir("Look here:\n")
+            // console.dir(this.versioningParsed)
+
+
             var sessionObject = this.versioningParsed.map(element => ({
                 timestamp: element.m.ts,
                 version: element.v,
@@ -55,7 +102,28 @@ window.TimelineComponent = Vue.component('timeline', {
                 userId: (Object.keys(element).indexOf("session") !== -1) ? element.session.userId : 0
             }))
 
+
+            // INFO: filtering non-sessions
             sessionObject = Object.keys(sessionObject).map(key => sessionObject[key]).filter(element => (element.sessionId !== 0))
+
+            // this.sliderOptions.data = sessionObject.map(el => el.sessionId)
+
+            var counter = 0,
+                sessionIds = []
+
+            sessionObject.forEach((el, index) => {
+                counter = counter + 1
+                sessionIds.push(counter)
+            })
+
+            this.sliderOptions.data = sessionIds
+            // console.dir("Look here!")
+            // console.dir(this.sliderOptions.data[0])
+            // console.dir(this.sliderOptions.data[this.sliderOptions.data.length - 1])
+            // this.sliderOptions.data[0]
+            this.sliderOptions.min = this.sliderOptions.data[0]
+            this.sliderOptions.max = this.sliderOptions.data[this.sliderOptions.data.length - 1]
+            // this.valueSlider = this.sliderOptions.data[0]
 
             // making Set to identify unique session and max/min
             this.sessionGrouped = _.chain(sessionObject)
@@ -72,12 +140,13 @@ window.TimelineComponent = Vue.component('timeline', {
         },
         getHtmlsPerSession: async function() {
 
-                // FIXME: transform into parameters
+                // SOLVED: transform into parameters
                 this.wsId = this.selected
                 // this.wsId = "hungry-cat-75"
                 // this.wsId = "massive-skunk-85"
 
                 // FIXME: transform into parameters
+                // TODO: fetching range of possible versions for the webstrate
                 let numberInitial = 2
                 let numberLast = 177
 
@@ -108,7 +177,6 @@ window.TimelineComponent = Vue.component('timeline', {
                 return results
             },
             getOpsJson: function() {
-                this.selected = "hungry-cat-75"
                 fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
                     .then(html => html.text())
                     .then(body => {

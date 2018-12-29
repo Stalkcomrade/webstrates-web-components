@@ -1,26 +1,25 @@
-// import {
-//     d3Metric
-// } from '../node_modules/d3-vs';
-// var d3Metric = require("/home/stlk/Downloads/node_modules/d3-vs/src/components/d3Metric")
-
-// window.d3Metric = d3Metric
-
 window.OverviewComponent = Vue.component('overview', {
-    // :margin="margin"
-    // :data=40000
-    // :options="{ axisLabelFontSize: 100 }"
     template: `
+
+<div>
+
   <d3-metric
-  v-bind:data="counter"
+  :data="counter"
   width="100%"
   height="600px"> 
   </d3-metric>
+
+<vue-slider v-model="value" ref="slider"> </vue-slider>
+
+</div>
   `,
     components: {
-        'd3-metric': window.d3Metric
+        'd3-metric': window.d3Metric,
+        'vue-slider': window.vueSlider
     },
     data: () => ({
-        counter: '35000'
+        counter: '35000',
+        value: 1
     }),
 
     mounted() {

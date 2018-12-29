@@ -28,7 +28,8 @@ window.mixin = Vue.mixin({
 window.dataFetchMixin = Vue.mixin({
     props: ["monthProp", "yearProp", "maxWebstratesProp"],
     data: () => ({
-        options: '',
+        selectOptions: '',
+        // options: '',
         month: '',
         year: '',
         maxWebstrates: '',
@@ -89,7 +90,7 @@ window.dataFetchMixin = Vue.mixin({
                         })
                     })
                     webstrateIds = Array.from(webstrateIds).sort()
-                    this.options = webstrateIds
+                    this.selectOptions = webstrateIds
                     console.dir('List of Webstrates Ids is Fetched Successfully')
                 }).then(() => resolve())
             })
