@@ -1,7 +1,9 @@
-// SOLVED: make a new component
-// INFO: if there are gonna be issues, check mixins
+// TODO: make a new component
 
-window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
+// TODO: wait for data from session inspector
+// TODO: choose initial version/session
+
+window.SessionInspectorComponent = Vue.component('session-inspector', {
     template: `
 <div>
 <br>
@@ -10,6 +12,20 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 <br>
 
 <b-container class="container-fluid">
+
+ <b-row>
+<timeline> </timeline>
+</b-row>
+
+ <b-row>
+     <input v-model="inputVersion" placeholder="edit me">
+     <p> Message is: {{ inputVersion }}</p>
+ </b-row
+
+<br>
+<br>
+<br>
+<br>
 
   <b-row>
     <b-col class="col-md-10">
@@ -108,8 +124,12 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
             e.preventDefault();
         },
 
+        // FIXME: here is already an html
+        // FIXME: put into mixin with additional argument
         getHtmlsPerSession: async function() {
 
+            // FIXME: comment this
+            
                 let wsId = "wonderful-newt-54"
                 let version = 305
                 let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + version + "/?raw")

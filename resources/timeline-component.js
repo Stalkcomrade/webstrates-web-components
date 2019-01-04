@@ -150,22 +150,18 @@ window.TimelineComponent = Vue.component('timeline', {
                 let numberInitial = 2
                 let numberLast = 177
 
-
                 // let webpageInitial = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
                 // let webpageInitial = await fetch("https://webstrates.cs.au.dk/wicked-wombat-56/" + "3000/?raw")
                 let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberInitial + "/?raw")
                 let htmlResultInitial = await webpageInitial.text()
-
                 let webpageInitialJson = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberInitial + "/?json")
                 let htmlResultInitialJson = await webpageInitialJson.text()
 
                 // let webpageLast = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "4000/")
                 let webpageLast = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberLast + "/?raw")
                 let htmlResultLast = await webpageLast.text()
-
                 let webpageLastJson = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberLast + "/?json")
                 let htmlResultLastJson = await webpageLastJson.text()
-
 
                 let results = await Promise.all([
                     htmlResultInitial,

@@ -55,6 +55,10 @@ webstrate.on('loaded', () => {
                 path: '/embedded',
                 component: Embedded
             },
+                 {
+                path: '/session-inspector',
+                component: SessionInspectorComponent
+            },
             {
                 path: '/transclusion1',
                 component: transclusionComponent
