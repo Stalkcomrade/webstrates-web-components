@@ -2,10 +2,12 @@
 // SOLVED: mixing for fetched data
 // SOLVED: make a simple interface for selections
 // SOLVED: make watchers for selections
+//// SOLVED: fetch htmls on update
 //// INFO: don't need them, v-model brings this functionality
 
 window.TimelineComponent = Vue.component('timeline', {
     mixins: [window.dataFetchMixin],
+    props: ["htmlForParent"],
     data: () => ({
         date: '',
         month: '',
@@ -29,7 +31,7 @@ window.TimelineComponent = Vue.component('timeline', {
         intermSession: "",
         wsId: ''
     }),
-    // TODO: try range mode
+    // SOLVED: try range mode
     template: `
 
 
@@ -75,12 +77,19 @@ window.TimelineComponent = Vue.component('timeline', {
         'vue-slider': window.vueSlider
     },
     watch: {
-
         versioningParsed() {
             this.processData()
         },
         sessionGrouped() {
             this.createDataObject()
+        },
+        valueSlider() {
+            console.dir("Inside value slider")
+            this.getHtmlsPerSession()
+        },
+        selected() {
+            this.$emit('update', this.getHtmlsPerSession())
+            console.dir("Updated in timeline-component")
         }
     },
     beforeCreate: function() {},
@@ -90,10 +99,6 @@ window.TimelineComponent = Vue.component('timeline', {
     methods: {
         processData: function() {
 
-            // console.dir("Look here:\n")
-            // console.dir(this.versioningParsed)
-
-
             var sessionObject = this.versioningParsed.map(element => ({
                 timestamp: element.m.ts,
                 version: element.v,
@@ -101,7 +106,6 @@ window.TimelineComponent = Vue.component('timeline', {
                 connectTime: (Object.keys(element).indexOf("session") !== -1) ? element.session.connectTime : 0,
                 userId: (Object.keys(element).indexOf("session") !== -1) ? element.session.userId : 0
             }))
-
 
             // INFO: filtering non-sessions
             sessionObject = Object.keys(sessionObject).map(key => sessionObject[key]).filter(element => (element.sessionId !== 0))
@@ -140,15 +144,18 @@ window.TimelineComponent = Vue.component('timeline', {
         },
         getHtmlsPerSession: async function() {
 
-                // SOLVED: transform into parameters
-                this.wsId = this.selected
-                // this.wsId = "hungry-cat-75"
-                // this.wsId = "massive-skunk-85"
+            // SOLVED: transform into parameters
+            this.wsId = this.selected
+            // this.wsId = "hungry-cat-75"
+            // this.wsId = "massive-skunk-85"
 
-                // FIXME: transform into parameters
-                // TODO: fetching range of possible versions for the webstrate
-                let numberInitial = 2
-                let numberLast = 177
+            // FIXME: transform into parameters
+            // TODO: fetching range of possible versions for the webstrate
+
+            // TODO: check whether versions are correct and fetched in the right time
+
+                let numberInitial = this.valueSlider[0]
+                let numberLast = this.valueSlider[1]
 
                 // let webpageInitial = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
                 // let webpageInitial = await fetch("https://webstrates.cs.au.dk/wicked-wombat-56/" + "3000/?raw")
@@ -169,8 +176,9 @@ window.TimelineComponent = Vue.component('timeline', {
                     htmlResultInitialJson,
                     htmlResultLastJson
                 ])
-                console.dir(results)
-                return results
+            console.dir(results)
+            this.$emit('update', results)
+            return results
             },
             getOpsJson: function() {
                 fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
@@ -183,7 +191,7 @@ window.TimelineComponent = Vue.component('timeline', {
                         this.versioningParsed = JSON.parse(this.versioningRaw)
                     })
             },
-            createDataObject: function() {
+        createDataObject: function() { // INFO: updating vue vis component
                 this.dt = this.sessionGrouped.map(int => ({
                     from: new Date(int.minConnectTime),
                     to: new Date(int.maxConnectTime),
@@ -198,10 +206,11 @@ window.TimelineComponent = Vue.component('timeline', {
     async mounted() {
         this.getOpsJson()
         this.intermSession = await this.getHtmlsPerSession()
-        window.intermSession = this.intermSession
-
-        // TODO: parse all the stuff
-
     },
-    updated() {}
+    updated() { // INFO: every time vis is updated, I am translating html objects to parent
+        // FIXME: use different mechanism in the future
+        // this.$emit('update', this.getHtmlsPerSession())
+        // console.dir("Updated in timeline-component")
+        // console.dir(this.valueSlider)
+    }
 });

@@ -1,6 +1,8 @@
-// TODO: make a new component
+// SOLVED: make a new component
+// SOLVED: avoid using await and calling other functions from inside functions
 
-// TODO: wait for data from session inspector
+// SOLVED: wait for data from session inspector
+//// TODO: make a child component emit every time data is fetched 
 // TODO: choose initial version/session
 
 window.SessionInspectorComponent = Vue.component('session-inspector', {
@@ -14,7 +16,7 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
 <b-container class="container-fluid">
 
  <b-row>
-<timeline> </timeline>
+<timeline :value="htmlForParent" @update="onChildUpdate"> </timeline>
 </b-row>
 
  <b-row>
@@ -71,6 +73,7 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
         htmlObjectReady: false,
         htmlObject: '',
         htmlString: '',
+        htmlForParent: '',
         dx: 10,
         dy: 162.5,
         width: 900,
@@ -83,6 +86,8 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
     }),
     watch: {
         d3Data() {
+            console.dir("INSIDE d3Data Watcher")
+            
             var container = {
                 name: "main",
                 children: this.d3Data
@@ -98,6 +103,12 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
         }
     },
     methods: {
+        onChildUpdate (newValue) { // INFO: it is used to catch htmls from timeline component
+            console.dir("Updated")
+            this.htmlString = newValue[0] // SOLVED: make a parent listen to child instead of using global scopes
+            this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
+            this.d3Data = this.init()
+        },
         getSelectors: function() {
             this.svg = d3.select("#svgMain")
             this.gLink = d3.select("#gLink")
@@ -126,6 +137,7 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
 
         // FIXME: here is already an html
         // FIXME: put into mixin with additional argument
+        
         getHtmlsPerSession: async function() {
 
             // FIXME: comment this
@@ -324,9 +336,23 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
 
         // INFO: Here I am waiting for data from a child component
         // timeline-component.js - after that I am reading parsing htmls and building trees
+
+
+        // FIXME: put functions back and watch only for component from a parent
         
-        this.htmlString = await this.getHtmlsPerSession()
-        this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
-        this.d3Data = await this.init()
+        // // FIXME: put this into watched
+        // this.htmlString = await this.getHtmlsPerSession()
+
+
+        // FIXME: I am using only first html from an array, fix this either
+        // this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
+        // FIXME: put into watched
+        // this.htmlObject = new DOMParser().parseFromString(this.htmlString[2], "text/html")
+
+        // FIXME: check whether it is working
+        // this.d3Data = await this.init()
+
+       
+        
     }
 })
