@@ -1,7 +1,11 @@
 // SOLVED: make a new component
-// INFO: if there are gonna be issues, check mixins
+////// SOLVED: initiate new nested component for diffs
+////// SOLVED: try to use render for this purpose
+//// TODO: prepare data structure for the versions
 
+// INFO: if there are gonna be issues, check mixins
 window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
+    mixins: [window.dataFetchMixin],
     template: `
 <div>
 <br>
@@ -10,6 +14,11 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 <br>
 
 <b-container class="container-fluid">
+
+<b-row>
+ <component :is="dynamicComponent" />
+ <component :is="dynamicComponentDiff" />
+</b-row>
 
   <b-row>
     <b-col class="col-md-10">
@@ -43,11 +52,14 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     data: () => ({
         inputVersion: '',
         currentInnerText: '',
+        currentVersionSpan: '',
         svg: "",
         rootInstance: '',
+        rootInstanceLatest: '',
         gLink: "",
         gNode: "",
         d3Data: [],
+        d3DataLatest: [],
         tree: '',
         diagonal: '',
         d3Object: {},
@@ -55,6 +67,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         htmlObjectReady: false,
         htmlObject: '',
         htmlString: '',
+        htmlStringLatest: '',
         dx: 10,
         dy: 162.5,
         width: 900,
@@ -72,14 +85,56 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 children: this.d3Data
             }
             this.rootInstance = this.root(container)
+            window.rTrue = this.rootInstance
             this.update(this.rootInstance)
-
+        },
+        // SOLVED: add second watcher
+        d3DataLatest() {
+            console.dir("d3DataLatest 've been watched")
+            var containerLatest = {
+                name: "main",
+                children: this.d3DataLatest
+            }
+            this.rootInstanceLatest = this.root(containerLatest)
         },
     },
     computed: {
         viewBox() {
             return [-this.margin.left, -this.margin.top, this.width, this.dx]
-        }
+        },
+        dynamicComponent: function() {
+            return {
+                template: `<div>${this.currentVersionSpan}</div>`,
+                }
+        },
+        dynamicComponentDiff: function() {
+            // [["br", "br", "br"].map(el => (h(el)))]) // SOLVED: returning array in a map 
+            var one = 'beep boop',
+                other = 'beep boob blah',
+                color = '',
+                span = null;
+
+            var diff = window.jsdiffTrue.diffChars(one, other)
+
+            return {
+                render(h) {
+                    return h('div', {
+                        'class': 'omg'
+                    },
+                                 [h('pre', {'id': 'display'},
+                                   diff.map(el => (h('span',
+                                                    {
+                                                        style: {'color': el.added ? 'green' :
+                                                                el.removed ? 'red' : 'grey'},
+                                                        domProps: {
+                                                            innerHTML: el.value
+                                                        }
+                                                    }))
+                                           ))]
+                            )
+                }
+            }
+            }
     },
     methods: {
         getSelectors: function() {
@@ -97,7 +152,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 d._children = d.children
                 if (d.depth && d.data.name.length !== 7) d.children = null
             })
-            console.dir(hierarchyTemp)
+            // console.dir(hierarchyTemp)
             return hierarchyTemp
         },
         changeCurrent: function(innerText) {
@@ -170,11 +225,11 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 }
                 return target
             },
-            init: function() {
+            init: function(input) {
                 console.dir("init starts")
-                var $el = this.htmlObject.getElementsByTagName("BODY")[0]
-                window.el = $el.children[0]
-                return this.sq(window.el.children)
+                var $el = input.getElementsByTagName("BODY")[0]
+                var el = $el.children[0]
+                return this.sq(el.children)
             },
             update: function(source) {
                 // SOLVED: root is not calculated
@@ -304,9 +359,63 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 
         // INFO: Here I am waiting for data from a child component
         // timeline-component.js - after that I am reading parsing htmls and building trees
+        // FIXME: conisider different versions
+
+        let containerTmp = await this.getHtmlsPerSessionMixin("wonderful-newt-54")
+
+        this.htmlString = containerTmp[0]
+        this.htmlStringLatest = containerTmp[1]
         
-        this.htmlString = await this.getHtmlsPerSession()
+        // TODO: for now, I am just making object with a different name for a the next/previous version of a webstrate
+        // Later on, I need to integrate it into one data structure
+        
         this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
-        this.d3Data = await this.init()
+        this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
+        
+        // TODO: make init to have an input
+       
+        this.d3Data = await this.init(this.htmlObject)
+        this.d3DataLatest = await this.init(this.htmlObjectVersioned)
+
+        var tre = []
+
+        function findSelectedInList(list, propertyName, valueFilter){
+            let selected;
+            if (typeof Object.values(list) != "undefined" && typeof Object.values(list) != "undefined") {
+                Object.values(list).some((currentItem) => {
+                    if (typeof currentItem != null) {
+                        if (typeof currentItem[propertyName] != "undefined" | typeof currentItem[propertyName] != null) {
+                            currentItem[propertyName] === valueFilter ?
+                                tre.push(currentItem.innerText) :
+                                (typeof currentItem.children != "undefined" && findSelectedInList(currentItem.children, propertyName, valueFilter))
+                        }
+                    }
+                }
+                                        )}
+            return selected
+        }
+        
+        this.$watch(
+            vm => ([vm.rootInstanceLatest, vm.rootInstance].join()), val =>  {
+                console.dir("WATCHER!!!")
+                
+                // console.dir(this.rootInstanceLatest) // Executes if `x`, `y`, or `z` have changed.
+
+                window.r = this.rootInstance
+                window.r1 = this.rootInstanceLatest
+                
+                findSelectedInList(this.rootInstanceLatest.data.children, "name", "VDnPvJ36")
+                findSelectedInList(this.rootInstance.data.children, "name", "VDnPvJ36")
+                // // console.dir(tre)
+                
+                var diff = new window.Diff(); 
+                var textDiff = diff.main("tre[0]", "tre[1]"); // produces diff array
+                this.currentVersionSpan = diff.prettyHtml(textDiff)
+                // console.dir(this.currentVersionSpan)
+                // console.dir(diff.prettyHtml(textDiff)) // produces a formatted HTML string
+
+            },
+        )
+        
     }
 })
