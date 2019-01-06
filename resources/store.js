@@ -36,6 +36,47 @@ window.dataFetchMixin = Vue.mixin({
         usersPerWs: ''
     }),
     methods: {
+        getHtmlsPerSessionMixin: async function(selected) {
+
+            // SOLVED: transform into parameters
+            this.wsId = selected
+            // this.wsId = "hungry-cat-75"
+            // this.wsId = "massive-skunk-85"
+
+            // FIXME: transform into parameters
+            // TODO: fetching range of possible versions for the webstrate
+
+            // TODO: check whether versions are correct and fetched in the right time
+
+                let numberInitial = 1
+                let numberLast = 200
+
+                // let webpageInitial = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
+                // let webpageInitial = await fetch("https://webstrates.cs.au.dk/wicked-wombat-56/" + "3000/?raw")
+                let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberInitial + "/?raw")
+                let htmlResultInitial = await webpageInitial.text()
+                let webpageInitialJson = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberInitial + "/?json")
+                let htmlResultInitialJson = await webpageInitialJson.text()
+
+                // let webpageLast = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "4000/")
+                let webpageLast = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberLast + "/?raw")
+                let htmlResultLast = await webpageLast.text()
+                let webpageLastJson = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberLast + "/?json")
+                let htmlResultLastJson = await webpageLastJson.text()
+
+                let results = await Promise.all([
+                    htmlResultInitial,
+                    htmlResultLast,
+                    htmlResultInitialJson,
+                    htmlResultLastJson
+                ])
+            // console.dir(results)
+            // this.$emit('update', results)
+            return {
+                init: results[0],
+                latest: results[2]
+            }
+        },
         fetchActivity: function(webstrateIdInst) {
 
             const toDate = new Date()
