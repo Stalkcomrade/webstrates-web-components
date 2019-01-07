@@ -10,13 +10,14 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 <div>
 <br>
 <br>
-<br>
-<br>
 
 <b-container class="container-fluid">
 
 <b-row>
  <component :is="dynamicComponent" />
+</b-row>
+
+<b-row>
  <component :is="dynamicComponentDiff" />
 </b-row>
 
@@ -53,6 +54,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         inputVersion: '',
         currentInnerText: '',
         currentVersionSpan: '',
+        currentVersionSentences: ["test", "test"],
         svg: "",
         rootInstance: '',
         rootInstanceLatest: '',
@@ -85,7 +87,6 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 children: this.d3Data
             }
             this.rootInstance = this.root(container)
-            window.rTrue = this.rootInstance
             this.update(this.rootInstance)
         },
         // SOLVED: add second watcher
@@ -108,13 +109,12 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 }
         },
         dynamicComponentDiff: function() {
-            // [["br", "br", "br"].map(el => (h(el)))]) // SOLVED: returning array in a map 
+            
             var one = 'beep boop',
-                other = 'beep boob blah',
-                color = '',
-                span = null;
+                other = 'beep boob blah'
 
-            var diff = window.jsdiffTrue.diffChars(one, other)
+            // var diff = window.jsdiffTrue.diffChars(one, other)
+            var diff = window.jsdiffTrue.diffLines(this.currentVersionSentences[0], this.currentVersionSentences[1])
 
             return {
                 render(h) {
@@ -122,7 +122,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                         'class': 'omg'
                     },
                                  [h('pre', {'id': 'display'},
-                                   diff.map(el => (h('span',
+                                   diff.map(el => (h('span', // SOLVED: returning array in a map 
                                                     {
                                                         style: {'color': el.added ? 'green' :
                                                                 el.removed ? 'red' : 'grey'},
@@ -152,7 +152,6 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 d._children = d.children
                 if (d.depth && d.data.name.length !== 7) d.children = null
             })
-            // console.dir(hierarchyTemp)
             return hierarchyTemp
         },
         changeCurrent: function(innerText) {
@@ -371,13 +370,11 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         
         this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
         this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
-        
-        // TODO: make init to have an input
+
+        // SOLVED: make init to have an input
        
         this.d3Data = await this.init(this.htmlObject)
         this.d3DataLatest = await this.init(this.htmlObjectVersioned)
-
-        var tre = []
 
         function findSelectedInList(list, propertyName, valueFilter){
             let selected;
@@ -386,7 +383,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                     if (typeof currentItem != null) {
                         if (typeof currentItem[propertyName] != "undefined" | typeof currentItem[propertyName] != null) {
                             currentItem[propertyName] === valueFilter ?
-                                tre.push(currentItem.innerText) :
+                            selected = currentItem.innerText :
                                 (typeof currentItem.children != "undefined" && findSelectedInList(currentItem.children, propertyName, valueFilter))
                         }
                     }
@@ -398,21 +395,14 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         this.$watch(
             vm => ([vm.rootInstanceLatest, vm.rootInstance].join()), val =>  {
                 console.dir("WATCHER!!!")
-                
-                // console.dir(this.rootInstanceLatest) // Executes if `x`, `y`, or `z` have changed.
 
-                window.r = this.rootInstance
-                window.r1 = this.rootInstanceLatest
-                
-                findSelectedInList(this.rootInstanceLatest.data.children, "name", "VDnPvJ36")
-                findSelectedInList(this.rootInstance.data.children, "name", "VDnPvJ36")
-                // // console.dir(tre)
+                this.currentVersionSentences = []
+                this.currentVersionSentences.push(findSelectedInList(this.rootInstanceLatest.data.children, "name", "VDnPvJ36"))
+                this.currentVersionSentences.push(findSelectedInList(this.rootInstance.data.children, "name", "VDnPvJ36"))
                 
                 var diff = new window.Diff(); 
                 var textDiff = diff.main("tre[0]", "tre[1]"); // produces diff array
                 this.currentVersionSpan = diff.prettyHtml(textDiff)
-                // console.dir(this.currentVersionSpan)
-                // console.dir(diff.prettyHtml(textDiff)) // produces a formatted HTML string
 
             },
         )

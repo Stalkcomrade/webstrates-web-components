@@ -45,7 +45,6 @@ window.dataFetchMixin = Vue.mixin({
 
             // FIXME: transform into parameters
             // TODO: fetching range of possible versions for the webstrate
-
             // TODO: check whether versions are correct and fetched in the right time
 
                 let numberInitial = 1
@@ -72,10 +71,10 @@ window.dataFetchMixin = Vue.mixin({
                 ])
             // console.dir(results)
             // this.$emit('update', results)
-            return {
-                init: results[0],
-                latest: results[2]
-            }
+            return [
+                results[0],
+                results[1]
+            ]
         },
         fetchActivity: function(webstrateIdInst) {
 
