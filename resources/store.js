@@ -36,6 +36,24 @@ window.dataFetchMixin = Vue.mixin({
         usersPerWs: ''
     }),
     methods: {
+        // getHtmlPerWebstrateMixin: async function(selected) {
+        //     // SOLVED: transform into parameters
+        //     this.wsId = selected
+        //     // this.wsId = "hungry-cat-75"
+        //     // this.wsId = "massive-skunk-85"
+
+        //     // let webpageInitial = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
+        //     // let webpageInitial = await fetch("https://webstrates.cs.au.dk/wicked-wombat-56/" + "3000/?raw")
+        //     let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/?raw")
+        //     let htmlResultInitial = await webpageInitial.text()
+            
+        //     // let results = await Promise.all([
+        //     //     htmlResultInitial
+        //     // ])
+        //     // console.dir(results)
+        //     // this.$emit('update', results)
+        //     return htmlResultInitial
+        // },
         getHtmlsPerSessionMixin: async function(selected) {
 
             // SOLVED: transform into parameters

@@ -1,4 +1,5 @@
 window.transclusionComponent = Vue.component('transclusion', {
+    mixins: [window.dataFetchMixin],
     template: `
 <div>
 <br>
@@ -46,15 +47,16 @@ window.transclusionComponent = Vue.component('transclusion', {
         },
 
         getHtmlsPerSession: async function() {
-                // let wsId = "massive-skunk-85"
-                // let wsId = "hungry-cat-75"
-                let wsId = "wonderful-newt-54/"
-                let version = 305
-                let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + version + "/?raw")
-                let htmlResultInitial = await webpageInitial.text()
-                console.dir('html is fetched successfully')
-                return htmlResultInitial
-            },
+            // let wsId = "massive-skunk-85"
+            // let wsId = "hungry-cat-75"
+            // let wsId = "wonderful-newt-54/"
+            let wsId = "short-turtle-55"
+            let version = await fetch("https://webstrates.cs.au.dk/" + wsId + "/?v").then(response => response.json())
+            let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + version.version + "/?raw")
+            let htmlResultInitial = await webpageInitial.text()
+            console.dir('html is fetched successfully')
+            return htmlResultInitial
+        },
 
             // get children from parentnoted
             getLevelNodes: function(node) {
@@ -138,7 +140,6 @@ window.transclusionComponent = Vue.component('transclusion', {
 
                 var tree = d3.tree().nodeSize([dx, dy])
                 var diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
-
 
 
                 console.dir(data)
@@ -291,11 +292,24 @@ window.transclusionComponent = Vue.component('transclusion', {
     async created() {},
     async mounted() {
         this.htmlString = await this.getHtmlsPerSession()
+
+        // console.dir(this.htmlString)
+        
+        var extractSummary = function(iCalContent) {
+            var arr = iCalContent.match(/\<iframe src="\/(.*?)\/".*/gi)
+            arr !== null && arr.map(string => string.replace(/^\<iframe src="\//gi, '').replace(/\//g, ''))
+            
+            return(arr);
+        }
+
+        // var string = '<iframe src="/wicked-wombat-56/"></iframe>'
+
+        console.dir(this.htmlString)
+        console.dir(extractSummary(this.htmlString))
+        
+        
         this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
         this.d3Data = await this.init()
-
         
-
-
     }
 })
