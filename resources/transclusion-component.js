@@ -293,11 +293,8 @@ window.transclusionComponent = Vue.component('transclusion', {
         this.htmlString = await this.getHtmlsPerSession()
         this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
         this.d3Data = await this.init()
-        // this.d3Test = await this.funTree(this.d3Test)
-        // this.init()
-        // window.d3Data = this.d3Data
 
-        console.dir(this.d3Data)
+        
 
 
     }

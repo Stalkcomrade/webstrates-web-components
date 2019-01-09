@@ -44,7 +44,6 @@ window.MonthViewComponent = Vue.component('month-view', {
             </transition>
 `,
     // SOLVED: !use date instead of only month!
-    // <p> Message: {{ usersPerWs }} </p>
     components: {
         'webstrate-legend-component': WebstrateLegendComponent
     },
@@ -425,7 +424,6 @@ window.MonthViewComponent = Vue.component('month-view', {
                 Object.values(data).forEach(int => {
                     Object.values(int).forEach(intN => {
                         usersPerWsSet.add(intN.userId)
-                        // console.dir(intN)
                     })
                 })
 

@@ -1,7 +1,10 @@
-const userId = 'cklokmose:github'; //webstrate.user.userId;
-// const userId = webstrate.user.userId // const userId = 'Stalkcomrade:github'
+// const userId = 'cklokmose:github'; //webstrate.user.userId;
 // const userId = 'Stalkcomrade:github'
+const userId = webstrate.user.userId // const userId = 'Stalkcomrade:github'
+// FIXME: Promise for userID?
+console.dir("WS User ID")
 console.dir(webstrate.user.userId)
+console.dir(userId)
 const ws = new WebSocket('wss://webstrates.cs.au.dk/_monitor');
 
 // Generate random string to be used as tokens.
