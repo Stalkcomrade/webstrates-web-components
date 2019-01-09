@@ -364,16 +364,14 @@ window.MonthViewComponent = Vue.component('month-view', {
                 )
                 .enter()
                 .append('a')
-                // .on("mouseover", ({webstrateId}) => this.showMessage(webstrateId))
                 .on("mouseover", ({
                     webstrateId
-                }) => this.testSync(webstrateId))
-                // .on("mouseover", ({webstrateId}) => this.checkEvent(webstrateId))
+                }) => {
+                    this.$route.fullPath === "/embedded" ? this.testSync(webstrateId) : this.showMessage(webstrateId)
+                })
                 .on("click", ({
                     webstrateId
                 }) => this.changeView("time-machine", webstrateId))
-                // .attr(':v-on:click', 'changeView("time-machine")')
-                // .attr('href', ({ webstrateId }) => `/${webstrateId}/`)
                 .append('circle')
                 .attr('class', () => 'activity')
                 .attr('cx', ({
@@ -526,6 +524,8 @@ window.MonthViewComponent = Vue.component('month-view', {
     },
     mounted() {
 
+        // console.dir(this.$route)
+        
         this.waitData.then(() => console.dir(this.test))
 
         // FIXME: this duplicates created section, try to rewrite

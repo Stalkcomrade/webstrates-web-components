@@ -333,7 +333,6 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                             x: source.x,
                             y: source.y
                         };
-                        // return this.diagonal({
                         return self.diagonal({
                             source: o,
                             target: o
@@ -351,6 +350,8 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     beforeCreate() {},
     async created() {},
     async mounted() {
+
+        console.dir(webstrate.webstrateId)
 
         this.tree = d3.tree().nodeSize([this.dx, this.dy])
         this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
