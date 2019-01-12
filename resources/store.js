@@ -36,6 +36,10 @@ window.dataFetchMixin = Vue.mixin({
         usersPerWs: ''
     }),
     methods: {
+        fetchTags: async function(selected) {
+            let tags = await fetch("https://webstrates.cs.au.dk/" + selected  + "/?tags").then(results => results.json())
+            console.dir(tags)
+        },
         // getHtmlPerWebstrateMixin: async function(selected) {
         //     // SOLVED: transform into parameters
         //     this.wsId = selected
@@ -129,6 +133,7 @@ window.dataFetchMixin = Vue.mixin({
             return new Promise((resolve, reject) => {
 
                 const month = Number(this.month) || ((new Date).getMonth() + 1);
+                console.dir(month)
                 const maxWebstrates = this.maxWebstrates || 20;
                 const year = Number(this.year) || (new Date).getFullYear();
 
@@ -154,11 +159,13 @@ window.dataFetchMixin = Vue.mixin({
 
         },
 
-        getOpsJsonMixin: function() {
-            fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
+        getOpsJsonMixin: function(input) {
+            var current = input !== "undefined" ? input : this.selected
+            // input !== "undefined" ? fetch("https://webstrates.cs.au.dk/" + input + "/?ops") : fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
+            fetch("https://webstrates.cs.au.dk/" + current + "/?ops")
                 .then(html => html.text())
                 .then(body => {
-                    console.log('Fetched:\n', this.selected)
+                    console.log('Fetched:\n', current)
                     this.versioningRaw = body
                 })
         }
