@@ -316,6 +316,40 @@ window.MonthViewComponent = Vue.component('month-view', {
         },
         mainD3Second: function(days, d3colorsQuantizeMonth, d3colorsQuantileMonth) {
 
+
+            function pulsate(selection) {
+                    /**
+                     * input: selection
+                     * attirbute: pulsate - boolean
+                     */
+                // recursive_transitions();
+
+                // function recursive_transitions() {
+                    // if (!selection.data()[0].pulse) {
+                        console.dir("INSIDE Pulse")
+                        selection.transition()
+                            .duration(400)
+                            .attr("stroke", "#000000")
+                            .attr("stroke-width", 16)
+                            .attr("r", 32) // 8
+                            .ease(d3.easeLinear)
+                            .transition()
+                            .duration(800)
+                            .attr('stroke-width', 34)
+                            .attr("r", 12) // 12
+                            .ease('bounce-in')
+                            .each("end", recursive_transitions);
+                    // } else {
+                    //     // transition back to normal
+                    //     selection.transition()
+                    //         .duration(200)
+                    //         .attr("r", 8)
+                    //         .attr("stroke-width", 2)
+                    //         .attr("stroke-dasharray", "1, 0");
+                    // }
+                // }
+            }
+            
             this.groups.selectAll('circle.activity')
                 .data((index, data, x) => {
                         const date = index
@@ -326,7 +360,6 @@ window.MonthViewComponent = Vue.component('month-view', {
                                 activities: days[date.getDate()][webstrateId],
                             }))
                             .sort((a, b) => b.activities - a.activities)
-
 
                         x.forEach(webstrateId => {
                             webstrateId.radius = webstrateId.activities.radius;
@@ -345,7 +378,6 @@ window.MonthViewComponent = Vue.component('month-view', {
                         x.forEach(webstrateId => {
                             webstrateId.colorQ = d3colorsQuantize(webstrateId.radius)
                             colorQSet.add(webstrateId.colorq)
-
                         })
 
                         this.colorQ = colorQSet
@@ -363,15 +395,14 @@ window.MonthViewComponent = Vue.component('month-view', {
                 )
                 .enter()
                 .append('a')
-                .on("mouseover", ({
-                    webstrateId
-                }) => {
+                .on("mouseover", ({webstrateId}) => {
                     this.$route.fullPath === "/embedded" ? this.testSync(webstrateId) : this.showMessage(webstrateId)
                 })
-                .on("click", ({
-                    webstrateId
-                }) => this.changeView("time-machine", webstrateId))
-                .append('circle')
+            // SOLVED: 
+                .on("click", ({d, i, nodes, webstrateId}) => {
+                    // console.dir(d)
+                    this.$route.fullPath === "/embedded" ? this.changeView("time-machine", webstrateId) : pulsate(d3.select(nodes[i]))
+                })
                 .attr('class', () => 'activity')
                 .attr('cx', ({
                     date,
