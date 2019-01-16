@@ -59,6 +59,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
                 fromDate
             })
         },
+        // INFO: used for building clientJoins/Leaves
         createDataObject: function(acitvityPromise) {
             
             return activityPromise.then((data) => {
@@ -94,7 +95,8 @@ window.TimeMachineComponent = Vue.component('time-machine', {
                     return body
                 })
         },
-        
+
+        // INFO: used for mapping opsp log
         createDataObject2: function(promise) {
             
             var versioningRaw = promise

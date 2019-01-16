@@ -1,0 +1,4 @@
+/node-modules
+assets
+package-lock.json
+.emacs.desktop

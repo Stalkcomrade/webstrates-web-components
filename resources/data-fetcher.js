@@ -1,10 +1,18 @@
-// const userId = 'cklokmose:github'; //webstrate.user.userId;
+// const userId = 'cklokmose:github' //webstrate.user.userId;
 // const userId = 'Stalkcomrade:github'
+// SOLVED: Promise for userID? - works without workarounds
 const userId = webstrate.user.userId // const userId = 'Stalkcomrade:github'
-// FIXME: Promise for userID?
-console.dir("WS User ID")
-console.dir(webstrate.user.userId)
+console.dir("WS User ID:")
 console.dir(userId)
+
+// SOLVED: redirect ti github for auth
+// TODO: ask for redirection backe to ws (backend?)
+var watchAuth = function() {
+    window.location.replace("https://webstrates.cs.au.dk/auth/github")
+}
+userId === "anonymous:" && watchAuth()
+
+
 const ws = new WebSocket('wss://webstrates.cs.au.dk/_monitor');
 
 // Generate random string to be used as tokens.

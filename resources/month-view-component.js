@@ -125,64 +125,28 @@ window.MonthViewComponent = Vue.component('month-view', {
     // computed properties are cached, so, it seems reasonable to use them for parameters and functions
     // storing. Could be accessed in mounted using this.
 
-    created: function() {
+    // created: async function() {
+    async created() {
 
-        this.waitData = new Promise((resolve, reject) => {
+        // TODO: replace with mixin api
+        this.fetchActivity()
+        var daysFetched = await this.fetchDaysOverview()
+        
+        let webstrateIds = new Set();
+        let effortTotal = new Set();
 
-            this.month = month = this.monthProp
-            this.year = year = this.yearProp
-            this.maxWebstrates = maxWebstrates = this.maxWebstratesProp
-            this.date = new Date(this.year, this.month - 1)
+        Object.values(daysFetched).forEach(day => {
+            Object.keys(day).forEach(webstrateId => {
+                webstrateIds.add(webstrateId)
+            });
 
-            this.fetchActivity()
-
-            dataFetcher('month', {
-                month,
-                year,
-                maxWebstrates
-            }).then((days) => {
-
-                let webstrateIds = new Set();
-                let effortTotal = new Set();
-
-                Object.values(days).forEach(day => {
-                    Object.keys(day).forEach(webstrateId => {
-                        webstrateIds.add(webstrateId)
-                    });
-
-                    Object.values(day).forEach(singleEffort => {
-                        effortTotal.add(singleEffort)
-                    })
-                })
-
-
-                webstrateIds = Array.from(webstrateIds).sort()
-                this.test = Array.from(webstrateIds).sort()
-
-                // const date = index;
-                // var x = Object.keys(days[date.getDate()] || {})
-                //     .map(webstrateId => ({
-                //       date, webstrateId, activities: days[date.getDate()][webstrateId],
-                //     }))
-                //     .sort((a, b) => b.activities - a.activities)
-
-
-                // x.forEach(webstrateId => { webstrateId.radius = webstrateId.activities.radius; })
-                // var arrayRadius = x.map(webstrateId => webstrateId.radius) // ADDED THIS TO DATA
-
-                // var d3colorsQuantile = this.d3Scaling.colorQuantileScaling(arrayRadius)
-                // var d3colorsQuantize = this.d3Scaling.colorQuantizeScaling(arrayRadius)
-
-                // // ----------- Day-based Scaling
-                // x.forEach(webstrateId => { webstrateId.color = d3colorsQuantile(webstrateId.radius) })
-                // x.forEach(webstrateId => { webstrateId.colorQ = d3colorsQuantize(webstrateId.radius) })
-                // // ----------- Month-based Scaling
-                // x.forEach(webstrateId => { webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius) })
-                // x.forEach(webstrateId => { webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius) })
-
-
-            }).then(() => resolve())
+            Object.values(day).forEach(singleEffort => {
+                effortTotal.add(singleEffort)
+            })
         })
+
+        webstrateIds = Array.from(webstrateIds).sort()
+        this.test = Array.from(webstrateIds).sort()
 
     },
     computed: {
@@ -522,10 +486,6 @@ window.MonthViewComponent = Vue.component('month-view', {
         },
     },
     mounted() {
-
-        // console.dir(this.$route)
-        
-        this.waitData.then(() => console.dir(this.test))
 
         // FIXME: this duplicates created section, try to rewrite
         dataFetcher('month').then(async (days) => {

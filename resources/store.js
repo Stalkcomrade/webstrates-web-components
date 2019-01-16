@@ -1,7 +1,6 @@
 var webstrateIdProp = "terrible-chipmunk-57"
 var view = "overview"
 
-
 window.mixin = Vue.mixin({
     props: ['value', 'relationName'],
     data: () => ({
@@ -124,6 +123,21 @@ window.dataFetchMixin = Vue.mixin({
 
                 arrFromSet = Array.from(usersPerWsSet)
                 this.usersPerWs = `${arrFromSet}`
+            })
+
+        },
+        // TODO: look for it's use in components
+        fetchDaysOverview: function() {
+
+            this.month = month = this.monthProp
+            this.year = year = this.yearProp
+            this.maxWebstrates = maxWebstrates = this.maxWebstratesProp
+            this.date = new Date(this.year, this.month - 1)
+
+            return dataFetcher('month', {
+                month,
+                year,
+                maxWebstrates
             })
 
         },
