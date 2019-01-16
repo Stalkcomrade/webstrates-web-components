@@ -1,5 +1,5 @@
 window.recentComponent = Vue.component('recent', {
-    mixins: [dataFetchMixin],
+    mixins: [window.dataFetchMixin],
     template: `
     <div class="main" ref="container">
     <button @click="test"> add metric </button>
@@ -36,12 +36,10 @@ window.recentComponent = Vue.component('recent', {
 
     methods: {
         test2: function() {
-
             // document.body.appendChild(this.instance)
             // console.dir(this.instance)
             this.$refs.container.appendChild(this.instance)
             // this.$refs.emptyChicken66.appendChild(this.instance)
-
         },
         test: function() {
 
@@ -54,9 +52,8 @@ window.recentComponent = Vue.component('recent', {
 
             // instance.$mount("#emptyChicken66")
             // instance.$mount("#warmCougar5")
-
             // window.document.getElementById('warmCougar5')
-
+            
             // this.symbols.forEach((el, index) => {
             //     instance.$mount(("#" + _.camelCase(el.key)).toString())
             //     // this.$refs[_.camelCase(el.key)].appendChild(instance.$el)
@@ -100,38 +97,39 @@ window.recentComponent = Vue.component('recent', {
 
         this.waitData = new Promise((resolve, reject) => {
 
-            this.month = month = (new Date).getMonth()
-            this.year = year = (new Date).getFullYear()
-            this.maxWebstrates = this.maxWebstratesProp
+            // this.month = month = (new Date).getMonth()
+            // this.year = year = (new Date).getFullYear()
+            // this.maxWebstrates = this.maxWebstratesProp
 
-            this.fetchActivity()
+            window.d = this.fetchActivityMixin()
+            var days = this.fetchDaysOverview()
+            
+            // dataFetcher('month', {
+            //     month,
+            //     year
+            // })
 
-            window.d = this.fetchedData
 
-            dataFetcher('month', {
-                month,
-                year
-            }).then((days) => {
+            // .then((days) => {
 
-                Object.keys(days).forEach(day => {
-                    Object.values(days[day]).map((webstrate, index) => {
+            Object.keys(days).forEach(day => {
+                Object.values(days[day]).map((webstrate, index) => {
 
-                        this.fetchedData.push({
-                            symbol: Object.keys(days[day])[index],
-                            price: webstrate, // FIXME:  get rid of all variables' names
-                            dateInstance: (new Date(this.year, this.month, parseInt(Object.keys(days)[index]))).toLocaleDateString(undefined, {
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric'
-                            }).toString()
-                        })
+                    this.fetchedData.push({
+                        symbol: Object.keys(days[day])[index],
+                        price: webstrate, // FIXME:  get rid of all variables' names
+                        dateInstance: (new Date(this.year, this.month, parseInt(Object.keys(days)[index]))).toLocaleDateString(undefined, {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                        }).toString()
                     })
                 })
+            })
 
-                console.dir(this.fetchedData)
+            // console.dir(this.fetchedData)
 
-            }).then(() => resolve())
-        })
+        }).then(() => resolve())
     },
     mounted() {
 

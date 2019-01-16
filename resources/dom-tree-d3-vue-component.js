@@ -361,7 +361,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         // timeline-component.js - after that I am reading parsing htmls and building trees
         // FIXME: conisider different versions
 
-        let containerTmp = await this.getHtmlsPerSessionMixin("wonderful-newt-54")
+        let containerTmp = await this.getHtmlsPerSessionMixin("wonderful-newt-54", undefined, undefined, false)
 
         this.htmlString = containerTmp[0]
         this.htmlStringLatest = containerTmp[1]

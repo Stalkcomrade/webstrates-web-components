@@ -1,6 +1,5 @@
 // SOLVED: make a new component
 // SOLVED: avoid using await and calling other functions from inside functions
-
 // SOLVED: wait for data from session inspector
 //// TODO: make a child component emit every time data is fetched 
 // TODO: choose initial version/session
@@ -337,9 +336,7 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
         // INFO: Here I am waiting for data from a child component
         // timeline-component.js - after that I am reading parsing htmls and building trees
 
-
         // FIXME: put functions back and watch only for component from a parent
-        
         // // FIXME: put this into watched
         // this.htmlString = await this.getHtmlsPerSession()
 

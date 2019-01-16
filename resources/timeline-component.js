@@ -3,6 +3,7 @@
 // SOLVED: make a simple interface for selections
 // SOLVED: make watchers for selections
 //// SOLVED: fetch htmls on update
+// TODO: try use realtime component instead
 //// INFO: don't need them, v-model brings this functionality
 
 window.TimelineComponent = Vue.component('timeline', {
@@ -43,7 +44,7 @@ window.TimelineComponent = Vue.component('timeline', {
 </vue-slider>
 
   <b-row>
-<select v-model="selected" @change="getOpsJson()">
+<select v-model="selected" @change="getOpsJsonTimeline()">
           <option v-for="option in selectOptions" :value="option">
                {{ option }}
           </option>
@@ -64,18 +65,18 @@ window.TimelineComponent = Vue.component('timeline', {
 
 <b-row>
 <d3-timeline
-          v-bind:data="dt"
+        v-bind:data="dt"
         width="100%"
         height="300px">
       </d3-timeline>
   </b-row>
 </b-container>
-      
   `,
     components: {
         'd3-timeline': window.d3Timeline,
         'vue-slider': window.vueSlider
     },
+    // TODO: get rid of some of the watchers
     watch: {
         versioningParsed() {
             this.processData()
@@ -99,6 +100,7 @@ window.TimelineComponent = Vue.component('timeline', {
     methods: {
         processData: function() {
 
+            // TODO: put into mixins later
             var sessionObject = this.versioningParsed.map(element => ({
                 timestamp: element.m.ts,
                 version: element.v,
@@ -121,12 +123,15 @@ window.TimelineComponent = Vue.component('timeline', {
             })
 
             this.sliderOptions.data = sessionIds
+            
             // console.dir("Look here!")
             // console.dir(this.sliderOptions.data[0])
             // console.dir(this.sliderOptions.data[this.sliderOptions.data.length - 1])
             // this.sliderOptions.data[0]
+            
             this.sliderOptions.min = this.sliderOptions.data[0]
             this.sliderOptions.max = this.sliderOptions.data[this.sliderOptions.data.length - 1]
+            
             // this.valueSlider = this.sliderOptions.data[0]
 
             // making Set to identify unique session and max/min
@@ -142,72 +147,29 @@ window.TimelineComponent = Vue.component('timeline', {
                 })).value()
             console.dir('Data is Processed Successfully')
         },
-        getHtmlsPerSession: async function() {
-
-            // SOLVED: transform into parameters
-            this.wsId = this.selected
-            // this.wsId = "hungry-cat-75"
-            // this.wsId = "massive-skunk-85"
-
-            // FIXME: transform into parameters
-            // TODO: fetching range of possible versions for the webstrate
-
-            // TODO: check whether versions are correct and fetched in the right time
-
-                let numberInitial = this.valueSlider[0]
-                let numberLast = this.valueSlider[1]
-
-                // let webpageInitial = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
-                // let webpageInitial = await fetch("https://webstrates.cs.au.dk/wicked-wombat-56/" + "3000/?raw")
-                let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberInitial + "/?raw")
-                let htmlResultInitial = await webpageInitial.text()
-                let webpageInitialJson = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberInitial + "/?json")
-                let htmlResultInitialJson = await webpageInitialJson.text()
-
-                // let webpageLast = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "4000/")
-                let webpageLast = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberLast + "/?raw")
-                let htmlResultLast = await webpageLast.text()
-                let webpageLastJson = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberLast + "/?json")
-                let htmlResultLastJson = await webpageLastJson.text()
-
-                let results = await Promise.all([
-                    htmlResultInitial,
-                    htmlResultLast,
-                    htmlResultInitialJson,
-                    htmlResultLastJson
-                ])
-            console.dir(results)
-            this.$emit('update', results)
-            return results
-            },
-            getOpsJson: function() {
-                fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
-                    .then(html => html.text())
-                    .then(body => {
-                        console.log('Ops History is Fetched Successfully')
-                        this.versioningRaw = body
-                    })
-                    .then(() => {
-                        this.versioningParsed = JSON.parse(this.versioningRaw)
-                    })
-            },
+        // INFO: motivation for this method is to return fetched into
+        // component data 
+        getOpsJsonTimeline: async function() {
+            this.versioningParsed = await this.getOpsJsonMixin(this.selected)
+        },
         createDataObject: function() { // INFO: updating vue vis component
-                this.dt = this.sessionGrouped.map(int => ({
-                    from: new Date(int.minConnectTime),
-                    to: new Date(int.maxConnectTime),
-                    title: "new",
-                    label: "new",
-                    group: 'edition',
-                    className: 'entry--point--default'
-                }))
-                console.dir('Data Object is Created Successfully')
-            },
+            this.dt = this.sessionGrouped.map(int => ({
+                from: new Date(int.minConnectTime),
+                to: new Date(int.maxConnectTime),
+                title: "new",
+                label: "new",
+                group: 'edition',
+                className: 'entry--point--default'
+            }))
+            console.dir('Data Object is Created Successfully')
+        },
     },
     async mounted() {
-        this.getOpsJson()
-        this.intermSession = await this.getHtmlsPerSession()
+        this.getOpsJsonTimeline()
+        // this.intermSession = await this.getHtmlsPerSession()
     },
-    updated() { // INFO: every time vis is updated, I am translating html objects to parent
+    updated() {
+        // INFO: every time vis is updated, I am translating html objects to parent
         // FIXME: use different mechanism in the future
         // this.$emit('update', this.getHtmlsPerSession())
         // console.dir("Updated in timeline-component")

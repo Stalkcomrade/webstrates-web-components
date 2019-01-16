@@ -1,3 +1,5 @@
+// TODO: entities are mapped only during first days
+
 window.MonthViewComponent = Vue.component('month-view', {
     mixins: [window.mixin],
     inherit: true,
@@ -6,9 +8,8 @@ window.MonthViewComponent = Vue.component('month-view', {
                 <transition name="fade">
                 <div v-if="show" 
                     v-bind:value="value" 
-                    v-on:input="$emit('input', $event.target.value)"
->
-<h2> {{ this.date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) }} </h2>
+                    v-on:input="$emit('input', $event.target.value)">
+<h2> {{ this.dateToShow.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) }} </h2>
 
         <p> Message: {{ todoHovered }} </p>
         
@@ -29,6 +30,8 @@ window.MonthViewComponent = Vue.component('month-view', {
         <button class="btn btn-primary" @click="previousMonth()">Previous Month</button>
         <button class="btn btn-primary" @click="nextMonth()">Next Month</button>
 </div>
+    <br>
+    <br>
 		<svg></svg>
 
         <b-container class="bv-example-row">
@@ -129,7 +132,6 @@ window.MonthViewComponent = Vue.component('month-view', {
     async created() {
 
         // TODO: replace with mixin api
-        this.fetchActivity()
         var daysFetched = await this.fetchDaysOverview()
         
         let webstrateIds = new Set();
@@ -150,6 +152,10 @@ window.MonthViewComponent = Vue.component('month-view', {
 
     },
     computed: {
+        dateToShow() {
+            var dateToShow = new Date(this.date.getFullYear(), this.date.getMonth() - 1)
+            return dateToShow
+        },
         padded() {
             const width = this.cellSize * 7 - this.margin.right - this.margin.left
             const height = this.cellSize * 5 - this.margin.top - this.margin.bottom
@@ -160,7 +166,9 @@ window.MonthViewComponent = Vue.component('month-view', {
         },
         d3Const() {
             const d3week = d3.timeFormat("%V")
-            const dayRange = d3.timeDays(new Date(this.year, this.month - 1, 1), new Date(this.year, this.month, 1))
+            const dayRange = d3.timeDays(new Date(this.date.getFullYear(),
+                                                  this.date.getMonth() - 1, 1),
+                                         new Date(this.date.getFullYear(), this.date.getMonth(), 1))
             const d3day = (date) => d3.timeFormat("%u")(date) - 1
             return {
                 d3week,
@@ -248,6 +256,8 @@ window.MonthViewComponent = Vue.component('month-view', {
         },
         mainD3: function() {
 
+          
+
             this.svg = d3.select(this.$el.querySelector('svg'))
                 .attr("width", this.padded.width)
                 .attr("height", this.padded.height)
@@ -282,7 +292,7 @@ window.MonthViewComponent = Vue.component('month-view', {
 
             this.groups.selectAll('circle.activity')
                 .data((index, data, x) => {
-                        const date = index
+                    const date = index
                         var x = Object.keys(days[date.getDate()] || {})
                             .map(webstrateId => ({
                                 date,
@@ -368,43 +378,43 @@ window.MonthViewComponent = Vue.component('month-view', {
             this.todoHovered = `${d}`
             this.fetchActivity(d)
         },
-        fetchActivity: function(webstrateIdInst) {
-
-            const toDate = new Date()
-            const fromDate = new Date()
-            fromDate.setDate(fromDate.getDate() - 7)
-
-            const activityPromise = dataFetcher('activities', {
-                webstrateId: webstrateIdInst,
-                toDate,
-                fromDate,
-                // userId: 'Stalkcomrade:github' // TODO: add userID
-            })
+        // SOLVED: replace with one in mixin
+        // TODO: change name
+        fetchActivity: async function(webstrateIdInst) {
 
             let usersPerWsSet = new Set()
             let arrFromSet = []
 
-            activityPromise.then((data) => {
+            var dataFetched = await this.fetchActivityMixin(webstrateIdInst)
 
-                Object.values(data).forEach(int => {
+                Object.values(dataFetched).forEach(int => {
                     Object.values(int).forEach(intN => {
                         usersPerWsSet.add(intN.userId)
                     })
                 })
 
-                arrFromSet = Array.from(usersPerWsSet)
-                this.usersPerWs = `${arrFromSet}`
-            })
+            arrFromSet = Array.from(usersPerWsSet)
+            this.usersPerWs = `${arrFromSet}`
 
         },
-        mainInit: function() {
+        mainInit: async function(inputDate) {
+            
             var month = this.date.getMonth()
             var year = this.date.getFullYear()
 
-            dataFetcher('month', {
-                month,
-                year
-            }).then(async (days) => {
+            console.dir("DAY FUN")
+            console.dir(this.date.getDate())
+            console.dir("MONTH FUN")
+            console.dir(month)
+            console.dir("YEAR FUN")
+            console.dir(year)
+
+            var days = await this.fetchDaysOverview(inputDate)
+            
+            // dataFetcher('month', {
+            //     month,
+            //     year
+            // }).then(async (days) => {
 
                 let webstrateIds = new Set()
                 let effortTotal = new Set()
@@ -458,7 +468,6 @@ window.MonthViewComponent = Vue.component('month-view', {
                 var d3colorsQuantizeMonth = this.d3Scaling.colorQuantizeScaling(this.totalAcitvityPerMotnh)
                 this.d3colorsQuantizeMonth = d3colorsQuantizeMonth
 
-
                 var dom = d3colorsQuantizeMonth.domain(),
                     l = (dom[1] - dom[0]) / d3colorsQuantizeMonth.range().length,
                     breaks = d3.range(dom[0], dom[1], l)
@@ -471,18 +480,30 @@ window.MonthViewComponent = Vue.component('month-view', {
                 this.mainD3()
                 this.mainD3Second(days, d3colorsQuantizeMonth, d3colorsQuantileMonth)
 
-            })
+            // })
 
         },
         previousMonth: function() {
+
+            var myNode = this.$el.querySelector('svg')
+            while (myNode.firstChild) {
+                myNode.removeChild(myNode.firstChild);
+            }
+            
             var containerMonth = this.date.getMonth()
             this.date = (new Date(this.date.setMonth(containerMonth - 1)))
-            this.mainInit()
+            this.mainInit(this.date)
         },
         nextMonth: function() {
+
+            var myNode = this.$el.querySelector('svg')
+            while (myNode.firstChild) {
+                myNode.removeChild(myNode.firstChild);
+            }
+            
             var containerMonth = this.date.getMonth()
             this.date = (new Date(this.date.setMonth(containerMonth + 1)))
-            this.mainInit()
+            this.mainInit(this.date)
         },
     },
     mounted() {
@@ -559,7 +580,9 @@ window.MonthViewComponent = Vue.component('month-view', {
         })
     },
 
-    updated() {}
+    updated() {
+        console.dir("UPDATED")
+    }
 
 })
             

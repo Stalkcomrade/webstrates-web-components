@@ -31,7 +31,6 @@ window.dataFetchMixin = Vue.mixin({
         month: '',
         year: '',
         maxWebstrates: '',
-        // data: '', // FIXME: might produce issues
         usersPerWs: ''
     }),
     methods: {
@@ -39,49 +38,54 @@ window.dataFetchMixin = Vue.mixin({
             let tags = await fetch("https://webstrates.cs.au.dk/" + selected  + "/?tags").then(results => results.json())
             console.dir(tags)
         },
-        // getHtmlPerWebstrateMixin: async function(selected) {
-        //     // SOLVED: transform into parameters
-        //     this.wsId = selected
-        //     // this.wsId = "hungry-cat-75"
-        //     // this.wsId = "massive-skunk-85"
+        // TOOD: range of version instead of a single version
+        lastVersion: async function(selected) {
+            var versionmax = await fetch("https://webstrates.cs.au.dk/" + selected + "/?v").then(body => body.json())
+            return versionmax.version
+        },
+        getHtmlsPerSessionMixin: async function(selected, initialVersion, finalVersion, snapshot) {
 
-        //     // let webpageInitial = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
-        //     // let webpageInitial = await fetch("https://webstrates.cs.au.dk/wicked-wombat-56/" + "3000/?raw")
-        //     let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/?raw")
-        //     let htmlResultInitial = await webpageInitial.text()
+            // FIXME: fetching range of possible versions for the webstrate
+            // INFO: currently last one is fetched
+
+            // INFO: use default value if no selected id is specified
+            let wsId = typeof selected === "undefined" ? "wonderful-newt-54" : selected
             
-        //     // let results = await Promise.all([
-        //     //     htmlResultInitial
-        //     // ])
-        //     // console.dir(results)
-        //     // this.$emit('update', results)
-        //     return htmlResultInitial
-        // },
-        getHtmlsPerSessionMixin: async function(selected) {
+            // INFO: use last version available if no is specified
+            var versionmax = await fetch("https://webstrates.cs.au.dk/" + wsId + "/?v").then(body => body.json())
+            let version = typeof versionmax === "undefined" ? 305 : versionmax.version
 
-            // SOLVED: transform into parameters
-            this.wsId = selected
-            // this.wsId = "hungry-cat-75"
-            // this.wsId = "massive-skunk-85"
+            console.dir("VERSION INPUT")
+            console.dir(initialVersion)
+            
+            if (snapshot === true){
 
-            // FIXME: transform into parameters
-            // TODO: fetching range of possible versions for the webstrate
-            // TODO: check whether versions are correct and fetched in the right time
+                console.dir("SINGLE VERSION inside SESSION FETCHING")
 
-                let numberInitial = 1
-                let numberLast = 200
-
-                // let webpageInitial = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "10/")
-                // let webpageInitial = await fetch("https://webstrates.cs.au.dk/wicked-wombat-56/" + "3000/?raw")
-                let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberInitial + "/?raw")
+                let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + version + "/?raw")
                 let htmlResultInitial = await webpageInitial.text()
-                let webpageInitialJson = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberInitial + "/?json")
+                console.dir('html is fetched successfully')
+                
+                return htmlResultInitial
+                
+            } else {
+
+                console.dir("MULTIPLE VERSION inside SESSION FETCHING")
+
+                // TODO: check whether versions are correct and fetched in the right time
+                
+                // SOLVED: transform into parameters
+                let numberInitial = typeof initialVersion === "undefined"  ? 1 : initialVersion
+                let numberLast = typeof finalVersion === "undefined" ? 2 : finalVersion // INFO: if undefined, simply last version
+
+                let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + numberInitial + "/?raw")
+                let htmlResultInitial = await webpageInitial.text()
+                let webpageInitialJson = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + numberInitial + "/?json")
                 let htmlResultInitialJson = await webpageInitialJson.text()
 
-                // let webpageLast = await fetch("https://webstrates.cs.au.dk/hungry-cat-75/" + "4000/")
-                let webpageLast = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberLast + "/?raw")
+                let webpageLast = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + numberLast + "/?raw")
                 let htmlResultLast = await webpageLast.text()
-                let webpageLastJson = await fetch("https://webstrates.cs.au.dk/" + this.wsId + "/" + numberLast + "/?json")
+                let webpageLastJson = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + numberLast + "/?json")
                 let htmlResultLastJson = await webpageLastJson.text()
 
                 let results = await Promise.all([
@@ -90,49 +94,47 @@ window.dataFetchMixin = Vue.mixin({
                     htmlResultInitialJson,
                     htmlResultLastJson
                 ])
-            // console.dir(results)
-            // this.$emit('update', results)
-            return [
-                results[0],
-                results[1]
-            ]
-        },
-        fetchActivity: function(webstrateIdInst) {
+                
+                this.$emit('update', results) // INFO: used in timeline-component.js
+                
+                return [
+                    results[0],
+                    results[1]
+                ]
 
+            }
+            
+        },
+        
+        fetchActivityMixin: function(webstrateIdInst) {
+            
             const toDate = new Date()
             const fromDate = new Date()
-            fromDate.setDate(fromDate.getDate() - 7)
+            fromDate.setDate(fromDate.getDate() - 30)
 
-            const activityPromise = dataFetcher('activities', {
+            return dataFetcher('activities', {
                 webstrateId: webstrateIdInst,
                 toDate,
-                fromDate,
-                // userId: 'Stalkcomrade:github' // TODO: add userID
+                fromDate
             })
-
-            let usersPerWsSet = new Set()
-            let arrFromSet = []
-
-            activityPromise.then((data) => {
-
-                Object.values(data).forEach(int => {
-                    Object.values(int).forEach(intN => {
-                        usersPerWsSet.add(intN.userId)
-                    })
-                })
-
-                arrFromSet = Array.from(usersPerWsSet)
-                this.usersPerWs = `${arrFromSet}`
-            })
-
         },
         // TODO: look for it's use in components
-        fetchDaysOverview: function() {
+        // INFO: if there is no input, date/month is calculated automatically
+        // If there isg, use input value
+        fetchDaysOverview: function(inputDate) {
 
-            this.month = month = this.monthProp
-            this.year = year = this.yearProp
+            this.month = month = typeof inputDate === "undefined" ? this.monthProp : inputDate.getMonth()
+            this.year = year = typeof inputDate === "undefined" ? this.yearProp : inputDate.getFullYear()
+            this.date = typeof inputDate === "undefined" ? new Date(this.year, this.month - 1) : inputDate
             this.maxWebstrates = maxWebstrates = this.maxWebstratesProp
-            this.date = new Date(this.year, this.month - 1)
+
+            console.dir("DAY MIXIN")
+            console.dir(this.date.getDate())
+            console.dir("MONTH MIXIN")
+            console.dir(this.month)
+            console.dir("YEAR MIXIN")
+            console.dir(this.year)
+            
 
             return dataFetcher('month', {
                 month,
@@ -171,6 +173,7 @@ window.dataFetchMixin = Vue.mixin({
                 })
         },
 
+        // FIXME: remove this.versioningRaw
         getOpsJsonMixin: function(input) {
             var current = input !== "undefined" ? input : this.selected
             return fetch("https://webstrates.cs.au.dk/" + current + "/?ops")
@@ -183,3 +186,11 @@ window.dataFetchMixin = Vue.mixin({
         }
     }
 })
+
+window.dataObjectsCreator = Vue.mixin({
+})
+
+window.animationMixin = Vue.mixin({
+})
+
+
