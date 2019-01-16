@@ -130,43 +130,41 @@ window.dataFetchMixin = Vue.mixin({
         // TODO: change name of the function
         fetchActivityTimeline: function() {
 
-            return new Promise((resolve, reject) => {
+            const month = ((new Date).getMonth() + 1);
+            const maxWebstrates = this.maxWebstrates || 20;
+            const year = Number(this.year) || (new Date).getFullYear();
 
-                const month = Number(this.month) || ((new Date).getMonth() + 1);
-                console.dir(month)
-                const maxWebstrates = this.maxWebstrates || 20;
-                const year = Number(this.year) || (new Date).getFullYear();
+            return dataFetcher('month').then((days) => {
 
-                dataFetcher('month').then((days) => {
+                let webstrateIds = new Set();
+                let effortTotal = new Set();
 
-                    let webstrateIds = new Set();
-                    let effortTotal = new Set();
+                Object.values(days).forEach(day => {
+                    Object.keys(day).forEach(webstrateId => {
+                        webstrateIds.add(webstrateId)
+                    });
 
-                    Object.values(days).forEach(day => {
-                        Object.keys(day).forEach(webstrateId => {
-                            webstrateIds.add(webstrateId)
-                        });
-
-                        Object.values(day).forEach(singleEffort => {
-                            effortTotal.add(singleEffort)
-                        })
+                    Object.values(day).forEach(singleEffort => {
+                        effortTotal.add(singleEffort)
                     })
-                    webstrateIds = Array.from(webstrateIds).sort()
-                    this.selectOptions = webstrateIds
-                    console.dir('List of Webstrates Ids is Fetched Successfully')
-                }).then(() => resolve())
+                })
+                webstrateIds = Array.from(webstrateIds).sort()
+                console.dir('List of Webstrates Ids is Fetched Successfully')
+                return webstrateIds
             })
-
+                .then((body) => {
+                    return body
+                })
         },
 
         getOpsJsonMixin: function(input) {
             var current = input !== "undefined" ? input : this.selected
-            // input !== "undefined" ? fetch("https://webstrates.cs.au.dk/" + input + "/?ops") : fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
-            fetch("https://webstrates.cs.au.dk/" + current + "/?ops")
-                .then(html => html.text())
-                .then(body => {
+            return fetch("https://webstrates.cs.au.dk/" + current + "/?ops")
+                .then((html) => { return html.json() })
+                .then((body) => {
                     console.log('Fetched:\n', current)
                     this.versioningRaw = body
+                    return body
                 })
         }
     }

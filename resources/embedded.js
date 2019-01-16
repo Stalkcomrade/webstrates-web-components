@@ -1,5 +1,4 @@
 window.Embedded = Vue.component('embedded', {
-    // <h4> {{ webstrateIdProp }} </h4>
   template: `
 <div>
   <h3> {{ view }} </h3>
@@ -19,9 +18,8 @@ window.Embedded = Vue.component('embedded', {
 `
     },
     'time-machine': {
-      // :selectedProp="Id"
       template: `
-		<time-machine/>
+		<time-machine />
 	`
     }
   },
@@ -41,22 +39,13 @@ window.Embedded = Vue.component('embedded', {
     console.dir("parent Event:" + this.Id)
   }
   },
-  // computed: {
-  //   ws() {
-  //     const Id = this.testProp
-  //     return { Id }
-  //   }
-  // },
   watch: {
     webstrateIdProp() {
       this.Id = this.webstrateIdProp
     }
   },
   mounted() {
-    // this.$watch(
-    // )
   },
   created() {
-    // this.changeView()
   }
 })

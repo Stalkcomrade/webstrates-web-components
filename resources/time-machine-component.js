@@ -1,43 +1,34 @@
+// SOLVED: try to avoid calling for methods inside other methods
+// SOLVED: use input/output model instead of watchers
+// TODO: change names and write docs
+
 window.TimeMachineComponent = Vue.component('time-machine', {
     mixins: [window.dataFetchMixin],
     data: () => ({
         date: '',
         wbsAuthor: '',
-        lastChange: '',
         month: '',
         year: '',
-        selected: '',
+        selected: 'warm-liger-47', // default value
         options: [],
         maxWebstrates: '',
-        totalAcitvityPerMotnh: [],
-        arrayRadius: [],
-        breaks: [],
-        colorQ: [],
-        maxOps: 0,
-        scalar: 0,
-        svg: [],
-        groups: [],
-        test: [],
-        waitData: [],
-        todoHovered: "hover smth",
-        intPerWs: [],
         dt: [],
-        versioningRaw: '',
-        versioningArray: []
     }),
     template: `
     <div>
-<d3-timeline
-    v-bind:data="dt"
-    width="100%"
-    height="300px">
-</d3-timeline>
-    <select v-model="selected" @change="getVersioningJson()">
+    <br>
+    <br>
+    <br>
+    <d3-timeline
+       v-bind:data="dt"
+       width="100%"
+       height="300px">
+   </d3-timeline>
+    <select v-model="selected">
           <option v-for="option in options" v-bind:value="option">
                {{ option }}
           </option>
         </select>
-        <button @click="fetchActivity(selected)">UPD SCL</button>
 
 </div>
   `,
@@ -46,68 +37,41 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     },
     watch: {
         selected: function(newValue, oldValue) {
-            this.getVersioningJson()
-            console.dir(newValue + " :this.selected")
-        }
+            console.dir("Initial State Watch in time-machine-component.js")
+            this.fetchAll(newValue)
+        },
     },
-
-    beforeCreate: function() {},
-    created: function() {
-
-        this.waitData = new Promise((resolve, reject) => {
-
-            const month = Number(this.month) || ((new Date).getMonth() + 1);
-            const maxWebstrates = this.maxWebstrates || 20;
-            const year = Number(this.year) || (new Date).getFullYear();
-
-
-            dataFetcher('month').then((days) => {
-
-                let webstrateIds = new Set();
-                let effortTotal = new Set();
-
-                Object.values(days).forEach(day => {
-                    Object.keys(day).forEach(webstrateId => {
-                        webstrateIds.add(webstrateId)
-                    });
-
-                    Object.values(day).forEach(singleEffort => {
-                        effortTotal.add(singleEffort)
-                    })
-                })
-
-                webstrateIds = Array.from(webstrateIds).sort()
-                this.options = webstrateIds
-
-            }).then(() => resolve())
-        })
-
+    async created() {
+        this.options = await this.fetchActivityTimeline()
     },
-
     methods: {
-
-
+        // SOLVED: divide into several sections
+        // TODO: put into mixins
         fetchActivity: function(webstrateIdInst) {
 
             const toDate = new Date()
             const fromDate = new Date()
-            fromDate.setDate(fromDate.getDate() - 14)
+            fromDate.setDate(fromDate.getDate() - 30)
 
-            const activityPromise = dataFetcher('activities', {
+            return activityPromise = dataFetcher('activities', {
                 webstrateId: webstrateIdInst,
                 toDate,
                 fromDate
             })
+        },
+        createDataObject: function(acitvityPromise) {
+            
+            return activityPromise.then((data) => {
 
-            activityPromise.then((data) => {
-
+                var intPerWs = []
+                
                 Object.values(data).forEach(int => {
                     Object.values(int).forEach(intN => {
-                        this.intPerWs.push(intN)
+                        intPerWs.push(intN)
                     })
                 })
 
-                var dt1 = this.intPerWs.map(int => ({
+                return intPerWs.map(int => ({
                     at: new Date(int.timestamp),
                     title: Math.random().toString(),
                     group: int.type,
@@ -116,74 +80,57 @@ window.TimeMachineComponent = Vue.component('time-machine', {
                     link: 0,
                     webstrateId: this.selected
                 }))
-
-                console.dir(dt1)
-                this.dt = this.dt.concat(dt1)
-
             })
-
+        },
+        fetchAndCreateData: async function(webstrateId){
+            var activityPromiceInst = await this.fetchActivity(webstrateId)
+            return this.createDataObject(activityPromiceInst)
         },
 
-        getVersioningJson: function() {
-
-            fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
-                .then(html => html.text())
+        getOpsJson: async function(input) {
+            return fetch("https://webstrates.cs.au.dk/" + input + "/?ops")
+                .then(html => html.json())
                 .then(body => {
-                    console.log('Fetched:')
-                    this.versioningRaw = body
-                })
-                .then(() => {
-
-                    this.versioningRaw = JSON.parse(this.versioningRaw)
-                    try {
-                        // parsing author of webstrate
-                        this.wbsAuthor = this.versioningRaw[0].session.userId
-                        console.dir(this.wbsAuthor)
-
-                        // parsing the last change made on the webstrate
-                        // tmp[tmp.length - 1].op[tmp[tmp.length - 1].op.length - 1].
-                        // last element            Object.keys(tmp[tmp.length - 1].op[tmp[tmp.length - 1].op.length - 1])[Object.keys(tmp[tmp.length - 1].op[tmp[tmp.length - 1].op.length - 1]).length - 1]
-
-                        this.lastChange = this.versioningRaw[this.versioningRaw.length - 1].
-                        op[this.versioningRaw[this.versioningRaw.length - 1].op.length - 1][Object.keys(this.versioningRaw[this.versioningRaw.length - 1].op[this.versioningRaw[this.versioningRaw.length - 1].op.length - 1])[Object.keys(this.versioningRaw[this.versioningRaw.length - 1].op[this.versioningRaw[this.versioningRaw.length - 1].op.length - 1]).length - 1]]
-
-                        // this.lastChange = this.versioningRaw[this.versioningRaw.length - 1].op[this.versioningRaw[this.versioningRaw.length - 1].op.length - 1].sd
-                        // this.lastChange = this.versioningRaw[this.versioningRaw.length - 1].op[this.versioningRaw[this.versioningRaw.length - 1].op.length - 1].sd
-                        console.dir(this.lastChange)
-
-                    } catch (err) {
-                        console.error(err)
-                    }
-
-                    this.dt = this.versioningRaw.map(int => ({
-                        at: new Date(int.m.ts),
-                        title: int.v,
-                        group: (Object.keys(int).indexOf('create') !== -1) ? 'create' : 'edition',
-                        className: (Object.keys(int).indexOf('create') !== -1) ? 'entry--point--success' : 'entry--point--default',
-                        symbol: (Object.keys(int).indexOf('create') !== -1) ? 'symbolCross' : 'symbolTriangle',
-                        link: int.v,
-                        webstrateId: this.selected
-                    }))
+                    return body
                 })
         },
-        getOpsJson: function() {
-            fetch("https://webstrates.cs.au.dk/" + this.selected + "/?ops")
-                .then(html => html.text())
-                .then(body => {
-                    console.log('Fetched:')
-                    this.versioningRaw = body
-                })
-        },
+        
+        createDataObject2: function(promise) {
+            
+            var versioningRaw = promise
+            
+            // INFO: if session exists, checking for author of webstrate
+            this.wbsAuthor = (typeof versioningRaw[0].session !== "undefined") ?
+                (typeof versioningRaw[0].session.userId === "undefined") ? "unknown" :  versioningRaw[0].session.userId
+            : "unknown"
 
-        fetchAll: function(webstrateIdInst) {
-            let dt1Inst = this.getVersioningJson()
-            let dt2Inst = this.fetchActivity(webstrateIdInst)
-            this.dt = dt1Inst.concat(dt2Inst)
+            return versioningRaw.map(int => ({
+                at: new Date(int.m.ts),
+                title: int.v,
+                group: (Object.keys(int).indexOf('create') !== -1) ? 'create' : 'edition',
+                className: (Object.keys(int).indexOf('create') !== -1) ? 'entry--point--success' : 'entry--point--default',
+                symbol: (Object.keys(int).indexOf('create') !== -1) ? 'symbolCross' : 'symbolTriangle',
+                link: int.v,
+                webstrateId: this.selected
+            }))
+        }, 
+
+        // TODO: divide and into mixins
+        getVersioningJson: async function(webstrateId) {
+            var fetchOpsPromise = await this.getOpsJson(webstrateId)
+            return this.createDataObject2(fetchOpsPromise)
+        },
+       
+        fetchAll: async function(webstrateId) {
+            
+            this.dt.length = 0 // INFO: in order to avoid stacking
+            var dt1 = await this.fetchAndCreateData(webstrateId)
+            var dt2 = await this.getVersioningJson(webstrateId)
+            this.dt = this.dt.concat(dt1, dt2)
+            
         }
-
     },
-    mounted() {
+    async mounted() {
         this.selected = this.$parent.relationName
     },
-    updated() {}
 });

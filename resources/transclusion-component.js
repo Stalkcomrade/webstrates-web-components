@@ -95,34 +95,65 @@ window.transclusionComponent = Vue.component('transclusion', {
                     this.walk(node.nextElementSibling, cb)
                 }
             },
-            sq: function(input) {
 
-                var target = [] // INFO: local-global scope
-                var children = []
+        // TODO: sq for webstrates copy and transclussion
+        // TODO: use fetch html
 
-                for (var i = 0, len = input.length; i < len; ++i) {
-                    var item = input[i]
+        sqEnhanced: async function(input){
 
-                    children = {
-                        value: item,
-                        name: item.getAttribute("__wid"),
-                        parent: item.parentElement.getAttribute("__wid"),
-                        children: (item.children ? this.sq(item.children) : "No Children")
-                    }
-                    target.push(children)
+            // TODO: use fetch html
+            var vsd = await this.getOpsJsonMixin(input)
+            console.dir("VSD")
+            
+            var tmp = vsd[0]
+            // typeof 
+            // console.dir(tmp)
+            
+            // var target = [] // INFO: local-global scope
+            // var children = []
+
+            // for (var i = 0, len = input.length; i < len; ++i) {
+            //     var item = input[i]
+
+            //     children = {
+            //         value: item,
+            //         name: item.getAttribute("__wid"),
+            //         parent: item.parentElement.getAttribute("__wid"),
+            //         children: (item.children ? this.sq(item.children) : "No Children")
+            //     }
+            //     target.push(children)
+            // }
+
+            // return target
+
+        },
+        
+        sq: function(input) {
+
+            var target = [] // INFO: local-global scope
+            var children = []
+
+            for (var i = 0, len = input.length; i < len; ++i) {
+                var item = input[i]
+
+                children = {
+                    value: item,
+                    name: item.getAttribute("__wid"),
+                    parent: item.parentElement.getAttribute("__wid"),
+                    children: (item.children ? this.sq(item.children) : "No Children")
                 }
+                target.push(children)
+            }
 
-                return target
+            return target
 
+        },
+        init: function() {
+            console.dir("init starts")
+            var $el = this.htmlObject.getElementsByTagName("BODY")[0]
+            window.el = $el.children[0]
+            return this.sq(window.el.children)
             },
-            init: function() {
-                console.dir("init starts")
-                var $el = this.htmlObject.getElementsByTagName("BODY")[0]
-                window.el = $el.children[0]
-                // this.d3Data = this.sq(window.el.children)
-                return this.sq(window.el.children)
-            },
-            // Thanks, Mike: https://beta.observablehq.com/@mbostock/collapsible-tree
             funTree: function(data) {
 
                 console.dir("INSIDE D3")
@@ -310,6 +341,10 @@ window.transclusionComponent = Vue.component('transclusion', {
         
         this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
         this.d3Data = await this.init()
-        
+
+        // SOLVED: parse tags
+        this.fetchTags("wicked-wombat-56")
+
+        this.sqEnhanced("soft-catfish-41")
     }
 })
