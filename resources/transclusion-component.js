@@ -21,12 +21,6 @@ window.transclusionComponent = Vue.component('transclusion', {
 </div>
 `,
     // data: () => ({
-    //     d3Data: [],
-    //     d3Object: {},
-    //     finalHtml: '',
-    //     htmlObjectReady: false,
-    //     htmlObject: '',
-    //     htmlString: '',
     // }),
     computed: {},
     watch: {
