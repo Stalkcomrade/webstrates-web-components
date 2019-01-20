@@ -6,6 +6,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     mixins: [window.dataFetchMixin],
     data: () => ({
         wbsAuthor: '',
+        slc: '',
         selected: 'warm-liger-47', // default value
         options: [],
         dt: [],
@@ -18,7 +19,8 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     <d3-timeline
        v-bind:data="dt"
        width="100%"
-       height="300px">
+       height="300px"
+       @range-updated="(dateTimeStart, dateTimeEnd) => testSelectRangeMethod(dateTimeStart, dateTimeEnd)">
    </d3-timeline>
     <select v-model="selected">
           <option v-for="option in options" v-bind:value="option">
@@ -41,6 +43,20 @@ window.TimeMachineComponent = Vue.component('time-machine', {
         this.options = await this.fetchActivityTimeline()
     },
     methods: {
+        testSelectRangeMethod: function(dateTimeStart, dateTimeEnd) {
+
+            var filtered = this.slc.filter(object => {
+                // return object.values.some((el) => { // filters objects without this date
+                    return object.at > dateTimeStart  &&
+                        object.at < dateTimeEnd
+                // })
+            })
+
+            console.dir(filtered)
+            console.dir(dateTimeStart)
+            console.dir(dateTimeEnd)
+            
+        },
         // INFO: used for building clientJoins/Leaves
         createDataObject: function(activityPromise) {
 
@@ -54,15 +70,20 @@ window.TimeMachineComponent = Vue.component('time-machine', {
                     })
                 })
 
+            
+            console.dir(intPerWs)
+            
                 return intPerWs.map(int => ({
                     at: new Date(int.timestamp),
                     title: Math.random().toString(),
-                    group: int.type,
+                    group: int.userId,
                     className: (int.type === "clientPart") ? 'entry--point--warn' : 'entry--point--info',
                     symbol: (int.type === "clientPart") ? 'symbolDiamond' : 'symbolSquare',
                     link: 0,
                     webstrateId: this.selected
                 }))
+
+           
             
         },
         fetchAndCreateData: async function(webstrateId){
@@ -101,6 +122,8 @@ window.TimeMachineComponent = Vue.component('time-machine', {
             
             this.dt.length = 0 // INFO: in order to avoid stacking
             var dt1 = await this.fetchAndCreateData(webstrateId)
+            this.slc = dt1 // INFO: use for range updates
+            
             var dt2 = await this.getVersioningJson(webstrateId)
             this.dt = this.dt.concat(dt1, dt2)
             

@@ -26,8 +26,6 @@ window.mixin = Vue.mixin({
 
 window.objectsCreatorMixin = Vue.mixin({
 
-    
-
 
 })
 
@@ -303,38 +301,6 @@ window.network = Vue.mixin({
             }
         },
 
-        // TODO: sq for webstrates copy and transclussion
-        // TODO: use fetch html
-
-        sqEnhanced: async function(input){
-
-            // TODO: use fetch html
-            var vsd = await this.getOpsJsonMixin(input)
-            console.dir("VSD")
-            
-            var tmp = vsd[0]
-            // typeof 
-            // console.dir(tmp)
-            
-            // var target = [] // INFO: local-global scope
-            // var children = []
-
-            // for (var i = 0, len = input.length; i < len; ++i) {
-            //     var item = input[i]
-
-            //     children = {
-            //         value: item,
-            //         name: item.getAttribute("__wid"),
-            //         parent: item.parentElement.getAttribute("__wid"),
-            //         children: (item.children ? this.sq(item.children) : "No Children")
-            //     }
-            //     target.push(children)
-            // }
-
-            // return target
-
-        },
-        
         sq: function(input) {
 
             var target = [] // INFO: local-global scope
@@ -353,7 +319,6 @@ window.network = Vue.mixin({
             }
 
             return target
-
         },
 
         // SOLVED: changing root from computed to function
@@ -372,7 +337,6 @@ window.network = Vue.mixin({
 
         // INFO: copy or transclusion are local functions
         init: function(input, type, copy, transclusion) {
-           
 
             if (type !== "undefined") {
 

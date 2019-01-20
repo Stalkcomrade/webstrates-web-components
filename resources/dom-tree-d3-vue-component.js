@@ -118,8 +118,8 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         this.getSelectors()
 
         // INFO: Here I am waiting for data from a child component
-        // timeline-component.js - after that I am reading parsing htmls and building trees
         // FIXME: conisider different versions
+        // timeline-component.js - after that I am reading parsing htmls and building trees
 
         let containerTmp = await this.getHtmlsPerSessionMixin("wonderful-newt-54", 3, undefined, false)
         this.htmlString = containerTmp[0]

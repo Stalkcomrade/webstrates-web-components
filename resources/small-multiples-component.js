@@ -14,18 +14,6 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
     </div>
 
 `,
-
-    // <b-container class="bv-example-row">
-    //             <b-row>
-    //                <b-col>   </b-col>
-    //                <b-col>   </b-col>
-    //             </b-row>
-    //     </b-container>
-
-
-    // components: {
-    //     'd3-metric': window.d3Metric
-    // },
     data: () => ({
         parseDate: '',
         counter: '35000',
@@ -38,10 +26,10 @@ window.smallMultiplesComponent = Vue.component('small-multiples', {
 
     methods: {
         test2: function() {
-
+            this.$refs.container.appendChild(this.instance)
+            
             // document.body.appendChild(this.instance)
             // console.dir(this.instance)
-            this.$refs.container.appendChild(this.instance)
             // this.$refs.emptyChicken66.appendChild(this.instance)
 
         },
