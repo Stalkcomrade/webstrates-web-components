@@ -195,9 +195,78 @@ window.network = Vue.mixin({
         finalHtml: '',
         htmlObjectReady: false,
         htmlObject: '',
-        htmlString: '',
+        currentInnerText: '',
+        currentVersionSpan: '',
+        currentVersionSentences: ["test", "test"],
+        svg: "",
+        rootInstance: '',
+        rootInstanceLatest: '',
+        gLink: "",
+        gNode: "",
+        d3Data: [],
+        d3DataLatest: [],
+        d3Object: {},
+        tree: '',
+        diagonal: '',
+        htmlStringLatest: '',
+        dx: 10,
+        dy: 162.5,
+        width: 900,
+        margin: {
+            top: 10,
+            right: 120,
+            bottom: 10,
+            left: 40
+        }
     }),
+    watch: {
+        d3Data() {
+            console.dir("INSIDE d3Data Watcher")
+            
+            var container = {
+                name: "main",
+                children: this.d3Data
+            }
+            this.rootInstance = this.root(container)
+            this.update(this.rootInstance)
+
+        }},
+    computed: {
+        viewBox() {
+            return [-this.margin.left, -this.margin.top, this.width, this.dx]
+        }
+    },
     methods: {
+        onChildUpdate (newValue) { // INFO: it is used to catch htmls from timeline component
+            console.dir("Updated")
+            this.htmlString = newValue[0] // SOLVED: make a parent listen to child instead of using global scopes
+            this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
+            this.d3Data = this.init()
+        },
+        getSelectors: function() {
+            this.svg = d3.select("#svgMain")
+            this.gLink = d3.select("#gLink")
+            this.gNode = d3.select("#gNode")
+        },
+
+        // SOLVED: changing root from computed to function
+        root: function(data) {
+            var hierarchyTemp = d3.hierarchy(data)
+            hierarchyTemp.x0 = this.dy / 2
+            hierarchyTemp.y0 = 0
+            hierarchyTemp.descendants().forEach((d, i) => {
+                d.id = i
+                d._children = d.children
+                if (d.depth && d.data.name.length !== 7) d.children = null
+            })
+            console.dir(hierarchyTemp)
+            return hierarchyTemp
+        },
+        
+        changeCurrent: function(innerText) {
+            this.currentInnerText = `${innerText}`
+
+        },
         
         handler: function(e) {
             e.preventDefault();
@@ -293,98 +362,67 @@ window.network = Vue.mixin({
             return target
 
         },
-        init: function() {
-            console.dir("init starts")
-            var $el = this.htmlObject.getElementsByTagName("BODY")[0]
-            window.el = $el.children[0]
-            return this.sq(window.el.children)
-        },
-        
-        funTree: function(data) {
+        init: function(input) {
 
-            var dx = 10
-            var dy = 162.5
-            var margin = {
-                top: 10,
-                right: 120,
-                bottom: 10,
-                left: 40
+            if (typeof input !== "undefined"){
+                console.dir("init starts")
+                var $el = input.getElementsByTagName("BODY")[0]
+                var el = $el.children[0]
+                return this.sq(el.children)
+            } else {
+                console.dir("init starts")
+                var $el = this.htmlObject.getElementsByTagName("BODY")[0]
+                window.el = $el.children[0]
+                return this.sq(window.el.children)
             }
+        },
 
-            var width = 900
-
-            var tree = d3.tree().nodeSize([dx, dy])
-            var diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
-
-            const root = d3.hierarchy(data);
-
-            root.x0 = dy / 2;
-            root.y0 = 0;
-            root.descendants().forEach((d, i) => {
-                d.id = i;
-                d._children = d.children;
-                if (d.depth && d.data.name.length !== 7) d.children = null;
-            });
-
-            // d3.select(".treeUnique").append()
-            // const svg = d3.select(".treeD3")
-            const svg = d3.create("svg")
-                  .append("svg")
-                  .attr("width", width)
-                  .attr("height", dx)
-                  .attr("viewBox", [-margin.left, -margin.top, width, dx])
-                  .style("font", "10px sans-serif")
-                  .style("user-select", "none");
-
-            const gLink = svg.append("g")
-                  .attr("fill", "none")
-                  .attr("stroke", "#555")
-                  .attr("stroke-opacity", 0.4)
-                  .attr("stroke-width", 1.5);
-
-            const gNode = svg.append("g")
-                  .attr("cursor", "pointer");
-
-            function update(source) {
+         update: function(source) {
+                // SOLVED: root is not calculated
+                // SOLVED: Messed up source and root
                 const duration = d3.event && d3.event.altKey ? 2500 : 250;
-                const nodes = root.descendants().reverse();
-                const links = root.links();
+                const nodes = this.rootInstance.descendants().reverse()
+                const links = this.rootInstance.links()
 
-                // Compute the new tree layout.
-                tree(root);
+                this.tree(this.rootInstance) // Compute the new tree layout.
 
-                let left = root;
-                let right = root;
-                root.eachBefore(node => {
+                let left = this.rootInstance
+                let right = this.rootInstance
+                this.rootInstance.eachBefore(node => {
                     if (node.x < left.x) left = node;
-                    if (node.x > right.x) right = node;
+                    if (node.x > right.x) right = node
                 });
 
-                const height = right.x - left.x + margin.top + margin.bottom;
+                const height = right.x - left.x + this.margin.top + this.margin.bottom
 
-                const transition = svg.transition()
-                      .duration(duration)
-                      .attr("height", height)
-                      .attr("viewBox", [-margin.left, left.x - margin.top, width, height])
-                      .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
+                var self = this
+
+                const transition = this.svg
+                    .transition()
+                    .duration(duration)
+                    .attr("height", height)
+                    .attr("viewBox", [-this.margin.left, left.x - this.margin.top, this.width, height])
+                    .tween("resize", window.ResizeObserver ? null : () => () => self.svg
+                        .dispatch("toggle"));
 
                 // Update the nodes…
-                const node = gNode.selectAll("g")
-                      .data(nodes, d => d.id);
+                const node = this.gNode.selectAll("g")
+                    .data(nodes, d => d.id);
 
                 // Enter any new nodes at the parent's previous position.
                 const nodeEnter = node.enter().append("g")
-                      .attr("transform", d => `translate(${source.y0},${source.x0})`)
-                      .attr("fill-opacity", 0)
-                      .attr("stroke-opacity", 0)
-                      .on("click", d => {
-                          d.children = d.children ? null : d._children;
-                          update(d);
-                      })
-                      .on("contextmenu", function(d, i) {
-                          d3.event.preventDefault();
-                          // console.dir("right click")
-                      });
+                    .attr("transform", d => `translate(${source.y0},${source.x0})`)
+                    .attr("fill-opacity", 0)
+                    .attr("stroke-opacity", 0)
+                    .on("click", (d) => {
+                        d.children = d.children ? null : d._children
+                        self.update(d)
+                        this.currentInnerText = d.data.innerText
+                    })
+                    .on("contextmenu", function(d, i) {
+                        d3.event.preventDefault();
+                    })
+                    .on("mouseover", (d) => {})
 
                 nodeEnter.append("circle")
                     .attr("r", 2.5)
@@ -395,6 +433,7 @@ window.network = Vue.mixin({
                     .attr("x", d => d._children ? -6 : 6)
                     .attr("text-anchor", d => d._children ? "end" : "start")
                     .text(d => d.data.name)
+                    .style("fill", d => d.data.class == "paragraph code-paragraph" ? "red" : "black")
                     .clone(true).lower()
                     .attr("stroke-linejoin", "round")
                     .attr("stroke-width", 3)
@@ -402,36 +441,37 @@ window.network = Vue.mixin({
 
                 // Transition nodes to their new position.
                 const nodeUpdate = node.merge(nodeEnter).transition(transition)
-                      .attr("transform", d => `translate(${d.y},${d.x})`)
-                      .attr("fill-opacity", 1)
-                      .attr("stroke-opacity", 1);
+                    .attr("transform", d => `translate(${d.y},${d.x})`)
+                    .attr("fill-opacity", 1)
+                    .attr("stroke-opacity", 1);
 
                 // Transition exiting nodes to the parent's new position.
                 const nodeExit = node.exit().transition(transition).remove()
-                      .attr("transform", d => `translate(${source.y},${source.x})`)
-                      .attr("fill-opacity", 0)
-                      .attr("stroke-opacity", 0);
+                    .attr("transform", d => `translate(${source.y},${source.x})`)
+                    .attr("fill-opacity", 0)
+                    .attr("stroke-opacity", 0);
 
                 // Update the links…
-                const link = gLink.selectAll("path")
-                      .data(links, d => d.target.id);
+                const link = this.gLink.selectAll("path")
+                    .data(links, d => d.target.id);
 
                 // Enter any new links at the parent's previous position.
                 const linkEnter = link.enter().append("path")
-                      .attr("d", d => {
-                          const o = {
-                              x: source.x0,
-                              y: source.y0
-                          };
-                          return diagonal({
-                              source: o,
-                              target: o
-                          });
-                      });
+                    .attr("d", d => {
+                        const o = {
+                            x: source.x0,
+                            y: source.y0
+                        };
+                        // return this.diagonal({
+                        return self.diagonal({
+                            source: o,
+                            target: o
+                        });
+                    });
 
                 // Transition links to their new position.
                 link.merge(linkEnter).transition(transition)
-                    .attr("d", diagonal);
+                    .attr("d", self.diagonal);
 
                 // Transition exiting nodes to the parent's new position.
                 link.exit().transition(transition).remove()
@@ -440,24 +480,21 @@ window.network = Vue.mixin({
                             x: source.x,
                             y: source.y
                         };
-                        return diagonal({
+                        // return this.diagonal({
+                        return self.diagonal({
                             source: o,
                             target: o
                         });
                     });
 
                 // Stash the old positions for transition.
-                root.eachBefore(d => {
+                this.rootInstance.eachBefore(d => {
                     d.x0 = d.x;
                     d.y0 = d.y;
                 });
-            }
 
-            update(root);
-            d3.select(".treeD3").node().appendChild(svg.node())
-        }
+            },
     }
-
 })
 
 

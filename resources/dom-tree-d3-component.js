@@ -13,8 +13,18 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 <b-container class="container-fluid">
   <b-row>
     <b-col class="col-md-10">
-      <div class="treeD3" id="tree-container">
-      </div>
+      <svg
+        id="svgMain"
+        :width="width" :height="dx" :viewBox="viewBox"
+        style="font: 10px sans-serif; user-select: none;">
+
+        <g
+          id="gLink"
+          fill="none" stroke="#555" stroke-opacity="0.4" stroke-width="1.5"> </g>
+        <g
+          id="gNode"
+          cursor="pointer"> </g> 
+      </svg>
     </b-col>
     <b-col class="col-md-2 text-left">
       <p> {{ currentInnerText }} </p>
@@ -28,11 +38,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
     // <p> {{ InnerTextToShow }} </p>
     data: () => ({
         currentInnerText: '',
-        d3Data: [],
-        d3Object: {},
-        finalHtml: '',
-        htmlObjectReady: false,
-        htmlObject: '',
         htmlString: '',
     }),
     watch: {
@@ -41,19 +46,22 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 name: "main",
                 children: this.d3Data
             }
-            // this.Id = this.funTree(this.d3Data)
-            this.Id = this.funTree(container)
-        },
+            this.rootInstance = this.root(container)
+            this.update(this.rootInstance)
+
         // currentInnerText() {
         //     this.InnerTextToShow = this.currentInnerText
         //     console.dir(this.InnerTextToShow)
-        // }
-    },
-    methods: {
+            // }
+        }
     },
     beforeCreate() {},
     async created() {},
     async mounted() {
+
+        this.tree = d3.tree().nodeSize([this.dx, this.dy])
+        this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
+        this.getSelectors()
         
         this.htmlString = await this.getHtmlsPerSessionMixin("wonderful-newt-54", undefined, undefined, true)
         this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
