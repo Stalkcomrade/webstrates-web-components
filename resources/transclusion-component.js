@@ -6,7 +6,13 @@ window.transclusionComponent = Vue.component('transclusion', {
 <br>
 <br>
 <br>
-<button @contextmenu="handler($event)">r-click</button>
+
+<b-btn variant="info" @click="updateView('copy')">Show Copies</b-btn>
+<b-btn variant="primary" @click="updateView('transclusions')">Show Transclusions</b-btn>
+
+<br>
+<br>
+<br>
 
    <b-container class="bv-example-row">
                 <b-row>
@@ -32,26 +38,8 @@ window.transclusionComponent = Vue.component('transclusion', {
 
 </div>
 `,
-    methods: {},
-    async created() {},
-    async mounted() {
-
-        this.tree = d3.tree().nodeSize([this.dx, this.dy])
-        this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
-        this.getSelectors()
-
-        // let wsId = "massive-skunk-85"
-        // let wsId = "hungry-cat-75"
-        // let wsId = "wonderful-newt-54/"
-        // let wsId = "tasty-lionfish-70" // copies
-        // let wsId = "short-turtle-55" // transclusions
-        
-        // SOLVED: parse tags
-        // this.fetchTags("wicked-wombat-56")
-        // this.htmlString = await this.getHtmlsPerSessionMixin("short-turtle-55", undefined, undefined, true)
-
-        // SOLVED: main issue is that the order of attributes should be avoided
-        var extractSummary = function(input) {
+    methods: {
+        extractSummary: function(input) {
 
             // var reg = /(?=\<iframe.*?src="\/(.*?)\/*?".*?<\/iframe\>)|(?=\<iframe.*?wid="(.*?)".*?<\/iframe\>)/gi
             // var reg = /\<iframe src="\/(.*?)\/".*?\_\_wid="(.*?)".*?<\/iframe\>/gi // INFO: two groups
@@ -84,21 +72,34 @@ window.transclusionComponent = Vue.component('transclusion', {
              } catch (err) {
                  return null
              }
-        }
-
-        // window.extractSummary = extractSummary
-        // window.df = await this.getHtmlsPerSessionMixin("tasty-lionfish-70", undefined, undefined, true)
-        // this.htmlString = await this.getHtmlsPerSessionMixin("tasty-lionfish-70", undefined, undefined, true)
-        // window.dswre = extractSummary(this.htmlString)
-        // this.sqEnhanced("soft-catfish-41")
-
+        },
         
-        self = this
+        searchCopies: async function(input){
 
-        var sqt = async function(input){
+            var target = [],
+                children = []
+            
+            var cpsWs = await this.getOpsJsonMixin(input)
+            
+            children = {
+                value: (typeof cpsWs[0].create !== "undefined" && typeof cpsWs[0].create.id !== "undefined"
+                        ? cpsWs[0].create.id
+                        : "no copies found"),
+                name: (typeof cpsWs[0].create !== "undefined" && typeof cpsWs[0].create.id !== "undefined"
+                       ? cpsWs[0].create.id
+                       : "no copies found"),
+                children: (cpsWs[0].create.id !== input && await this.searchCopies(cpsWs[0].create.id))
+            }
 
-            var htmlParsed = await self.getHtmlsPerSessionMixin(input, undefined, undefined, true)
-            var prs = extractSummary(htmlParsed)
+            target.push(children)
+
+            return target
+        },
+
+        sqt: async function(input){
+
+            var htmlParsed = await this.getHtmlsPerSessionMixin(input, undefined, undefined, true)
+            var prs = this.extractSummary(htmlParsed)
 
             var target = [],
                 children = []
@@ -112,7 +113,7 @@ window.transclusionComponent = Vue.component('transclusion', {
                     children = {
                         value: el.src,
                         name: el.wid,
-                        children: (typeof el.src !== "undefined" ? await sqt(el.src) : "no transclusions")
+                        children: (typeof el.src !== "undefined" ? await this.sqt(el.src) : "no transclusions")
                     }
 
                     target.push(children)
@@ -122,38 +123,35 @@ window.transclusionComponent = Vue.component('transclusion', {
             }
             return target
 
+        },
+
+        updateView: async function(mode){
+            this.d3Data = mode === "copy" ?  await this.init("short-turtle-55", "type", this.searchCopies, undefined) : await this.init("short-turtle-55", "type", this.sqt, undefined)
         }
+    },
+    async created() {},
+    async mounted() {
 
-        // window.sqt = await sqt("short-turtle-55")
-        // window.sqt = sqt("tasty-lionfish-70")
-
-        // SOLVED: parse copies
-        // SOLVED: make a recursive function
-        // tasty-lionfish-70
-        var searchCopies = async function(input){
-
-            var target = [],
-                children = []
-            
-            var cpsWs = await self.getOpsJsonMixin(input)
-            
-            children = {
-                value: (typeof cpsWs[0].create !== "undefined" && typeof cpsWs[0].create.id !== "undefined"
-                        ? cpsWs[0].create.id
-                        : "no copies found"),
-                name: (typeof cpsWs[0].create !== "undefined" && typeof cpsWs[0].create.id !== "undefined"
-                       ? cpsWs[0].create.id
-                       : "no copies found"),
-                children: (cpsWs[0].create.id !== input && await searchCopies(cpsWs[0].create.id))
-            }
-
-            target.push(children)
-
-            return target
-        }
+        this.tree = d3.tree().nodeSize([this.dx, this.dy])
+        this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
+        this.getSelectors()
 
         // INFO: Creating graph
-        this.d3Data = await this.init("short-turtle-55", "type", searchCopies, undefined)
+        this.d3Data = await this.init("short-turtle-55", "type", this.sqt, undefined)
+
+        // let wsId = "massive-skunk-85"
+        // let wsId = "hungry-cat-75"
+        // let wsId = "wonderful-newt-54/"
+        // let wsId = "tasty-lionfish-70" // copies
+        // let wsId = "short-turtle-55" // transclusions
+        
+        // SOLVED: parse tags
+        // this.fetchTags("wicked-wombat-56")
+        // this.htmlString = await this.getHtmlsPerSessionMixin("short-turtle-55", undefined, undefined, true)
+
+        // tasty-lionfish-70
+
+
        
     }
 })

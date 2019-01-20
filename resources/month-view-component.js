@@ -5,46 +5,83 @@ window.MonthViewComponent = Vue.component('month-view', {
     inherit: true,
     props: ['monthProp', 'yearProp', 'maxWebstratesProp'],
     template: `
-                <transition name="fade">
-                <div v-if="show" 
-                    v-bind:value="value" 
-                    v-on:input="$emit('input', $event.target.value)">
-<h2> {{ this.dateToShow.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) }} </h2>
+<transition name="fade">
+  
+  <div v-if="show" 
+       v-bind:value="value" 
+       v-on:input="$emit('input', $event.target.value)">
 
-        <p> Message: {{ todoHovered }} </p>
-        
-        <select v-model="selected">
+    <b-container class="container-fluid">
+      <b-row>
+        <b-col class="col-md-4">
+          
+          <h2> {{ this.dateToShow.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) }} </h2>
+          
+          <select v-model="selected">
             <option v-for="option in options" v-bind:value="option.value">
-               {{ option.text }}
+              {{ option.text }}
             </option>
-        </select>
+          </select>
 
-        <span>Selected Color Scaling: {{ selectedText }}</span>
-        <br><br>
+          <span>Selected Color Scaling: {{ selectedText }} </span>
+          
+          <br>
+          <br>
 
-        <button @click='changeView("time-machine")'> Change View </button>
-        <button v-on:click="show = !show"> Toggle </button>
+          <button @click='changeView("time-machine")'> Change View </button>
+          <button v-on:click="show = !show"> Toggle </button>
 
-<br><br>
-<div class="dateButtons">
-        <button class="btn btn-primary" @click="previousMonth()">Previous Month</button>
-        <button class="btn btn-primary" @click="nextMonth()">Next Month</button>
-</div>
-    <br>
-    <br>
-		<svg></svg>
+          <br>
+          <br>
 
-        <b-container class="bv-example-row">
-                <b-row>
-                   <b-col> Message: {{ usersPerWs }} </b-col>
-                   <b-col></b-col>
-                   <b-col> <webstrate-legend/> </b-col>
-                </b-row>
-        </b-container>
-         
-            	</div>
+          <div class="dateButtons">
+            <button class="btn btn-primary" @click="previousMonth()">Previous Month</button>
+            <button class="btn btn-primary" @click="nextMonth()">Next Month</button>
+          </div>
+          
+        </b-col>
 
-            </transition>
+        <b-col class="col-md-4">
+          <p> version: {{ tags[tags.length-1].v }} </p>
+          <p> label: {{ tags[tags.length-1].label }} </p>
+        </b-col>
+
+        <b-col class="col-md-4">
+          <b-row> Contributors: {{ usersPerWs }} </b-row>
+          
+          <br>
+          <br>
+          <br>
+          
+          <b-row> <p> WebstrateId: {{ todoHovered }} </p> </b-row>
+
+          <br>
+          <br>
+          
+        </b-col>
+      </b-row>
+
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+
+      
+      <b-row>
+        <b-col class="col-md-10">
+          <svg class="calendar"></svg>
+        </b-col>
+        <b-col class="col-md-2">
+          <webstrate-legend/>
+        </b-col>
+      </b-row>
+      
+    </b-container>
+
+  </div>
+
+</transition>
 `,
     // SOLVED: !use date instead of only month!
     components: {
@@ -57,6 +94,10 @@ window.MonthViewComponent = Vue.component('month-view', {
         date: '',
         month: '',
         year: '',
+        tags: [{
+            v: '',
+            label: ''
+        }],
         selected: 'A',
         selectedText: '',
         options: [{
@@ -255,10 +296,9 @@ window.MonthViewComponent = Vue.component('month-view', {
                 .style('fill', ({}) => ("yellow"))
         },
         mainD3: function() {
-
           
 
-            this.svg = d3.select(this.$el.querySelector('svg'))
+            this.svg = d3.select(this.$el.querySelector('.calendar'))
                 .attr("width", this.padded.width)
                 .attr("height", this.padded.height)
                 .append("g")
@@ -414,9 +454,10 @@ window.MonthViewComponent = Vue.component('month-view', {
                 }) => webstrateId + "\n" + activities.radius) // added info about radius ~ to activity
 
         },
-        showMessage: function(d) {
+        showMessage: async function(d) {
             this.todoHovered = `${d}`
             this.fetchActivity(d)
+            this.tags = await this.fetchTags(d)
         },
         // SOLVED: replace with one in mixin
         // TODO: change name

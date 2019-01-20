@@ -43,7 +43,7 @@ window.dataFetchMixin = Vue.mixin({
     methods: {
         fetchTags: async function(selected) {
             let tags = await fetch("https://webstrates.cs.au.dk/" + selected  + "/?tags").then(results => results.json())
-            console.dir(tags)
+            return tags
         },
         // TOOD: range of version instead of a single version
         lastVersion: async function(selected) {
