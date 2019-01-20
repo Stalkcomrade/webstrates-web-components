@@ -24,6 +24,13 @@ window.mixin = Vue.mixin({
 })
 
 
+window.objectsCreatorMixin = Vue.mixin({
+
+    
+
+
+})
+
 window.dataFetchMixin = Vue.mixin({
     props: ["monthProp", "yearProp", "maxWebstratesProp"],
     data: () => ({

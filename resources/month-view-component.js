@@ -304,8 +304,8 @@ window.MonthViewComponent = Vue.component('month-view', {
                     
                     if (selection.data()[0].customPulse !== 1) {
                         selection.transition()
-                        .duration(400)
-                        .style("customPulse", 1)
+                            .duration(400)
+                            .style("customPulse", 1)
                             .attr("stroke", "#000000")
                             .attr("stroke-width", 16)
                             .attr("r", 32) // 8
@@ -315,7 +315,11 @@ window.MonthViewComponent = Vue.component('month-view', {
                             .attr('stroke-width', 34)
                             .attr("r", 12) // 12
                             .ease(d3.easeBounceIn)
-                            // .call(recursive_transitions)
+                            .duration(1600)
+                            .attr("stroke", "#000000")
+                            .attr("stroke-width", 0)
+                            .attr("r", 8) // 8
+                            .ease(d3.easeBounceIn)
                 } else {
                     // transition back to normal
                     console.dir("INSIDE ELSE")

@@ -5,13 +5,9 @@
 window.TimeMachineComponent = Vue.component('time-machine', {
     mixins: [window.dataFetchMixin],
     data: () => ({
-        date: '',
         wbsAuthor: '',
-        month: '',
-        year: '',
         selected: 'warm-liger-47', // default value
         options: [],
-        maxWebstrates: '',
         dt: [],
     }),
     template: `
@@ -45,24 +41,10 @@ window.TimeMachineComponent = Vue.component('time-machine', {
         this.options = await this.fetchActivityTimeline()
     },
     methods: {
-        // SOLVED: divide into several sections
-        // TODO: put into mixins
-        fetchActivity: function(webstrateIdInst) {
-
-            const toDate = new Date()
-            const fromDate = new Date()
-            fromDate.setDate(fromDate.getDate() - 30)
-
-            return activityPromise = dataFetcher('activities', {
-                webstrateId: webstrateIdInst,
-                toDate,
-                fromDate
-            })
-        },
         // INFO: used for building clientJoins/Leaves
-        createDataObject: function(acitvityPromise) {
-            
-            return activityPromise.then((data) => {
+        createDataObject: function(activityPromise) {
+
+            var data = activityPromise
 
                 var intPerWs = []
                 
@@ -81,19 +63,11 @@ window.TimeMachineComponent = Vue.component('time-machine', {
                     link: 0,
                     webstrateId: this.selected
                 }))
-            })
+            
         },
         fetchAndCreateData: async function(webstrateId){
-            var activityPromiceInst = await this.fetchActivity(webstrateId)
+            var activityPromiceInst = await this.fetchActivityMixin(webstrateId)
             return this.createDataObject(activityPromiceInst)
-        },
-
-        getOpsJson: async function(input) {
-            return fetch("https://webstrates.cs.au.dk/" + input + "/?ops")
-                .then(html => html.json())
-                .then(body => {
-                    return body
-                })
         },
 
         // INFO: used for mapping opsp log
@@ -119,7 +93,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
 
         // TODO: divide and into mixins
         getVersioningJson: async function(webstrateId) {
-            var fetchOpsPromise = await this.getOpsJson(webstrateId)
+            var fetchOpsPromise = await this.getOpsJsonMixin(webstrateId)
             return this.createDataObject2(fetchOpsPromise)
         },
        
