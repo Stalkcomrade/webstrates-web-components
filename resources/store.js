@@ -255,20 +255,6 @@ window.network = Vue.mixin({
             this.gLink = d3.select("#gLink")
             this.gNode = d3.select("#gNode")
         },
-
-        // SOLVED: changing root from computed to function
-        root: function(data) {
-            var hierarchyTemp = d3.hierarchy(data)
-            hierarchyTemp.x0 = this.dy / 2
-            hierarchyTemp.y0 = 0
-            hierarchyTemp.descendants().forEach((d, i) => {
-                d.id = i
-                d._children = d.children
-                if (d.depth && d.data.name.length !== 7) d.children = null
-            })
-            console.dir(hierarchyTemp)
-            return hierarchyTemp
-        },
         
         changeCurrent: function(innerText) {
             this.currentInnerText = `${innerText}`
@@ -369,8 +355,33 @@ window.network = Vue.mixin({
             return target
 
         },
-        init: function(input) {
 
+        // SOLVED: changing root from computed to function
+        root: function(data) {
+            var hierarchyTemp = d3.hierarchy(data)
+            hierarchyTemp.x0 = this.dy / 2
+            hierarchyTemp.y0 = 0
+            hierarchyTemp.descendants().forEach((d, i) => {
+                d.id = i
+                d._children = d.children
+                if (d.depth && d.data.name.length !== 7) d.children = null
+            })
+            console.dir(hierarchyTemp)
+            return hierarchyTemp
+        },
+
+        // INFO: copy or transclusion are local functions
+        init: function(input, type, copy, transclusion) {
+           
+
+            if (type !== "undefined") {
+
+                // TODO: swtich case
+                return copy(input)
+
+            } else {
+
+            
             if (typeof input !== "undefined"){
                 console.dir("init starts")
                 var $el = input.getElementsByTagName("BODY")[0]
@@ -381,6 +392,7 @@ window.network = Vue.mixin({
                 var $el = this.htmlObject.getElementsByTagName("BODY")[0]
                 window.el = $el.children[0]
                 return this.sq(window.el.children)
+            }
             }
         },
 
