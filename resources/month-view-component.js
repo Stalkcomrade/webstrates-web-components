@@ -323,7 +323,7 @@ window.MonthViewComponent = Vue.component('month-view', {
             this.groups
                 .append('text')
                 .attr("x", date => 5 + this.d3Const.d3day(date) * this.cellSize)
-                .attr("y", date => 15 + (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
+                .attr("y", date => 20 + (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
                     date.getMonth(), 1))) * this.cellSize)
                 .text(d => d.getDate())
 

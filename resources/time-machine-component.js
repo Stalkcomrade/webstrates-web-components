@@ -4,6 +4,9 @@
 
 window.TimeMachineComponent = Vue.component('time-machine', {
     mixins: [window.dataFetchMixin],
+    components: {
+        'd3-timeline': window.d3Timeline,
+    },
     data: () => ({
         wbsAuthor: '',
         slc: '',
@@ -30,9 +33,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
 
 </div>
   `,
-    components: {
-        'd3-timeline': window.d3Timeline
-    },
     watch: {
         selected: function(newValue, oldValue) {
             console.dir("Initial State Watch in time-machine-component.js")

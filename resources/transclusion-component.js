@@ -1,11 +1,19 @@
 window.transclusionComponent = Vue.component('transclusion', {
     mixins: [window.dataFetchMixin, window.network],
+    components: {
+        'c-m-c': window.cmc
+    },
     template: `
 <div>
 <br>
 <br>
 <br>
 <br>
+
+
+
+<c-m-c ref='ct'/>
+<p @contextmenu.prevent="$refs.ct.$refs.menu.open"> Text </p>
 
 <b-btn variant="info" @click="updateView('copy')">Show Copies</b-btn>
 <b-btn variant="primary" @click="updateView('transclusions')">Show Transclusions</b-btn>
@@ -39,6 +47,7 @@ window.transclusionComponent = Vue.component('transclusion', {
 </div>
 `,
     methods: {
+        
         extractSummary: function(input) {
 
             // var reg = /(?=\<iframe.*?src="\/(.*?)\/*?".*?<\/iframe\>)|(?=\<iframe.*?wid="(.*?)".*?<\/iframe\>)/gi
@@ -130,14 +139,15 @@ window.transclusionComponent = Vue.component('transclusion', {
         }
     },
     async created() {},
-    async mounted() {
-
+    mounted() {
+        // debugger
+        window.this = this
         this.tree = d3.tree().nodeSize([this.dx, this.dy])
         this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
         this.getSelectors()
 
         // INFO: Creating graph
-        this.d3Data = await this.init("short-turtle-55", "type", this.sqt, undefined)
+        this.d3Data = this.init("short-turtle-55", "type", this.sqt, undefined)
 
         // let wsId = "massive-skunk-85"
         // let wsId = "hungry-cat-75"
@@ -151,7 +161,6 @@ window.transclusionComponent = Vue.component('transclusion', {
 
         // tasty-lionfish-70
 
-
-       
+        
     }
 })

@@ -3,6 +3,7 @@ window.OverviewComponent = Vue.component('overview', {
 
 <div>
 
+
   <d3-metric
   :data="counter"
   width="100%"
@@ -13,9 +14,13 @@ window.OverviewComponent = Vue.component('overview', {
 
 </div>
   `,
+//       <context-menu-component/>
+// <p @contextmenu.prevent="$refs.menu.open> TTT </p>
+
     components: {
         'd3-metric': window.d3Metric,
-        'vue-slider': window.vueSlider
+        'vue-slider': window.vueSlider,
+        'context-menu-component': window.contextMenu
     },
     data: () => ({
         counter: '35000',
