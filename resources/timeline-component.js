@@ -7,12 +7,9 @@
 //// INFO: don't need them, v-model brings this functionality
 
 window.TimelineComponent = Vue.component('timeline', {
-    mixins: [window.dataFetchMixin],
+    mixins: [window.dataFetchMixin, window.dataObjectsCreator],
     props: ["htmlForParent"],
     data: () => ({
-        date: '',
-        month: '',
-        year: '',
         selected: 'hungry-cat-75', // INFO: initial value
         valueSlider: [1, 3],
         sliderOptions: { // INFO: used by vue-slider component
@@ -20,88 +17,80 @@ window.TimelineComponent = Vue.component('timeline', {
             min: 0,
             max: 100
         },
-        sessionTimeline: '',
-        maxWebstrates: '',
-        test: [],
-        waitData: [],
+        options: [],
         dt: [],
-        versioningRaw: '',
-        htmlData: "",
         sessionGrouped: '',
         versioningParsed: "",
-        intermSession: "",
-        wsId: ''
     }),
     // SOLVED: try range mode
     template: `
 
-
 <b-container class="container-fluid">
 
-<vue-slider v-model="valueSlider" ref="slider" 
+  <vue-slider v-model="valueSlider" ref="slider" 
               :options="sliderOptions" :piecewise="true" :interval="2"
               :min="sliderOptions.min" :max="sliderOptions.max"> 
-</vue-slider>
+  </vue-slider>
+
+  <br>
+  <br>
 
   <b-row>
-<select v-model="selected" @change="getOpsJsonTimeline()">
-          <option v-for="option in selectOptions" :value="option">
+    <d3-timeline
+      v-bind:data="dt"
+      width="100%"
+      height="300px">
+    </d3-timeline>
+  </b-row>
+
+<br>
+<br>
+
+ <b-row>
+        <select v-model="selected">
+          <option v-for="option in options" v-bind:value="option">
                {{ option }}
           </option>
         </select>
   </b-row>
 
-  <b-row>
-   <div>
-
-   </div>
-  </b-row>
-
-<br>
-<br>
-<br>
-<br>
-<br>
-
-<b-row>
-<d3-timeline
-        v-bind:data="dt"
-        width="100%"
-        height="300px">
-      </d3-timeline>
-  </b-row>
 </b-container>
   `,
     components: {
         'd3-timeline': window.d3Timeline,
         'vue-slider': window.vueSlider
     },
-    // TODO: get rid of some of the watchers
+    // SOLVED: get rid of some of the watchers
     watch: {
-        versioningParsed() {
-            this.processData()
-        },
-        sessionGrouped() {
-            this.createDataObject()
-        },
-        valueSlider() {
-            console.dir("Inside value slider")
-            this.getHtmlsPerSession()
-        },
-        selected() {
-            this.$emit('update', this.getHtmlsPerSession())
+        // valueSlider() {
+        //     console.dir("Inside value slider")
+        //     this.getHtmlsPerSessionMixin(this.selected,
+        //                                  this.valueSlider[0], this.valueSlider[1],
+        //                                  false)
+        // },
+        selected: async function() {
+            // INFO: why emit?
+            // this.$emit('update', this.getHtmlsPerSessionMixin(this.selected, undefined, undefined, true))
+            
+            let versioningParsed = await this.getOpsJsonMixin(this.selected)
+            // console.dir(versioningParsed)
+            let sessionGrouped = await this.processData(versioningParsed)
+            // console.dir(sessionGrouped)
+            this.dt = await this.createDataObject(sessionGrouped)
+            // console.dir(this.dt)
+            
             console.dir("Updated in timeline-component")
         }
     },
-    beforeCreate: function() {},
-    created: function() {
-        this.waitData = this.fetchActivityTimeline()
+    created: async function() {
+        var DaysPromise = await this.fetchDaysOverview((new Date))
+        this.options = this.listOfWebstrates(DaysPromise)
     },
     methods: {
-        processData: function() {
+        processData: function(versioningParsed) {
 
             // TODO: put into mixins later
-            var sessionObject = this.versioningParsed.map(element => ({
+            var sessionObject = versioningParsed.map(element => ({
                 timestamp: element.m.ts,
                 version: element.v,
                 sessionId: (Object.keys(element).indexOf("session") !== -1) ? element.session.sessionId : 0,
@@ -110,7 +99,8 @@ window.TimelineComponent = Vue.component('timeline', {
             }))
 
             // INFO: filtering non-sessions
-            sessionObject = Object.keys(sessionObject).map(key => sessionObject[key]).filter(element => (element.sessionId !== 0))
+            sessionObject = Object.keys(sessionObject).map(key => sessionObject[key])
+                .filter(element => (element.sessionId !== 0))
 
             // this.sliderOptions.data = sessionObject.map(el => el.sessionId)
 
@@ -135,7 +125,7 @@ window.TimelineComponent = Vue.component('timeline', {
             // this.valueSlider = this.sliderOptions.data[0]
 
             // making Set to identify unique session and max/min
-            this.sessionGrouped = _.chain(sessionObject)
+             var sessionGrouped = _.chain(sessionObject)
                 .groupBy("sessionId")
                 .map(session => ({
                     "sessionId": session[0]['sessionId'],
@@ -145,15 +135,13 @@ window.TimelineComponent = Vue.component('timeline', {
                     "maxVersion": _.maxBy(session, "timestamp")['version'],
                     "minVersion": _.minBy(session, "timestamp")['version']
                 })).value()
+
             console.dir('Data is Processed Successfully')
+            return sessionGrouped
         },
-        // INFO: motivation for this method is to return fetched into
-        // component data 
-        getOpsJsonTimeline: async function() {
-            this.versioningParsed = await this.getOpsJsonMixin(this.selected)
-        },
-        createDataObject: function() { // INFO: updating vue vis component
-            this.dt = this.sessionGrouped.map(int => ({
+        createDataObject: function(sessionGrouped) { // INFO: updating vue vis component
+            
+            return sessionGrouped.map(int => ({
                 from: new Date(int.minConnectTime),
                 to: new Date(int.maxConnectTime),
                 title: "new",
@@ -161,18 +149,13 @@ window.TimelineComponent = Vue.component('timeline', {
                 group: 'edition',
                 className: 'entry--point--default'
             }))
+            
             console.dir('Data Object is Created Successfully')
         },
     },
     async mounted() {
-        this.getOpsJsonTimeline()
-        // this.intermSession = await this.getHtmlsPerSession()
+        let versioningParsed = await this.getOpsJsonMixin(this.selected)
+        let sessionGrouped = await this.processData(versioningParsed)
+        this.dt = await this.createDataObject(sessionGrouped)
     },
-    updated() {
-        // INFO: every time vis is updated, I am translating html objects to parent
-        // FIXME: use different mechanism in the future
-        // this.$emit('update', this.getHtmlsPerSession())
-        // console.dir("Updated in timeline-component")
-        // console.dir(this.valueSlider)
-    }
 });

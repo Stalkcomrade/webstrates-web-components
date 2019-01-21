@@ -14,9 +14,6 @@ window.OverviewComponent = Vue.component('overview', {
 
 </div>
   `,
-//       <context-menu-component/>
-// <p @contextmenu.prevent="$refs.menu.open> TTT </p>
-
     components: {
         'd3-metric': window.d3Metric,
         'vue-slider': window.vueSlider,

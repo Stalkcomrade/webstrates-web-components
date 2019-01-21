@@ -1,9 +1,9 @@
 // SOLVED: try to avoid calling for methods inside other methods
 // SOLVED: use input/output model instead of watchers
-// TODO: change names and write docs
+// TODO: write docs
 
 window.TimeMachineComponent = Vue.component('time-machine', {
-    mixins: [window.dataFetchMixin],
+    mixins: [window.dataFetchMixin, window.dataObjectsCreator],
     components: {
         'd3-timeline': window.d3Timeline,
     },
@@ -40,7 +40,8 @@ window.TimeMachineComponent = Vue.component('time-machine', {
         },
     },
     async created() {
-        this.options = await this.fetchActivityTimeline()
+        var DaysPromise = await this.fetchDaysOverview((new Date))
+        this.options = this.listOfWebstrates(DaysPromise)
     },
     methods: {
         testSelectRangeMethod: function(dateTimeStart, dateTimeEnd) {

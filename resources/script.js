@@ -85,5 +85,4 @@ webstrate.on('loaded', () => {
 
     window.app = app
 
-
 });

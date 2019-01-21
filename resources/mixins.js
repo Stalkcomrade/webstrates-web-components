@@ -24,11 +24,6 @@ window.mixin = Vue.mixin({
 })
 
 
-window.objectsCreatorMixin = Vue.mixin({
-
-
-})
-
 window.dataFetchMixin = Vue.mixin({
     props: ["monthProp", "yearProp", "maxWebstratesProp"],
     data: () => ({
@@ -43,6 +38,8 @@ window.dataFetchMixin = Vue.mixin({
             let tags = await fetch("https://webstrates.cs.au.dk/" + selected  + "/?tags").then(results => results.json())
             return tags
         },
+        // TODO: userGeneratedTags
+        // TODO: automaticTags - session labels
         // TOOD: range of version instead of a single version
         lastVersion: async function(selected) {
             var versionmax = await fetch("https://webstrates.cs.au.dk/" + selected + "/?v").then(body => body.json())
@@ -52,13 +49,12 @@ window.dataFetchMixin = Vue.mixin({
 
             // FIXME: fetching range of possible versions for the webstrate
             // INFO: currently last one is fetched
-
             // INFO: use default value if no selected id is specified
             let wsId = typeof selected === "undefined" ? "wonderful-newt-54" : selected
             
             // INFO: use last version available if no is specified
             var versionmax = await fetch("https://webstrates.cs.au.dk/" + wsId + "/?v").then(body => body.json())
-            let version = typeof versionmax === "undefined" ? 305 : versionmax.version
+            let version = typeof versionmax === "undefined" ? 1 : versionmax.version
 
             console.dir("VERSION INPUT")
             console.dir(initialVersion)
@@ -148,36 +144,15 @@ window.dataFetchMixin = Vue.mixin({
             })
 
         },
-        // TODO: change name of the function
-        fetchActivityTimeline: function() {
-
-            const month = ((new Date).getMonth() + 1);
-            const maxWebstrates = this.maxWebstrates || 20;
-            const year = Number(this.year) || (new Date).getFullYear();
-
-            return dataFetcher('month').then((days) => {
-
-                let webstrateIds = new Set();
-                let effortTotal = new Set();
-
-                Object.values(days).forEach(day => {
-                    Object.keys(day).forEach(webstrateId => {
-                        webstrateIds.add(webstrateId)
-                    });
-
-                    Object.values(day).forEach(singleEffort => {
-                        effortTotal.add(singleEffort)
-                    })
-                })
-                webstrateIds = Array.from(webstrateIds).sort()
-                console.dir('List of Webstrates Ids is Fetched Successfully')
-                return webstrateIds
-            })
-                .then((body) => {
-                    return body
-                })
+        getToday: function() {
+            return new Date()
         },
-
+        monthBack: function(date){
+            return date.setMonth(date.getMonth() - 1)
+        },
+        monthForward: function(date){
+            return date.setMonth(date.getMonth() + 1)
+        },
         // FIXME: remove this.versioningRaw
         getOpsJsonMixin: function(input) {
             var current = input !== "undefined" ? input : this.selected
@@ -188,6 +163,27 @@ window.dataFetchMixin = Vue.mixin({
                     this.versioningRaw = body
                     return body
                 })
+        }
+    }
+})
+
+window.dataObjectsCreator = Vue.mixin({
+    methods: {
+        listOfWebstrates: function(days) { // INFO: resulted fetched promise should be days object
+
+            let webstrateIds = new Set();
+
+            Object.values(days).forEach(day => {
+                Object.keys(day).forEach(webstrateId => {
+                    webstrateIds.add(webstrateId)
+                })
+            })
+            
+            webstrateIds = Array.from(webstrateIds).sort()
+            console.dir('List of Webstrates Ids is Fetched Successfully')
+            
+            return webstrateIds
+            
         }
     }
 })
@@ -478,10 +474,6 @@ window.network = Vue.mixin({
 
             },
     }
-})
-
-
-window.dataObjectsCreator = Vue.mixin({
 })
 
 window.animationMixin = Vue.mixin({
