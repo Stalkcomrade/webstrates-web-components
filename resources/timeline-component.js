@@ -3,7 +3,6 @@
 // SOLVED: make a simple interface for selections
 // SOLVED: make watchers for selections
 //// SOLVED: fetch htmls on update
-// TODO: try use realtime component instead
 //// INFO: don't need them, v-model brings this functionality
 
 window.TimelineComponent = Vue.component('timeline', {
@@ -154,6 +153,9 @@ window.TimelineComponent = Vue.component('timeline', {
         },
     },
     async mounted() {
+
+        console.dir(this.fetchRangeOfTags("wicked-wombat-56"))
+        
         let versioningParsed = await this.getOpsJsonMixin(this.selected)
         let sessionGrouped = await this.processData(versioningParsed)
         this.dt = await this.createDataObject(sessionGrouped)

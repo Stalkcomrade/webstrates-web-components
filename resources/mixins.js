@@ -38,11 +38,29 @@ window.dataFetchMixin = Vue.mixin({
             let tags = await fetch("https://webstrates.cs.au.dk/" + selected  + "/?tags").then(results => results.json())
             return tags
         },
-        // TODO: userGeneratedTags
-        // TODO: automaticTags - session labels
+        // SOLVED: range of version instead of a single version
+        fetchRangeOfTags: async function(selected) {
+            let tags = await fetch("https://webstrates.cs.au.dk/" + selected  + "/?tags").then(results => results.json())
+            let vSession = []
+            tags.forEach(el => vSession.push(el.v))
+            
+            return vSession
+        },
+        // SOLVED: userGeneratedTags
+        // SOLVED: automaticTags - session labels
+        filterTags: function(tags) {
+            var sessions = tags.filter((el) => {
+                return el.label.indexOf("Session of ") >= 0
+            }),
+            custom = tags.filter((el) => {
+                return el.label.indexOf("Session of ") < 0
+            })
+            return {sessions: sessions, custom: custom}
+        },
         // TOOD: range of version instead of a single version
         lastVersion: async function(selected) {
-            var versionmax = await fetch("https://webstrates.cs.au.dk/" + selected + "/?v").then(body => body.json())
+            var versionmax = await fetch("https://webstrates.cs.au.dk/" + selected + "/?v")
+                .then(body => body.json())
             return versionmax.version
         },
         getHtmlsPerSessionMixin: async function(selected, initialVersion, finalVersion, snapshot) {
