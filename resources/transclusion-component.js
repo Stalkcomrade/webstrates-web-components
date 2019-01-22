@@ -5,15 +5,13 @@ window.transclusionComponent = Vue.component('transclusion', {
     },
     template: `
 <div>
-<br>
-<br>
-<br>
-<br>
 
-
+<br>
+<br>
+<br>
+<br>
 
 <c-m-c ref='ct'/>
-<p @contextmenu.prevent="$refs.ct.$refs.menu.open"> Text </p>
 
 <b-btn variant="info" @click="updateView('copy')">Show Copies</b-btn>
 <b-btn variant="primary" @click="updateView('transclusions')">Show Transclusions</b-btn>
@@ -135,12 +133,20 @@ window.transclusionComponent = Vue.component('transclusion', {
         },
 
         updateView: async function(mode){
-            this.d3Data = mode === "copy" ?  await this.init("short-turtle-55", "type", this.searchCopies, undefined) : await this.init("short-turtle-55", "type", this.sqt, undefined)
+            this.d3Data = mode === "copy"
+                ?  await this.init("short-turtle-55", "type", this.searchCopies, undefined)
+                : await this.init("short-turtle-55", "type", this.sqt, undefined)
         }
     },
     async created() {},
     mounted() {
         // debugger
+
+        // this.initiateTransclusion()
+        // this.createIframe("tasty-lionfish-70")
+        // this.receiveTags("tasty-lionfish-70")
+
+        
         window.this = this
         this.tree = d3.tree().nodeSize([this.dx, this.dy])
         this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
@@ -155,11 +161,6 @@ window.transclusionComponent = Vue.component('transclusion', {
         // let wsId = "tasty-lionfish-70" // copies
         // let wsId = "short-turtle-55" // transclusions
         
-        // SOLVED: parse tags
-        // this.fetchTags("wicked-wombat-56")
-        // this.htmlString = await this.getHtmlsPerSessionMixin("short-turtle-55", undefined, undefined, true)
-
-        // tasty-lionfish-70
 
         
     }

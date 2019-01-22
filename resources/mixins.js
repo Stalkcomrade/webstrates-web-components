@@ -241,7 +241,6 @@ window.network = Vue.mixin({
     watch: {
         d3Data() {
             console.dir("INSIDE d3Data Watcher")
-            
             var container = {
                 name: "main",
                 children: this.d3Data
@@ -327,7 +326,8 @@ window.network = Vue.mixin({
                     value: item,
                     name: item.getAttribute("__wid"),
                     parent: item.parentElement.getAttribute("__wid"),
-                    children: (item.children ? this.sq(item.children) : "No Children")
+                    children: (item.children ? this.sq(item.children) : "No Children"),
+                    innerText: item.innerText
                 }
                 target.push(children)
             }
@@ -350,10 +350,11 @@ window.network = Vue.mixin({
         },
 
         // INFO: copy or transclusion are local functions
+        // init: function(input, type, copy, transclusion) {
         init: function(input, type, copy, transclusion) {
 
-            if (type !== "undefined") {
-
+            if (typeof type !== "undefined") {
+                
                 // TODO: swtich case
                 return copy(input)
 
@@ -374,7 +375,7 @@ window.network = Vue.mixin({
             }
         },
 
-         update: function(source) {
+        update: function(source) {
                 // SOLVED: root is not calculated
                 // SOLVED: Messed up source and root
                 const duration = d3.event && d3.event.altKey ? 2500 : 250;
@@ -416,8 +417,13 @@ window.network = Vue.mixin({
                         self.update(d)
                         this.currentInnerText = d.data.innerText
                     })
-                    .on("contextmenu", function(d, i) {
+                    .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
                         d3.event.preventDefault();
+                        if (typeof self !== "undefined"){
+                            // console.dir(d.data)
+                            self.$refs.ct.$refs.menu.open(self.$event, d.data.value)
+                        }
+                        console.dir(d)
                     })
                     .on("mouseover", (d) => {})
 
@@ -497,4 +503,44 @@ window.network = Vue.mixin({
 window.animationMixin = Vue.mixin({
 })
 
+window.transclusion = Vue.mixin({
+    data: () => ({
+        docContainer: '',
+        docIframeTransient: ''
+    }),
+    methods: {
+        initiateTransclusion: function() {
+            // this.docContainer = document.getElementById("trans-container")
+            this.docContainer = document.getElementById("mainBody")
+            this.docIframeTransient = document.createElement("transient")
+            this.docContainer.appendChild(this.docIframeTransient)
+        },
+        createIframe: function(webstrateId){
+
+            var docIframe = document.createElement("iframe")
+            
+	    docIframe.setAttribute("src",  "/" + webstrateId + "/")
+	    docIframe.setAttribute("id", webstrateId)
+            docIframe.setAttribute("style", "display: none;")
+            
+	    this.docIframeTransient.appendChild(docIframe)
+
+        },
+        receiveTags: function(webstrateId){
+
+            var tr = document.getElementById(webstrateId)
+
+            tr.webstrate.on("transcluded", (iframeWebstrateId) => {
+                
+                console.dir("Transclusion done")
+                console.dir(iframeWebstrateId)
+                console.dir(tr.contentWindow.webstrate.tags())
+                
+                tr.contentWindow.webstrate.tag("CUSTOM")
+                tr.remove()
+            })
+            
+        }
+    }
+})
 

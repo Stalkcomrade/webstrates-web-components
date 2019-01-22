@@ -1,13 +1,20 @@
 // SOLVED: make a new component
 ////// SOLVED: initiate new nested component for diffs
 ////// SOLVED: try to use render for this purpose
+
+// INFO: Here I am waiting for data from a child component
+// FIXME: conisider different versions
+// timeline-component.js - after that I am reading parsing htmls and building trees
+
 //// TODO: prepare data structure for the versions
 
 // INFO: if there are gonna be issues, check mixins
 window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     mixins: [window.dataFetchMixin, window.network],
     template: `
+
 <div>
+
 <br>
 <br>
 
@@ -18,7 +25,9 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 </b-row>
 
 <b-row>
+  <b-col sm="6">
  <component :is="dynamicComponentDiff" />
+  </b-col>
 </b-row>
 
   <b-row>
@@ -86,8 +95,10 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
             var one = 'beep boop',
                 other = 'beep boob blah'
 
+            // TODO: diff chars
             // var diff = window.jsdiffTrue.diffChars(one, other)
             var diff = window.jsdiffTrue.diffLines(this.currentVersionSentences[0], this.currentVersionSentences[1])
+            window.ttt = diff
 
             return {
                 render(h) {
@@ -117,10 +128,6 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
         this.getSelectors()
 
-        // INFO: Here I am waiting for data from a child component
-        // FIXME: conisider different versions
-        // timeline-component.js - after that I am reading parsing htmls and building trees
-
         let containerTmp = await this.getHtmlsPerSessionMixin("wonderful-newt-54", 3, undefined, false)
         this.htmlString = containerTmp[0]
         this.htmlStringLatest = containerTmp[1]
@@ -132,16 +139,16 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
 
         // SOLVED: make init to have an input
-       
-        this.d3Data = await this.init(this.htmlObject)
-        this.d3DataLatest = await this.init(this.htmlObjectVersioned)
+        this.d3Data = await this.init(this.htmlObject, undefined, undefined, undefined)
+        this.d3DataLatest = await this.init(this.htmlObjectVersioned, undefined, undefined, undefined)
 
         function findSelectedInList(list, propertyName, valueFilter){
             let selected;
-            if (typeof Object.values(list) != "undefined" && typeof Object.values(list) != "undefined") {
+            
+            if (typeof Object.values(list) != "undefined") {
                 Object.values(list).some((currentItem) => {
                     if (typeof currentItem != null) {
-                        if (typeof currentItem[propertyName] != "undefined" | typeof currentItem[propertyName] != null) {
+                        if (typeof currentItem[propertyName] !== "undefined" | typeof currentItem[propertyName] != null) {
                             currentItem[propertyName] === valueFilter ?
                             selected = currentItem.innerText :
                                 (typeof currentItem.children != "undefined" && findSelectedInList(currentItem.children, propertyName, valueFilter))
@@ -154,8 +161,10 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         
         this.$watch(
             vm => ([vm.rootInstanceLatest, vm.rootInstance].join()), val =>  {
+                
                 console.dir("WATCHER!!!")
-
+                // console.dir(findSelectedInList(this.rootInstanceLatest.data.children, "name", "VDnPvJ36"))
+                
                 this.currentVersionSentences = []
                 this.currentVersionSentences.push(findSelectedInList(this.rootInstanceLatest.data.children, "name", "VDnPvJ36"))
                 this.currentVersionSentences.push(findSelectedInList(this.rootInstance.data.children, "name", "VDnPvJ36"))
