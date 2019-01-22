@@ -5,16 +5,44 @@ const userId = webstrate.user.userId // const userId = 'Stalkcomrade:github'
 console.dir("WS User ID:")
 console.dir(userId)
 
-// SOLVED: redirect ti github for auth
-// TODO: ask for redirection backe to ws (backend?)
-var watchAuth = function() {
-    window.location.replace("https://webstrates.cs.au.dk/auth/github")
+// SOLVED: identify server
+
+var getServer = function() {
+    
+    if (window.location.href.indexOf("webstrates.r2.enst.fr") > -1) {
+        var serverAdress = 'https://webstrates.r2.enst.fr/'
+    } else {
+        var serverAdress = 'https://webstrates.cs.au.dk/'
+    }
+    
+    return serverAdress
 }
+
+var checkServer = function(serverAdress) {
+    
+    if (serverAdress === "https://webstrates.cs.au.dk/") {
+        var wsLocal = new WebSocket('wss://webstrates.cs.au.dk/_monitor')
+    } else {
+        var wsLocal = new WebSocket('wss://webstrates.r2.enst.fr/_monitor')
+    }
+
+    return wsLocal
+}
+
+const serverAdress = getServer()
+const ws = checkServer(serverAdress)
+
+
+// SOLVED: redirect ti github for auth
+// TODO: ask for redirection back to ws (backend?)
+
+var watchAuth = function(serverAdress) {
+    serverAdress === "https://webstrates.cs.au.dk/" && window.location.replace("https://webstrates.cs.au.dk/auth/github")
+}
+
 userId === "anonymous:" && watchAuth()
 
-
-const ws = new WebSocket('wss://webstrates.cs.au.dk/_monitor');
-
+// const ws = new WebSocket('wss://webstrates.cs.au.dk/_monitor');
 // Generate random string to be used as tokens.
 const randomString = () => Math.random().toString(36).substring(2);
 
