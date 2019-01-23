@@ -364,7 +364,7 @@ window.network = Vue.mixin({
                 d._children = d.children
                 if (d.depth && d.data.name.length !== 7) d.children = null
             })
-            console.dir(hierarchyTemp)
+            // console.dir(hierarchyTemp)
             return hierarchyTemp
         },
 
@@ -403,6 +403,10 @@ window.network = Vue.mixin({
         update: function(source, alignment) { // INFO: update now has input for different graph alignment
                 // SOLVED: root is not calculated
             // SOLVED: Messed up source and root
+
+            // INFO: Checking, which version of diagonal fun is used 
+            // window.diagonal = this.diagonal
+            this.diagonal = this.layoutLinks("right")
             
                 const duration = d3.event && d3.event.altKey ? 2500 : 250;
                 const nodes = this.rootInstance.descendants().reverse()
@@ -422,7 +426,7 @@ window.network = Vue.mixin({
                 var self = this
 
             // INFO: compute viewBox params here
-            let viewBoxInst = alignment === "right" ? -this.margin.left*20 : -this.margin.left
+            let viewBoxInst = alignment === "left" ? -this.margin.left : -this.margin.left * 20
             
                 const transition = this.svg
                       .transition()
@@ -449,7 +453,7 @@ window.network = Vue.mixin({
                     .on("click", (d) => {
                         d.children = d.children ? null : d._children
                         self.update(d, alignment)
-                        // this.currentInnerText = d.data.innerText
+                        this.currentInnerText = d.data.innerText
                     })
                     .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
                         d3.event.preventDefault();
@@ -457,9 +461,9 @@ window.network = Vue.mixin({
                             // console.dir(d.data)
                             self.$refs.ct.$refs.menu.open(self.$event, d.data.value)
                         }
-                        console.dir(d)
+                        // console.dir(d)
                     })
-                    .on("mouseover", (d) => {})
+                    // .on("mouseover", (d) => {})
 
                 nodeEnter.append("circle")
                     .attr("r", 2.5)
