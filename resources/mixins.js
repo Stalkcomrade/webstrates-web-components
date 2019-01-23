@@ -253,7 +253,10 @@ window.network = Vue.mixin({
         }},
     computed: {
         viewBox() {
-            return [-this.margin.left, -this.margin.top, this.width, this.dx]
+            return [-this.margin.left*20, -this.margin.top, this.width, this.dx]
+        },
+        svgViewBox() {
+            return [-this.margin.left*12, -this.margin.top, this.width, this.dx]
         }
     },
     methods: {
@@ -341,7 +344,7 @@ window.network = Vue.mixin({
                     name: item.getAttribute("__wid"),
                     parent: item.parentElement.getAttribute("__wid"),
                     children: (item.children ? this.sq(item.children) : "No Children"),
-                    innerText: item.innerText
+                    // innerText: item.innerText
                 }
                 target.push(children)
             }
@@ -354,8 +357,8 @@ window.network = Vue.mixin({
         // SOLVED: changing root from computed to function
         root: function(data) {
             var hierarchyTemp = d3.hierarchy(data)
-            hierarchyTemp.x0 = this.dy / 2
-            hierarchyTemp.y0 = 0
+            hierarchyTemp.x0 = this.dy / 2 + 500
+            hierarchyTemp.y0 = 0 + 500
             hierarchyTemp.descendants().forEach((d, i) => {
                 d.id = i
                 d._children = d.children
@@ -371,29 +374,36 @@ window.network = Vue.mixin({
 
             if (typeof type !== "undefined") {
 
-                console.dir(mode)
+                // console.dir(mode)
                 return mode(input)
 
             } else {
-
-            
-            if (typeof input !== "undefined"){
-                console.dir("init starts")
-                var $el = input.getElementsByTagName("BODY")[0]
-                var el = $el.children[0]
-                return this.sq(el.children)
-            } else {
-                console.dir("init starts")
-                var $el = this.htmlObject.getElementsByTagName("BODY")[0]
-                window.el = $el.children[0]
-                return this.sq(window.el.children)
-            }
+                
+                if (typeof input !== "undefined"){
+                    // console.dir("init starts")
+                    var $el = input.getElementsByTagName("BODY")[0]
+                    var el = $el.children[0]
+                    return this.sq(el.children)
+                } else {
+                    // console.dir("init starts")
+                    var $el = this.htmlObject.getElementsByTagName("BODY")[0]
+                    window.el = $el.children[0]
+                    return this.sq(window.el.children)
+                }
             }
         },
 
-        update: function(source) {
+        layoutLinks: function(alignment) {    // INFO: firstly, I need to wrap diagonal to method with the alignment side (lef/right)
+            var linkFun = alignment === "left"
+                ? d3.linkHorizontal().x(d => d.y).y(d => d.x)
+                : d3.linkHorizontal().x(d => -d.y).y(d => d.x)
+            return linkFun
+        },
+        
+        update: function(source, alignment) { // INFO: update now has input for different graph alignment
                 // SOLVED: root is not calculated
-                // SOLVED: Messed up source and root
+            // SOLVED: Messed up source and root
+            
                 const duration = d3.event && d3.event.altKey ? 2500 : 250;
                 const nodes = this.rootInstance.descendants().reverse()
                 const links = this.rootInstance.links()
@@ -407,15 +417,21 @@ window.network = Vue.mixin({
                     if (node.x > right.x) right = node
                 });
 
-                const height = right.x - left.x + this.margin.top + this.margin.bottom
+                const height = right.x - left.x + this.margin.top + this.margin.bottom + 250
 
                 var self = this
 
+            // INFO: compute viewBox params here
+            let viewBoxInst = alignment === "right" ? -this.margin.left*20 : -this.margin.left
+            
                 const transition = this.svg
-                    .transition()
-                    .duration(duration)
-                    .attr("height", height)
-                    .attr("viewBox", [-this.margin.left, left.x - this.margin.top, this.width, height])
+                      .transition()
+                      .duration(duration)
+                      .attr("height", height)
+                      .attr("viewBox", [viewBoxInst,
+                                        left.x - this.margin.top,
+                                        this.width,
+                                        height])
                     .tween("resize", window.ResizeObserver ? null : () => () => self.svg
                         .dispatch("toggle"));
 
@@ -425,13 +441,15 @@ window.network = Vue.mixin({
 
                 // Enter any new nodes at the parent's previous position.
                 const nodeEnter = node.enter().append("g")
-                    .attr("transform", d => `translate(${source.y0},${source.x0})`)
+                      .attr("transform", d => alignment === "left"
+                            ? `translate(${source.y0},${source.x0})`
+                            : `translate(${source.y0 - 2*source.y0},${source.x0})`)
                     .attr("fill-opacity", 0)
                     .attr("stroke-opacity", 0)
                     .on("click", (d) => {
                         d.children = d.children ? null : d._children
-                        self.update(d)
-                        this.currentInnerText = d.data.innerText
+                        self.update(d, alignment)
+                        // this.currentInnerText = d.data.innerText
                     })
                     .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
                         d3.event.preventDefault();
@@ -460,13 +478,17 @@ window.network = Vue.mixin({
 
                 // Transition nodes to their new position.
                 const nodeUpdate = node.merge(nodeEnter).transition(transition)
-                    .attr("transform", d => `translate(${d.y},${d.x})`)
+                      .attr("transform", d => alignment === "left"
+                            ? `translate(${d.y},${d.x})`
+                            : `translate(${d.y - 2*d.y},${d.x})`)
                     .attr("fill-opacity", 1)
                     .attr("stroke-opacity", 1);
 
                 // Transition exiting nodes to the parent's new position.
                 const nodeExit = node.exit().transition(transition).remove()
-                    .attr("transform", d => `translate(${source.y},${source.x})`)
+                      .attr("transform", d => alignment === "left"
+                            ? `translate(${source.y},${source.x})`
+                            : `translate(${source.y - 2*source.y},${source.x})`)
                     .attr("fill-opacity", 0)
                     .attr("stroke-opacity", 0);
 
@@ -514,9 +536,6 @@ window.network = Vue.mixin({
 
             },
     }
-})
-
-window.animationMixin = Vue.mixin({
 })
 
 window.transclusion = Vue.mixin({

@@ -18,6 +18,8 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 <br>
 <br>
 
+<a id="downloadAnchorElem" ref="tst" style="display:none"></a>
+
 <b-container class="container-fluid">
 
 <b-row>
@@ -36,7 +38,8 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
       </div>
       <svg
         id="svgMain"
-        :width="width" :height="dx" :viewBox="viewBox"
+        :width="width" :height="dx" 
+        :viewBox="svgViewBox"
         style="font: 10px sans-serif; user-select: none;">
 
         <g
@@ -72,7 +75,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 children: this.d3Data
             }
             this.rootInstance = this.root(container)
-            this.update(this.rootInstance)
+            this.update(this.rootInstance, "right")
         },
         // SOLVED: add second watcher
         d3DataLatest() {
@@ -98,7 +101,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
             // TODO: diff chars
             // var diff = window.jsdiffTrue.diffChars(one, other)
             var diff = window.jsdiffTrue.diffLines(this.currentVersionSentences[0], this.currentVersionSentences[1])
-            window.ttt = diff
+            // window.ttt = diff
 
             return {
                 render(h) {
@@ -125,7 +128,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     async mounted() {
 
         this.tree = d3.tree().nodeSize([this.dx, this.dy])
-        this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
+        this.diagonal = this.layoutLinks("right")
         this.getSelectors()
 
         let containerTmp = await this.getHtmlsPerSessionMixin("wonderful-newt-54", 3, undefined, false)
