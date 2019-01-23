@@ -35,12 +35,12 @@ window.dataFetchMixin = Vue.mixin({
     }),
     methods: {
         fetchTags: async function(selected) {
-            let tags = await fetch("https://webstrates.cs.au.dk/" + selected  + "/?tags").then(results => results.json())
+            let tags = await fetch(window.serverAddress + selected  + "/?tags").then(results => results.json())
             return tags
         },
         // SOLVED: range of version instead of a single version
         fetchRangeOfTags: async function(selected) {
-            let tags = await fetch("https://webstrates.cs.au.dk/" + selected  + "/?tags").then(results => results.json())
+            let tags = await fetch(window.serverAddress + selected  + "/?tags").then(results => results.json())
             let vSession = []
             tags.forEach(el => vSession.push(el.v))
             
@@ -59,7 +59,7 @@ window.dataFetchMixin = Vue.mixin({
         },
         // TOOD: range of version instead of a single version
         lastVersion: async function(selected) {
-            var versionmax = await fetch("https://webstrates.cs.au.dk/" + selected + "/?v")
+            var versionmax = await fetch(window.serverAddress + selected + "/?v")
                 .then(body => body.json())
             return versionmax.version
         },
@@ -71,7 +71,8 @@ window.dataFetchMixin = Vue.mixin({
             let wsId = typeof selected === "undefined" ? "wonderful-newt-54" : selected
             
             // INFO: use last version available if no is specified
-            var versionmax = await fetch("https://webstrates.cs.au.dk/" + wsId + "/?v").then(body => body.json())
+            // console.dir(window.serverAddress)
+            var versionmax = await fetch(window.serverAddress + wsId + "/?v").then(body => body.json())
             let version = typeof versionmax === "undefined" ? 1 : versionmax.version
 
             console.dir("VERSION INPUT")
@@ -81,7 +82,7 @@ window.dataFetchMixin = Vue.mixin({
 
                 console.dir("SINGLE VERSION inside SESSION FETCHING")
 
-                let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + version + "/?raw")
+                let webpageInitial = await fetch(window.serverAddress + wsId + "/" + version + "/?raw")
                 let htmlResultInitial = await webpageInitial.text()
                 console.dir('html is fetched successfully')
                 
@@ -97,14 +98,14 @@ window.dataFetchMixin = Vue.mixin({
                 let numberInitial = typeof initialVersion === "undefined"  ? 1 : initialVersion
                 let numberLast = typeof finalVersion === "undefined" ? 2 : finalVersion // INFO: if undefined, simply last version
 
-                let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + numberInitial + "/?raw")
+                let webpageInitial = await fetch(window.serverAddress + wsId + "/" + numberInitial + "/?raw")
                 let htmlResultInitial = await webpageInitial.text()
-                let webpageInitialJson = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + numberInitial + "/?json")
+                let webpageInitialJson = await fetch(window.serverAddress + wsId + "/" + numberInitial + "/?json")
                 let htmlResultInitialJson = await webpageInitialJson.text()
 
-                let webpageLast = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + numberLast + "/?raw")
+                let webpageLast = await fetch(window.serverAddress + wsId + "/" + numberLast + "/?raw")
                 let htmlResultLast = await webpageLast.text()
-                let webpageLastJson = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + numberLast + "/?json")
+                let webpageLastJson = await fetch(window.serverAddress + wsId + "/" + numberLast + "/?json")
                 let htmlResultLastJson = await webpageLastJson.text()
 
                 let results = await Promise.all([
@@ -174,7 +175,7 @@ window.dataFetchMixin = Vue.mixin({
         // FIXME: remove this.versioningRaw
         getOpsJsonMixin: function(input) {
             var current = input !== "undefined" ? input : this.selected
-            return fetch("https://webstrates.cs.au.dk/" + current + "/?ops")
+            return fetch(window.serverAddress + current + "/?ops")
                 .then((html) => { return html.json() })
                 .then((body) => {
                     console.log('Fetched:\n', current)
@@ -239,6 +240,7 @@ window.network = Vue.mixin({
         }
     }),
     watch: {
+        // TODO: decide on whether merge watchers
         d3Data() {
             console.dir("INSIDE d3Data Watcher")
             var container = {
@@ -314,6 +316,18 @@ window.network = Vue.mixin({
             }
         },
 
+        removeChildren: function() {
+            var myNode = document.getElementById("gLink")
+            while (myNode.firstChild) {
+                myNode.removeChild(myNode.firstChild);
+            }
+
+            myNode = document.getElementById("gNode")
+            while (myNode.firstChild) {
+                myNode.removeChild(myNode.firstChild);
+            }
+        },
+        
         sq: function(input) {
 
             var target = [] // INFO: local-global scope
@@ -335,6 +349,8 @@ window.network = Vue.mixin({
             return target
         },
 
+        
+
         // SOLVED: changing root from computed to function
         root: function(data) {
             var hierarchyTemp = d3.hierarchy(data)
@@ -351,12 +367,12 @@ window.network = Vue.mixin({
 
         // INFO: copy or transclusion are local functions
         // init: function(input, type, copy, transclusion) {
-        init: function(input, type, copy, transclusion) {
+        init: function(input, type, mode) {
 
             if (typeof type !== "undefined") {
-                
-                // TODO: swtich case
-                return copy(input)
+
+                console.dir(mode)
+                return mode(input)
 
             } else {
 

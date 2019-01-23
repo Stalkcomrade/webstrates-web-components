@@ -1,5 +1,5 @@
 window.transclusionComponent = Vue.component('transclusion', {
-    mixins: [window.dataFetchMixin, window.network],
+    mixins: [window.dataFetchMixin, window.dataObjectsCreator, window.network],
     components: {
         'c-m-c': window.cmc
     },
@@ -13,8 +13,18 @@ window.transclusionComponent = Vue.component('transclusion', {
 
 <c-m-c ref='ct'/>
 
-<b-btn variant="info" @click="updateView('copy')">Show Copies</b-btn>
-<b-btn variant="primary" @click="updateView('transclusions')">Show Transclusions</b-btn>
+<b-btn variant="info" @click="updateView(selected, 'copy')">Show Copies</b-btn>
+<b-btn variant="primary" @click="updateView(selected, 'transclusions')">Show Transclusions</b-btn>
+
+<br>
+<br>
+<br>
+
+    <select v-model="selected">
+          <option v-for="option in options" v-bind:value="option">
+               {{ option }}
+          </option>
+        </select>
 
 <br>
 <br>
@@ -26,6 +36,7 @@ window.transclusionComponent = Vue.component('transclusion', {
                       <div class="treeD3" id="tree-container"></div>
   <svg
         id="svgMain"
+        ref="svgMain"
         :width="width" :height="dx" :viewBox="viewBox"
         style="font: 10px sans-serif; user-select: none;">
 
@@ -44,6 +55,16 @@ window.transclusionComponent = Vue.component('transclusion', {
 
 </div>
 `,
+    watch: {
+        selected: function(newValue, oldValue) {
+            console.dir("Initial State Watch in time-machine-component.js")
+            // this.updateView(newValue)
+        },
+    },
+    data: () => ({
+        selected: 'short-turtle-55', // INFO: default value
+        options: ''
+    }),
     methods: {
         
         extractSummary: function(input) {
@@ -83,6 +104,8 @@ window.transclusionComponent = Vue.component('transclusion', {
         
         searchCopies: async function(input){
 
+            console.dir("Copies")
+            
             var target = [],
                 children = []
             
@@ -104,6 +127,8 @@ window.transclusionComponent = Vue.component('transclusion', {
         },
 
         sqt: async function(input){
+
+            console.dir("Transclusion")
 
             var htmlParsed = await this.getHtmlsPerSessionMixin(input, undefined, undefined, true)
             var prs = this.extractSummary(htmlParsed)
@@ -132,36 +157,43 @@ window.transclusionComponent = Vue.component('transclusion', {
 
         },
 
-        updateView: async function(mode){
-            this.d3Data = mode === "copy"
-                ?  await this.init("short-turtle-55", "type", this.searchCopies, undefined)
-                : await this.init("short-turtle-55", "type", this.sqt, undefined)
+        updateView: async function(selected, mode){
+
+            this.removeChildren() // INFO: Deleting old DOM nodes
+            
+            var input = typeof selected !== "undefined"
+                ? this.selected
+                : selected
+
+            this.d3Data = mode == "copy"
+                ? await this.init(input, "type", this.searchCopies)
+                : await this.init(input, "type", this.sqt)
         }
     },
-    async created() {},
+    async created() {
+        var DaysPromise = await this.fetchDaysOverview((new Date))
+        this.options = this.listOfWebstrates(DaysPromise)
+    },
     mounted() {
         // debugger
 
         // this.initiateTransclusion()
         // this.createIframe("tasty-lionfish-70")
         // this.receiveTags("tasty-lionfish-70")
-
         
-        window.this = this
         this.tree = d3.tree().nodeSize([this.dx, this.dy])
         this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
         this.getSelectors()
 
         // INFO: Creating graph
-        this.d3Data = this.init("short-turtle-55", "type", this.sqt, undefined)
+        // INFO: searching for copies by default
+        this.d3Data = this.init("short-turtle-55", "type", this.searchCopies, undefined)
 
         // let wsId = "massive-skunk-85"
         // let wsId = "hungry-cat-75"
         // let wsId = "wonderful-newt-54/"
         // let wsId = "tasty-lionfish-70" // copies
         // let wsId = "short-turtle-55" // transclusions
-        
-
         
     }
 })

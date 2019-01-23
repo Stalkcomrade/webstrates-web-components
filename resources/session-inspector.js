@@ -68,7 +68,7 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
         //     // FIXME: comment this
         //     let wsId = "wonderful-newt-54"
         //     let version = 305
-        //     let webpageInitial = await fetch("https://webstrates.cs.au.dk/" + wsId + "/" + version + "/?raw")
+        //     let webpageInitial = await fetch(window.serverAddress + wsId + "/" + version + "/?raw")
         //     let htmlResultInitial = await webpageInitial.text()
         //     console.dir('html is fetched successfully')
         //     return htmlResultInitial

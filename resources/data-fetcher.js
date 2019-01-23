@@ -1,5 +1,6 @@
 // const userId = 'cklokmose:github' //webstrate.user.userId;
 // const userId = 'Stalkcomrade:github'
+
 // SOLVED: Promise for userID? - works without workarounds
 const userId = webstrate.user.userId // const userId = 'Stalkcomrade:github'
 console.dir("WS User ID:")
@@ -10,17 +11,17 @@ console.dir(userId)
 var getServer = function() {
     
     if (window.location.href.indexOf("webstrates.r2.enst.fr") > -1) {
-        var serverAdress = 'https://webstrates.r2.enst.fr/'
+        var serverAddress = 'https://webstrates.r2.enst.fr/'
     } else {
-        var serverAdress = 'https://webstrates.cs.au.dk/'
+        var serverAddress = 'https://webstrates.cs.au.dk/'
     }
     
-    return serverAdress
+    return serverAddress
 }
 
-var checkServer = function(serverAdress) {
+var checkServer = function(serverAddress) {
     
-    if (serverAdress === "https://webstrates.cs.au.dk/") {
+    if (serverAddress === "https://webstrates.cs.au.dk/") {
         var wsLocal = new WebSocket('wss://webstrates.cs.au.dk/_monitor')
     } else {
         var wsLocal = new WebSocket('wss://webstrates.r2.enst.fr/_monitor')
@@ -29,15 +30,14 @@ var checkServer = function(serverAdress) {
     return wsLocal
 }
 
-const serverAdress = getServer()
-const ws = checkServer(serverAdress)
-
+const serverAddress = window.serverAddress = getServer()
+const ws = checkServer(serverAddress)
 
 // SOLVED: redirect ti github for auth
 // TODO: ask for redirection back to ws (backend?)
 
-var watchAuth = function(serverAdress) {
-    serverAdress === "https://webstrates.cs.au.dk/" && window.location.replace("https://webstrates.cs.au.dk/auth/github")
+var watchAuth = function(serverAddress) {
+    serverAddress === "https://webstrates.cs.au.dk/" && window.location.replace("https://webstrates.cs.au.dk/auth/github")
 }
 
 userId === "anonymous:" && watchAuth()

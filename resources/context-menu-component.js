@@ -27,7 +27,7 @@ window.cmc = Vue.component('c-m-c', {
             console.dir(webstrateId)
         },
         visitCurrentWebstrate: function(webstrateId) {
-            window.location.replace("https://webstrates.cs.au.dk/" + webstrateId + "/")
+            window.location.replace(window.serverAddress + webstrateId + "/")
         },
         copyCurrentWebstrate: function(webstrateId) {
             // http://<hostname>/<webstrateId>?restore=<versionOrTag>

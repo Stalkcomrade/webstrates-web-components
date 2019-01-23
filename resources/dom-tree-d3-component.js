@@ -7,8 +7,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 <br>
 <br>
 <br>
-<button @contextmenu="handler($event)">r-click</button>
-  
 
 <b-container class="container-fluid">
   <b-row>
