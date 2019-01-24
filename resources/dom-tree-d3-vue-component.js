@@ -33,7 +33,25 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 </b-row>
 
   <b-row>
-    <b-col class="col-md-10">
+    <b-col class="col-md-5">
+      <div class="treeD3" id="tree-container">
+      </div>
+      <svg
+        id="svgMain"
+        :width="width" :height="dx" 
+        :viewBox="svgViewBox"
+        style="font: 10px sans-serif; user-select: none;">
+
+        <g
+          id="gLink"
+          fill="none" stroke="#555" stroke-opacity="0.4" stroke-width="1.5"> </g>
+        <g
+          id="gNode"
+          cursor="pointer"> </g> 
+      </svg>
+    </b-col>
+
+<b-col class="col-md-5">
       <div class="treeD3" id="tree-container">
       </div>
       <svg

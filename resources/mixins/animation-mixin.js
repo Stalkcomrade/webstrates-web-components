@@ -1,3 +1,5 @@
+// TODO: https://medium.com/@tkwebdev/how-to-create-a-staggered-animation-for-paginated-list-in-vue-js-3f887f201456
+
 window.animationMixin = Vue.mixin({
     
 })
