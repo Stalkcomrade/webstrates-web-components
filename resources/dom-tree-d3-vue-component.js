@@ -8,9 +8,20 @@
 
 //// TODO: prepare data structure for the versions
 
+
+
+
+// <b-row>
+//  <component :is="dynamicComponent" />
+// </b-row>
+
 // INFO: if there are gonna be issues, check mixins
 window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     mixins: [window.dataFetchMixin, window.network],
+    components: {
+        'TimelineComponent': window.TimelineComponent,
+        'diff-vue-component': window.diffVueComponent
+    },
     template: `
 
 <div>
@@ -18,17 +29,14 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 <br>
 <br>
 
-<a id="downloadAnchorElem" ref="tst" style="display:none"></a>
-
 <b-container class="container-fluid">
 
 <b-row>
- <component :is="dynamicComponent" />
-</b-row>
-
-<b-row>
-  <b-col sm="6">
- <component :is="dynamicComponentDiff" />
+  <b-col sm="3">
+    <diff-vue-component 
+              :rootInstanceProp="currentToChild"
+              mode="patch">
+    </diff-vue-component>
   </b-col>
 </b-row>
 
@@ -77,14 +85,12 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 
 </div>
         `,
-    components: {
-        'TimelineComponent': window.TimelineComponent
-    },
     data: () => ({
         inputVersion: '',
         currentInnerText: '',
         htmlString: '',
         htmlStringLatest: '',
+        currentVersionSentences: [],
     }),
     watch: {
         d3Data() {
@@ -106,43 +112,16 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         },
     },
     computed: {
-        dynamicComponent: function() {
-            return {
-                template: `<div>${this.currentVersionSpan}</div>`,
-                }
+        currentToChild() {
+            return this.currentVersionSentences
         },
-        dynamicComponentDiff: function() {
-            
-            var one = 'beep boop',
-                other = 'beep boob blah'
-
-            // TODO: diff chars
-            // var diff = window.jsdiffTrue.diffChars(one, other)
-            var diff = window.jsdiffTrue.diffLines(this.currentVersionSentences[0], this.currentVersionSentences[1])
-            // window.ttt = diff
-
-            return {
-                render(h) {
-                    return h('div', {
-                        'class': 'omg'
-                    },
-                                 [h('pre', {'id': 'display'},
-                                   diff.map(el => (h('span', // SOLVED: returning array in a map 
-                                                    {
-                                                        style: {'color': el.added ? 'green' :
-                                                                el.removed ? 'red' : 'grey'},
-                                                        domProps: {
-                                                            innerHTML: el.value
-                                                        }
-                                                    }))
-                                           ))]
-                            )
-                }
-            }
-            }
+        // dynamicComponent: function() {
+        //     return {
+        //         template: `<div>${this.currentVersionSpan}</div>`,
+        //         }
+        // },
     },
-    methods: {
-    },
+    methods: {},
     async mounted() {
 
         this.tree = d3.tree().nodeSize([this.dx, this.dy])
@@ -163,37 +142,29 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         this.d3Data = await this.init(this.htmlObject, undefined, undefined, undefined)
         this.d3DataLatest = await this.init(this.htmlObjectVersioned, undefined, undefined, undefined)
 
-        function findSelectedInList(list, propertyName, valueFilter){
-            let selected;
-            
-            if (typeof Object.values(list) != "undefined") {
-                Object.values(list).some((currentItem) => {
-                    if (typeof currentItem != null) {
-                        if (typeof currentItem[propertyName] !== "undefined" | typeof currentItem[propertyName] != null) {
-                            currentItem[propertyName] === valueFilter ?
-                            selected = currentItem.innerText :
-                                (typeof currentItem.children != "undefined" && findSelectedInList(currentItem.children, propertyName, valueFilter))
-                        }
-                    }
-                }
-                                        )}
-            return selected
-        }
-        
         this.$watch(
+
+            // INFO: watching for data and creating prop for child component
             vm => ([vm.rootInstanceLatest, vm.rootInstance].join()), val =>  {
                 
-                console.dir("WATCHER!!!")
-                // console.dir(findSelectedInList(this.rootInstanceLatest.data.children, "name", "VDnPvJ36"))
-                
-                this.currentVersionSentences = []
-                this.currentVersionSentences.push(findSelectedInList(this.rootInstanceLatest.data.children, "name", "VDnPvJ36"))
-                this.currentVersionSentences.push(findSelectedInList(this.rootInstance.data.children, "name", "VDnPvJ36"))
-                
-                var diff = new window.Diff(); 
-                var textDiff = diff.main("tre[0]", "tre[1]"); // produces diff array
-                this.currentVersionSpan = diff.prettyHtml(textDiff)
+                // INFO: this as a prop to childthis.currentVersionSentences
+                // INFO: first goes earlier versions
+                var containerVersionSentences = []
 
+                console.dir(this.rootInstanceLatest)
+                
+                containerVersionSentences.push({
+                    'data': this.rootInstanceLatest.data,
+                    'field': "name",
+                    'value': "VDnPvJ36"})
+                
+                containerVersionSentences.push({
+                    'data': this.rootInstance.data,
+                    'field': "name",
+                    'value': "VDnPvJ36"})
+                
+                this.currentVersionSentences = containerVersionSentences // INFO: to avoid evoking component before data is ready
+            
             },
         )
         

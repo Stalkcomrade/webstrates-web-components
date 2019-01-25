@@ -344,7 +344,7 @@ window.network = Vue.mixin({
                     name: item.getAttribute("__wid"),
                     parent: item.parentElement.getAttribute("__wid"),
                     children: (item.children ? this.sq(item.children) : "No Children"),
-                    // innerText: item.innerText
+                    innerText: item.innerText
                 }
                 target.push(children)
             }
