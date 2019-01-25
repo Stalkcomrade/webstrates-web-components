@@ -1,4 +1,5 @@
 // SOLVED: declare props
+// TODO: add reactivity and add possible options
 window.diffVueComponent = Vue.component('diff-vue-component', {
     props: {
         rootInstanceProp: Array,
@@ -6,10 +7,17 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
     },
     template: `
 <div>
+
   <component :is="dynamicComponentDiff" />
    
-<div id="pretty-diff-custom">
-</div>
+  <div id="pretty-diff-custom">
+  </div>
+
+  <select v-model="selected" type="button" class="btn dropdown-toggle btn-primary">
+          <option v-for="option in options" v-bind:value="option">
+               {{ option }}
+          </option>
+        </select>
 
 </div>
 `,
@@ -17,10 +25,24 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
     },
     data: () => ({
         preDiff: [],
-        diff: ''
+        diff: '',
+        options: ['char', 'sentence', 'line', 'patch'],
+        isUpdated: false, // INFO: in order to keep info about prop and selected I use this
+        selected: this.mode // INFO: important for first init
     }),
-    watch: {},
+    watch: {
+        // selected: function(newValue, oldValue){
+        //     return newValue
+        // }
+    },
     computed: {
+        // selected: {
+        //     get: function(){
+        //         return this.mode
+        //     },
+        //     set: function(newValue){
+        //         return newValue
+        //     }
         counter() {
             return this.rootInstanceProp
         },
@@ -70,8 +92,21 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
     },
     async mounted() {
 
+        // FIXME: this is used only once
         this.$watch(
-            vm => ([1, vm.counter].join()), val => {
+            vm => ([this.selected, vm.counter].join()), val => {
+
+                console.dir("Watched")
+
+                // INFO: mechanism to keep both prop and selected
+                var localMode
+                console.dir(this.isUpdated === false)
+                if (this.isUpdated === false) {
+                    localMode = this.mode
+                    this.isUpdated = true
+                } else {
+                    localMode = this.selected
+                } 
                 
                 var preDiffLocal = []
                 preDiffLocal.push(this.findSelectedInList(this.counter[0].data.children, "name", "VDnPvJ36")) // INFO: initial version
@@ -98,14 +133,17 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                     return funToReturn
                 }
                 
-                var funDiff = calculateDiff(this.mode)
+                var funDiff = calculateDiff(localMode)
+                console.dir(funDiff)
+                console.dir("nmew fund idff")
+                console.dir(localMode)
 
-                this.diff = this.mode === 'patch'
+                this.diff = localMode === 'patch'
                     ? funDiff("test", preDiffLocal[0], preDiffLocal[1], "old", "new" )
                     : funDiff(preDiffLocal[0], preDiffLocal[1])
 
                 
-                if (this.mode === 'patch') {
+                if (localMode === 'patch') {
                     var diffHtml = Diff2Html.getPrettyHtml(
                         this.diff,
                         {inputFormat: 'diff', showFiles: false, matching: 'lines', outputFormat: 'side-by-side'}

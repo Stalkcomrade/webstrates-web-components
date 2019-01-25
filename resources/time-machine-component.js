@@ -25,7 +25,7 @@ window.TimeMachineComponent = Vue.component('time-machine', {
        height="300px"
        @range-updated="(dateTimeStart, dateTimeEnd) => testSelectRangeMethod(dateTimeStart, dateTimeEnd)">
    </d3-timeline>
-    <select v-model="selected">
+    <select v-model="selected" type="button" class="btn dropdown-toggle btn-primary">
           <option v-for="option in options" v-bind:value="option">
                {{ option }}
           </option>
