@@ -1,19 +1,12 @@
 // SOLVED: make a new component
-////// SOLVED: initiate new nested component for diffs
-////// SOLVED: try to use render for this purpose
+// SOLVED: initiate new nested component for diffs
+// SOLVED: try to use render for this purpose
 
 // INFO: Here I am waiting for data from a child component
 // FIXME: conisider different versions
 // timeline-component.js - after that I am reading parsing htmls and building trees
 
 //// TODO: prepare data structure for the versions
-
-
-
-
-// <b-row>
-//  <component :is="dynamicComponent" />
-// </b-row>
 
 // INFO: if there are gonna be issues, check mixins
 window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
@@ -35,6 +28,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
   <b-col sm="3">
     <diff-vue-component 
               :rootInstanceProp="currentToChild"
+              :currentNode="$store.state.currentNode"
               mode="patch">
     </diff-vue-component>
   </b-col>
@@ -124,6 +118,8 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     methods: {},
     async mounted() {
 
+        window.this = this
+        
         this.tree = d3.tree().nodeSize([this.dx, this.dy])
         this.diagonal = this.layoutLinks("right")
         this.getSelectors()

@@ -352,8 +352,6 @@ window.network = Vue.mixin({
             return target
         },
 
-        
-
         // SOLVED: changing root from computed to function
         root: function(data) {
             var hierarchyTemp = d3.hierarchy(data)
@@ -450,10 +448,11 @@ window.network = Vue.mixin({
                             : `translate(${source.y0 - 2*source.y0},${source.x0})`)
                     .attr("fill-opacity", 0)
                     .attr("stroke-opacity", 0)
-                    .on("click", (d) => {
-                        d.children = d.children ? null : d._children
-                        self.update(d, alignment)
-                        this.currentInnerText = d.data.innerText
+                      .on("click", (d) => {
+                          store.commit('changeCurrentNode', d.data.name)
+                          d.children = d.children ? null : d._children
+                          self.update(d, alignment)
+                          this.currentInnerText = d.data.innerText
                     })
                     .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
                         d3.event.preventDefault();

@@ -8,7 +8,6 @@ webstrate.on('loaded', () => {
     containerElement.appendChild(appTemplate.content.cloneNode(true));
     document.body.appendChild(containerElement);
 
-
     // Define Vue Router.
     const router = new VueRouter({
         routes: [{
@@ -77,10 +76,12 @@ webstrate.on('loaded', () => {
         linkExactActiveClass: 'active'
     });
 
-
+    const store = window.store
+    
     // Create Vue application and mount in container.
     const app = new Vue({
-        router
+        router,
+        store
     }).$mount(containerElement)
 
     window.app = app

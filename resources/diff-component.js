@@ -1,5 +1,6 @@
 // SOLVED: declare props
-// TODO: add reactivity and add possible options
+// SOLVED: add reactivity and add possible options
+
 window.diffVueComponent = Vue.component('diff-vue-component', {
     props: {
         rootInstanceProp: Array,
@@ -21,8 +22,6 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
 
 </div>
 `,
-    components: {
-    },
     data: () => ({
         preDiff: [],
         diff: '',
@@ -36,13 +35,9 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
         // }
     },
     computed: {
-        // selected: {
-        //     get: function(){
-        //         return this.mode
-        //     },
-        //     set: function(newValue){
-        //         return newValue
-        //     }
+        currentNodeComputed () {
+            return this.$store.getters.currentNodeGet
+        },
         counter() {
             return this.rootInstanceProp
         },
@@ -91,12 +86,14 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
         }
     },
     async mounted() {
-
+        
         // FIXME: this is used only once
         this.$watch(
-            vm => ([this.selected, vm.counter].join()), val => {
+            vm => ([vm.currentNodeComputed, vm.selected, vm.counter].join()), val => {
 
                 console.dir("Watched")
+                console.dir("STATE:")
+                console.dir(this.$store.state.currentNode)
 
                 // INFO: mechanism to keep both prop and selected
                 var localMode
@@ -109,8 +106,12 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                 } 
                 
                 var preDiffLocal = []
-                preDiffLocal.push(this.findSelectedInList(this.counter[0].data.children, "name", "VDnPvJ36")) // INFO: initial version
-                preDiffLocal.push(this.findSelectedInList(this.counter[1].data.children, "name", "VDnPvJ36") + "NEW") // INFO: later version
+                preDiffLocal.push(this.findSelectedInList(this.counter[0].data.children,
+                                                          "name",
+                                                          this.currentNodeComputed)) // INFO: initial version
+                preDiffLocal.push(this.findSelectedInList(this.counter[1].data.children,
+                                                          "name",
+                                                          this.currentNodeComputed) + "NEW") // INFO: later version
 
                 // FIXME: fix order of arguments (old, new)
                 var calculateDiff = function(mode) {
@@ -134,9 +135,9 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                 }
                 
                 var funDiff = calculateDiff(localMode)
-                console.dir(funDiff)
-                console.dir("nmew fund idff")
-                console.dir(localMode)
+                // console.dir(funDiff)
+                // console.dir("nmew fund idff")
+                // console.dir(localMode)
 
                 this.diff = localMode === 'patch'
                     ? funDiff("test", preDiffLocal[0], preDiffLocal[1], "old", "new" )
