@@ -30,9 +30,6 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
         selected: this.mode // INFO: important for first init
     }),
     watch: {
-        // selected: function(newValue, oldValue){
-        //     return newValue
-        // }
     },
     computed: {
         currentNodeComputed () {
@@ -70,19 +67,27 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
     methods: {
         findSelectedInList: function(list, propertyName, valueFilter){
             let selected
+            
+            function innerFunction(list, propertyName, valueFilter) {
+                
 
-            if (typeof Object.values(list) != "undefined") {
-                Object.values(list).some((currentItem) => {
-                    if (typeof currentItem != null) {
-                        if (typeof currentItem[propertyName] !== "undefined" | typeof currentItem[propertyName] != null) {
-                            currentItem[propertyName] === valueFilter ?
-                                selected = currentItem.innerText :
-                                (typeof currentItem.children != "undefined" && this.findSelectedInList(currentItem.children, propertyName, valueFilter))
+                if (typeof Object.values(list) != "undefined") {
+                    Object.values(list).some((currentItem) => {
+                        if (typeof currentItem != null | typeof currentItem !== "undefined") {
+                            if (typeof currentItem[propertyName] !== "undefined" | typeof currentItem[propertyName] != null) {
+                                currentItem[propertyName] === valueFilter ?
+                                    selected = currentItem.innerText :
+                                    (typeof currentItem.children !== "undefined" && innerFunction(currentItem.children, propertyName, valueFilter))
+                            }
                         }
                     }
-                }
-                                        )}
-            return selected
+                                            )}
+                return selected
+            }
+
+
+            return innerFunction(list, propertyName, valueFilter)
+            
         }
     },
     async mounted() {
@@ -112,6 +117,10 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                 preDiffLocal.push(this.findSelectedInList(this.counter[1].data.children,
                                                           "name",
                                                           this.currentNodeComputed) + "NEW") // INFO: later version
+
+                console.log("Counter: \n", this.counter)
+                console.log("PreDIF :\n", preDiffLocal)
+                console.log("Compute :\n", this.currentNodeComputed)
 
                 // FIXME: fix order of arguments (old, new)
                 var calculateDiff = function(mode) {

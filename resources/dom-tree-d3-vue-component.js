@@ -148,16 +148,19 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 var containerVersionSentences = []
 
                 console.dir(this.rootInstanceLatest)
-                
+
+                // FIXME: eliminate
                 containerVersionSentences.push({
                     'data': this.rootInstanceLatest.data,
-                    'field': "name",
-                    'value': "VDnPvJ36"})
+                    // 'field': "name",
+                    // 'value': "VDnPvJ36"
+                })
                 
                 containerVersionSentences.push({
                     'data': this.rootInstance.data,
-                    'field': "name",
-                    'value': "VDnPvJ36"})
+                    // 'field': "name",
+                    // 'value': "VDnPvJ36"
+                })
                 
                 this.currentVersionSentences = containerVersionSentences // INFO: to avoid evoking component before data is ready
             

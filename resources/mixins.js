@@ -453,6 +453,7 @@ window.network = Vue.mixin({
                           d.children = d.children ? null : d._children
                           self.update(d, alignment)
                           this.currentInnerText = d.data.innerText
+                          console.dir(d.data.innerText)
                     })
                     .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
                         d3.event.preventDefault();
