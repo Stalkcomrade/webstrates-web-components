@@ -5,6 +5,12 @@
 // TODO: choose initial version/session
 
 window.SessionInspectorComponent = Vue.component('session-inspector', {
+    // mixins: [window.dataFetchMixin],
+    components: {
+        'TimelineComponent': window.TimelineComponent,
+        'vueSliderConfigured': window.slider,
+        'dom-tree-d3-vue': window.DomTreeD3VueComponent
+    },
     template: `
 <div>
 <br>
@@ -12,52 +18,33 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
 <br>
 <br>
 
+<dom-tree-d3-vue>
+</dom-tree-d3-vue>
+
 <b-container class="container-fluid">
 
- <b-row>
-<timeline :value="htmlForParent" @update="onChildUpdate"> </timeline>
+<br>
+<br>
+
+<b-row>
+
+<vue-slider-configured
+           :webstrateId='selected'>
+  </vue-slider-configured>
+
 </b-row>
 
  <b-row>
-     <input v-model="inputVersion" placeholder="edit me">
-     <p> Message is: {{ inputVersion }}</p>
- </b-row
-
-<br>
-<br>
-<br>
-<br>
-
-  <b-row>
-    <b-col class="col-md-10">
-      <div class="treeD3" id="tree-container">
-      </div>
-      <svg
-        id="svgMain"
-        :width="width" :height="dx" :viewBox="viewBox"
-        style="font: 10px sans-serif; user-select: none;">
-
-        <g
-          id="gLink"
-          fill="none" stroke="#555" stroke-opacity="0.4" stroke-width="1.5"> </g>
-        <g
-          id="gNode"
-          cursor="pointer"> </g> 
-      </svg>
-    </b-col>
-    <b-col class="col-md-2 text-left">
-      <p> {{ currentInnerText }} </p>
-    </b-col>
-  </b-row>
+<timeline-component 
+                    @update="onChildUpdate"> </timeline-component>
+</b-row>
 
 </b-container>
 
 </div>
         `,
-    components: {
-        'TimelineComponent': window.TimelineComponent
-    },
     data: () => ({
+        selected: 'hungry-cat-75',
         inputVersion: '',
         currentInnerText: '',
         htmlString: '',
@@ -78,27 +65,25 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
     async created() {},
     async mounted() {
 
-        this.tree = d3.tree().nodeSize([this.dx, this.dy])
-        this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
-        this.getSelectors()
-
+        
+        // this.tree = d3.tree().nodeSize([this.dx, this.dy])
+        // this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
+        // this.getSelectors()
+        // INFO: watcher for dom-tree is initialised in mixins
+        // this.d3Data = this.getHtmlsPerSessionMixin(this.selected, undefined, undefined, true)
+        // FIXME: check whether it is working
+        // this.d3Data = await this.init()
         // INFO: Here I am waiting for data from a child component
         // timeline-component.js - after that I am reading parsing htmls and building trees
-
         // FIXME: put functions back and watch only for component from a parent
         // // FIXME: put this into watched
         // this.htmlString = await this.getHtmlsPerSession()
-
-
         // FIXME: I am using only first html from an array, fix this either
         // this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
         // FIXME: put into watched
         // this.htmlObject = new DOMParser().parseFromString(this.htmlString[2], "text/html")
 
-        // FIXME: check whether it is working
-        // this.d3Data = await this.init()
-
-       
         
+
     }
 })

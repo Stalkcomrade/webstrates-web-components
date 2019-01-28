@@ -7,31 +7,24 @@
 
 window.TimelineComponent = Vue.component('timeline', {
     mixins: [window.dataFetchMixin, window.dataObjectsCreator],
-    props: ["htmlForParent"],
+    // props: ["htmlForParent"],
     components: {
         'd3-timeline': window.d3Timeline,
-        'sliderConfigured': window.slider,
     },
     data: () => ({
-        selected: 'hungry-cat-75', // INFO: initial value
         // sessionObject: {}, // INFO: use value from store instead
+        selected: 'hungry-cat-75', // INFO: initial value
         options: [],
         dt: [],
         sessionGrouped: '',
         versioningParsed: "",
     }),
-    // :sessionObject='sessionObjectComp'
     template: `
 
 <b-container class="container-fluid">
 
-<vue-slider-configured
-           :webstrateId='selected'
->
-  </vue-slider-configured>
-
-  <br>
-  <br>
+<br>
+<br>
 
   <b-row>
     <d3-timeline

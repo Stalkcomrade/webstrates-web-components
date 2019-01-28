@@ -2,17 +2,12 @@
 // SOLVED: initiate new nested component for diffs
 // SOLVED: try to use render for this purpose
 
-// INFO: Here I am waiting for data from a child component
 // FIXME: conisider different versions
-// timeline-component.js - after that I am reading parsing htmls and building trees
-
 //// TODO: prepare data structure for the versions
 
-// INFO: if there are gonna be issues, check mixins
 window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     mixins: [window.dataFetchMixin, window.network],
     components: {
-        'TimelineComponent': window.TimelineComponent,
         'diff-vue-component': window.diffVueComponent
     },
     template: `
@@ -35,7 +30,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 </b-row>
 
   <b-row>
-    <b-col class="col-md-5">
+    <b-col class="col-md-6">
       <div class="treeD3" id="tree-container">
       </div>
       <svg
@@ -53,7 +48,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
       </svg>
     </b-col>
 
-<b-col class="col-md-5">
+<b-col class="col-md-6">
       <div class="treeD3" id="tree-container">
       </div>
       <svg
@@ -69,9 +64,6 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
           id="gNode"
           cursor="pointer"> </g> 
       </svg>
-    </b-col>
-    <b-col class="col-md-2 text-left">
-      <p> {{ currentInnerText }} </p>
     </b-col>
   </b-row>
 
@@ -109,13 +101,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         currentToChild() {
             return this.currentVersionSentences
         },
-        // dynamicComponent: function() {
-        //     return {
-        //         template: `<div>${this.currentVersionSpan}</div>`,
-        //         }
-        // },
     },
-    methods: {},
     async mounted() {
 
         window.this = this
@@ -123,6 +109,11 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         this.tree = d3.tree().nodeSize([this.dx, this.dy])
         this.diagonal = this.layoutLinks("right")
         this.getSelectors()
+
+        this.treeLatest = d3.tree().nodeSize([this.dx, this.dy])
+        this.diagonalLatest = this.layoutLinks("right")
+        this.getSelectors(true)
+        
 
         let containerTmp = await this.getHtmlsPerSessionMixin("wonderful-newt-54", 3, undefined, false)
         this.htmlString = containerTmp[0]
