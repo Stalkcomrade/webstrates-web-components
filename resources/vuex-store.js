@@ -2,7 +2,8 @@ webstrate.on('loaded', () => {
 
     window.store = new Vuex.Store({
         state: {
-            currentNode: ''
+            currentNode: '',
+            sessionObject: ''
         },
         getters: {
             currentNodeGet: state => {
@@ -12,6 +13,9 @@ webstrate.on('loaded', () => {
         mutations: {
             changeCurrentNode (state, payload) {
                 state.currentNode = payload
+            },
+            changeCurrentSessionObject (state, payload) {
+                state.sessionObject = payload
             }
         }
     })

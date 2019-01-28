@@ -8,28 +8,27 @@
 window.TimelineComponent = Vue.component('timeline', {
     mixins: [window.dataFetchMixin, window.dataObjectsCreator],
     props: ["htmlForParent"],
+    components: {
+        'd3-timeline': window.d3Timeline,
+        'sliderConfigured': window.slider,
+    },
     data: () => ({
         selected: 'hungry-cat-75', // INFO: initial value
-        valueSlider: [1, 3],
-        sliderOptions: { // INFO: used by vue-slider component
-            data: '',
-            min: 0,
-            max: 100
-        },
+        // sessionObject: {}, // INFO: use value from store instead
         options: [],
         dt: [],
         sessionGrouped: '',
         versioningParsed: "",
     }),
-    // SOLVED: try range mode
+    // :sessionObject='sessionObjectComp'
     template: `
 
 <b-container class="container-fluid">
 
-  <vue-slider v-model="valueSlider" ref="slider" 
-              :options="sliderOptions" :piecewise="true" :interval="2"
-              :min="sliderOptions.min" :max="sliderOptions.max"> 
-  </vue-slider>
+<vue-slider-configured
+           :webstrateId='selected'
+>
+  </vue-slider-configured>
 
   <br>
   <br>
@@ -55,9 +54,10 @@ window.TimelineComponent = Vue.component('timeline', {
 
 </b-container>
   `,
-    components: {
-        'd3-timeline': window.d3Timeline,
-        'vue-slider': window.vueSlider
+    computed: {
+        sessionObjectComp(){
+            return this.sessionObject
+        }
     },
     // SOLVED: get rid of some of the watchers
     watch: {
@@ -72,12 +72,8 @@ window.TimelineComponent = Vue.component('timeline', {
             // this.$emit('update', this.getHtmlsPerSessionMixin(this.selected, undefined, undefined, true))
             
             let versioningParsed = await this.getOpsJsonMixin(this.selected)
-            // console.dir(versioningParsed)
             let sessionGrouped = await this.processData(versioningParsed)
-            // console.dir(sessionGrouped)
             this.dt = await this.createDataObject(sessionGrouped)
-            // console.dir(this.dt)
-            
             console.dir("Updated in timeline-component")
         }
     },
@@ -101,30 +97,20 @@ window.TimelineComponent = Vue.component('timeline', {
             sessionObject = Object.keys(sessionObject).map(key => sessionObject[key])
                 .filter(element => (element.sessionId !== 0))
 
-            // this.sliderOptions.data = sessionObject.map(el => el.sessionId)
+            // this.sessionObject = sessionObject // INFO: used to transfer data to slider
+            store.commit("changeCurrentSessionObject", sessionObject)
 
-            var counter = 0,
-                sessionIds = []
+            // var counter = 0,
+            //     sessionIds = []
 
-            sessionObject.forEach((el, index) => {
-                counter = counter + 1
-                sessionIds.push(counter)
-            })
-
-            this.sliderOptions.data = sessionIds
+            // sessionObject.forEach((el, index) => {
+            //     counter = counter + 1
+            //     sessionIds.push(counter)
+            // })
             
-            // console.dir("Look here!")
-            // console.dir(this.sliderOptions.data[0])
-            // console.dir(this.sliderOptions.data[this.sliderOptions.data.length - 1])
-            // this.sliderOptions.data[0]
-            
-            this.sliderOptions.min = this.sliderOptions.data[0]
-            this.sliderOptions.max = this.sliderOptions.data[this.sliderOptions.data.length - 1]
-            
-            // this.valueSlider = this.sliderOptions.data[0]
 
             // making Set to identify unique session and max/min
-             var sessionGrouped = _.chain(sessionObject)
+            var sessionGrouped = _.chain(sessionObject)
                 .groupBy("sessionId")
                 .map(session => ({
                     "sessionId": session[0]['sessionId'],
