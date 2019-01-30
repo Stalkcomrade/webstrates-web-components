@@ -28,15 +28,14 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
 
 <b-row>
 
-<vue-slider-configured
+<vue-slider-configured 
            :webstrateId='selected'>
   </vue-slider-configured>
 
 </b-row>
 
  <b-row>
-<timeline-component 
-                    @update="onChildUpdate"> </timeline-component>
+<timeline-component @update="onChildUpdate"> </timeline-component>
 </b-row>
 
 </b-container>

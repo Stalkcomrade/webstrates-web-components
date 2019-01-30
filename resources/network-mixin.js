@@ -57,21 +57,41 @@ window.network = Vue.mixin({
             this.d3Data = this.init()
         },
         /**
+         * use this to pointer to dom elements
          * 
-         * @param {boolean} latest - indicate wheather select second tree
-         * @return {array} 
+         * @param {string} version - whether to return selectors for initial vs. latest dom tree
+         * @param {boolean} legacy - indicate wheather select second tree, backward compatability, eliminate later
+         * @return {array} domSelectors - object with selectors per each element
          */
-        getSelectors: function(latest) {
+        getSelectors: function(legacy, version) {
 
-            if (latest === true) {
+            var domSelectors = {}
+            
+            if (legacy === true) {
+                
                 this.svg = d3.select("#svgMain")
                 this.gLink = d3.select("#gLink")
                 this.gNode = d3.select("#gNode")
+                
+            } else if(version === "initial") {
+                
+                domSelectors.svg = d3.select("#svgMain")
+                domSelectors.gLink = d3.select("#gLink")
+                domSelectors.gNode = d3.select("#gNode")
+                
+                // this.svg = d3.select("#svgMain")
+                // this.gLink = d3.select("#gLink")
+                // this.gNode = d3.select("#gNode")
+                
             } else {
-                this.svg = d3.select("#svgMain")
-                this.gLink = d3.select("#gLink")
-                this.gNode = d3.select("#gNode")
+
+                domSelectors.svg = d3.select("#svgMainLatest")
+                domSelectors.gLink = d3.select("#gLinkLatest")
+                domSelectors.gNode = d3.select("#gNodeLatest")
+                
             }
+
+            return domSelectors
         },
         
         changeCurrent: function(innerText) {
@@ -120,6 +140,7 @@ window.network = Vue.mixin({
             }
         },
 
+        // TODO: rewrite considering several trees
         removeChildren: function() {
             var myNode = document.getElementById("gLink")
             while (myNode.firstChild) {
@@ -161,7 +182,7 @@ window.network = Vue.mixin({
             hierarchyTemp.descendants().forEach((d, i) => {
                 d.id = i
                 d._children = d.children
-                // if (d.depth && d.data.name.length !== 7) d.children = null
+                if (d.depth && d.data.name.length !== 7) d.children = null
             })
             return hierarchyTemp
         },
@@ -178,7 +199,6 @@ window.network = Vue.mixin({
             } else {
                 
                 if (typeof input !== "undefined"){
-                    // console.dir("init starts")
                     var $el = input.getElementsByTagName("BODY")[0]
                     var el = $el.children[0]
                     return this.sq(el.children)
@@ -197,71 +217,108 @@ window.network = Vue.mixin({
                 : d3.linkHorizontal().x(d => -d.y).y(d => d.x)
             return linkFun
         },
-        
-        update: function(source, alignment) { // INFO: update now has input for different graph alignment
+
+        // FIXME: selectors on input
+        /**
+         * 
+         * @param {object} source - data structure for tree building
+         * @param {string} alignment - direction of transtion - left or right
+         * @param {object} selectors - object with selectors
+         */
+        update: function(source, alignment, selectors) { // INFO: update now has input for different graph alignment
             // SOLVED: root is not calculated
-            // SOLVED: Messed up source and root
-
-            // INFO: Checking, which version of diagonal fun is used 
-            // window.diagonal = this.diagonal
-            this.diagonal = this.layoutLinks("right")
             
-                const duration = d3.event && d3.event.altKey ? 2500 : 250;
-                const nodes = this.rootInstance.descendants().reverse()
-                const links = this.rootInstance.links()
 
-                this.tree(this.rootInstance) // Compute the new tree layout.
+            // TODO: const for selectors
+            // TODO: eliminate this.diagonal and this.rootInstance and this.tree
+            // !!! CRITICAL
+            // SOLVED: Messed up source and root
+            // FIXME: one of the variables 
+            // FIXME: this.rootInstance
 
-                let left = this.rootInstance
-                let right = this.rootInstance
-                this.rootInstance.eachBefore(node => {
-                    if (node.x < left.x) left = node;
-                    if (node.x > right.x) right = node
-                });
+            // INFO: this works assuming the premise that latest is always rendered on the left side
+            const root = alignment === "left" ? this.rootInstanceLatest  : this.rootInstance
+            // source???
+            // const root = source
+            
+            // INFO: Checking, which version of diagonal fun is used
+            // FIXME: this.diagonal
+            const diagonal = this.layoutLinks(alignment)
+            
+            const duration = d3.event && d3.event.altKey ? 2500 : 250;
+            // const nodes = this.rootInstance.descendants().reverse()
+            // const links = this.rootInstance.links()
+            const nodes = root.descendants().reverse()
+            const links = root.links()
 
-                const height = right.x - left.x + this.margin.top + this.margin.bottom + 250
+            // FIXME: tree
+            const tree = d3.tree().nodeSize([this.dx, this.dy])
+            tree(root)
+            // tree(this.rootInstance)
+            // this.tree(this.rootInstance) // Compute the new tree layout.
 
-                var self = this
+            // let left = this.rootInstance
+            // let right = this.rootInstance
+            // this.rootInstance.eachBefore(node => {
+                
+            //     if (node.x < left.x) left = node;
+            //     if (node.x > right.x) right = node
+                
+            // });
+
+            let left = root
+            let right = root
+            root.eachBefore(node => {
+                
+                if (node.x < left.x) left = node;
+                if (node.x > right.x) right = node
+                
+            });
+
+            const height = right.x - left.x + this.margin.top + this.margin.bottom + 250
+
+            var self = this
 
             // INFO: compute viewBox params here
             let viewBoxInst = alignment === "left" ? -this.margin.left : -this.margin.left * 20
             
-                const transition = this.svg
-                      .transition()
-                      .duration(duration)
-                      .attr("height", height)
-                      .attr("viewBox", [viewBoxInst,
+            // const transition = this.svg
+            const transition = selectors.svg
+                  .transition()
+                  .duration(duration)
+                  .attr("height", height)
+                  .attr("viewBox", [viewBoxInst,
                                         left.x - this.margin.top,
                                         this.width,
                                         height])
-                    .tween("resize", window.ResizeObserver ? null : () => () => self.svg
-                        .dispatch("toggle"));
+            // .tween("resize", window.ResizeObserver ? null : () => () => self.svg
+            .tween("resize", window.ResizeObserver ? null : () => () => selectors.svg
+                           .dispatch("toggle"));
 
                 // Update the nodes…
-                const node = this.gNode.selectAll("g")
+                const node = selectors.gNode.selectAll("g")
                     .data(nodes, d => d.id);
 
-                // Enter any new nodes at the parent's previous position.
-                const nodeEnter = node.enter().append("g")
-                      .attr("transform", d => alignment === "left"
-                            ? `translate(${source.y0},${source.x0})`
-                            : `translate(${source.y0 - 2*source.y0},${source.x0})`)
-                    .attr("fill-opacity", 0)
-                    .attr("stroke-opacity", 0)
-                      .on("click", (d) => {
-                          store.commit('changeCurrentNode', d.data.name)
-                          d.children = d.children ? null : d._children
-                          self.update(d, alignment)
-                          this.currentInnerText = d.data.innerText
-                          console.dir(d.data.innerText)
-                    })
-                    .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
-                        d3.event.preventDefault();
-                        if (typeof self !== "undefined"){
-                            self.$refs.ct.$refs.menu.open(self.$event, d.data.value)
-                        }
-                    })
-                    // .on("mouseover", (d) => {})
+            // Enter any new nodes at the parent's previous position.
+            const nodeEnter = node.enter().append("g")
+                  .attr("transform", d => alignment === "left"
+                        ? `translate(${source.y0},${source.x0})`
+                        : `translate(${source.y0 - 2*source.y0},${source.x0})`)
+                  .attr("fill-opacity", 0)
+                  .attr("stroke-opacity", 0)
+                  .on("click", (d) => {
+                      store.commit('changeCurrentNode', d.data.name)
+                      d.children = d.children ? null : d._children
+                      self.update(d, alignment, selectors)
+                      this.currentInnerText = d.data.innerText
+                      console.dir(d.data.innerText)
+                  })
+                  .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
+                      d3.event.preventDefault();
+                      if (typeof self !== "undefined"){
+                          self.$refs.ct.$refs.menu.open(self.$event, d.data.value)
+                      }
+                  })
 
                 nodeEnter.append("circle")
                     .attr("r", 2.5)
@@ -295,7 +352,7 @@ window.network = Vue.mixin({
                     .attr("stroke-opacity", 0);
 
                 // Update the links…
-                const link = this.gLink.selectAll("path")
+                const link = selectors.gLink.selectAll("path")
                     .data(links, d => d.target.id);
 
                 // Enter any new links at the parent's previous position.
@@ -306,7 +363,8 @@ window.network = Vue.mixin({
                             y: source.y0
                         };
                         // return this.diagonal({
-                        return self.diagonal({
+                        // return self.diagonal({
+                        return diagonal({
                             source: o,
                             target: o
                         });
@@ -314,7 +372,8 @@ window.network = Vue.mixin({
 
                 // Transition links to their new position.
                 link.merge(linkEnter).transition(transition)
-                    .attr("d", self.diagonal);
+            // .attr("d", self.diagonal);
+                .attr("d", diagonal)
 
                 // Transition exiting nodes to the parent's new position.
                 link.exit().transition(transition).remove()
@@ -324,18 +383,20 @@ window.network = Vue.mixin({
                             y: source.y
                         };
                         // return this.diagonal({
-                        return self.diagonal({
+                        // return self.diagonal({
+                        return diagonal({
                             source: o,
                             target: o
                         });
                     });
 
                 // Stash the old positions for transition.
-                this.rootInstance.eachBefore(d => {
-                    d.x0 = d.x;
-                    d.y0 = d.y;
-                });
+            // this.rootInstance.eachBefore(d => {
+            root.eachBefore(d => {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
 
-            },
+        },
     }
 })

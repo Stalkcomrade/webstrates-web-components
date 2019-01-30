@@ -52,16 +52,16 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
       <div class="treeD3" id="tree-container">
       </div>
       <svg
-        id="svgMain"
+        id="svgMainLatest"
         :width="width" :height="dx" 
         :viewBox="svgViewBox"
         style="font: 10px sans-serif; user-select: none;">
 
         <g
-          id="gLink"
+          id="gLinkLatest"
           fill="none" stroke="#555" stroke-opacity="0.4" stroke-width="1.5"> </g>
         <g
-          id="gNode"
+          id="gNodeLatest"
           cursor="pointer"> </g> 
       </svg>
     </b-col>
@@ -80,21 +80,37 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     }),
     watch: {
         d3Data() {
+
+            console.dir("d3Data 've been watched")
+            
             var container = {
                 name: "main",
                 children: this.d3Data
             }
+
+            var selectorsInst = this.getSelectors(false, "initial")
+            // console.log("Selectors Initial: \n", selectorsInst)
+            
             this.rootInstance = this.root(container)
-            this.update(this.rootInstance, "right")
+            this.update(this.rootInstance, "right", selectorsInst)
         },
         // SOLVED: add second watcher
         d3DataLatest() {
+            
             console.dir("d3DataLatest 've been watched")
+            
             var containerLatest = {
                 name: "main",
                 children: this.d3DataLatest
             }
+
+            var selectorsInst = this.getSelectors(false, "latest")
+            // console.log("Selectors: \n", selectorsInst)
+            
             this.rootInstanceLatest = this.root(containerLatest)
+            this.update(this.rootInstanceLatest, "left", selectorsInst)
+            
+            
         },
     },
     computed: {
@@ -104,17 +120,11 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     },
     async mounted() {
 
-        window.this = this
+        // SOLVED: check where diagonal is calculated
+        // this.tree = d3.tree().nodeSize([this.dx, this.dy])
+        // this.getSelectors()
+        // this.getSelectors(true)
         
-        this.tree = d3.tree().nodeSize([this.dx, this.dy])
-        this.diagonal = this.layoutLinks("right")
-        this.getSelectors()
-
-        this.treeLatest = d3.tree().nodeSize([this.dx, this.dy])
-        this.diagonalLatest = this.layoutLinks("right")
-        this.getSelectors(true)
-        
-
         let containerTmp = await this.getHtmlsPerSessionMixin("wonderful-newt-54", 3, undefined, false)
         this.htmlString = containerTmp[0]
         this.htmlStringLatest = containerTmp[1]
