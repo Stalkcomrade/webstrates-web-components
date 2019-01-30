@@ -161,9 +161,8 @@ window.network = Vue.mixin({
             hierarchyTemp.descendants().forEach((d, i) => {
                 d.id = i
                 d._children = d.children
-                if (d.depth && d.data.name.length !== 7) d.children = null
+                // if (d.depth && d.data.name.length !== 7) d.children = null
             })
-            // console.dir(hierarchyTemp)
             return hierarchyTemp
         },
 
@@ -200,7 +199,7 @@ window.network = Vue.mixin({
         },
         
         update: function(source, alignment) { // INFO: update now has input for different graph alignment
-                // SOLVED: root is not calculated
+            // SOLVED: root is not calculated
             // SOLVED: Messed up source and root
 
             // INFO: Checking, which version of diagonal fun is used 
