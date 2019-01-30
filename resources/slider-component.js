@@ -10,7 +10,6 @@ window.slider = Vue.component('vue-slider-configured', {
     components: {
         'vue-slider': window.vueSlider
     },
-    props: ["webstrateId", "sessionOjbect"], // FIXME: eliminate sessionObjectLater
     template: `
 <div>
 
@@ -38,7 +37,7 @@ window.slider = Vue.component('vue-slider-configured', {
             (vm) => (vm.$store.state.sessionObject, Date.now()), val => {
 
                 console.dir("SLIDER")
-                var sessionObject = this.sessionObject // INFO: receiving from parent
+                var sessionObject = this.$store.state.sessionObject // INFO: getting from store
                 
                 var counter = 0,
                     sessionIds = []
@@ -49,8 +48,12 @@ window.slider = Vue.component('vue-slider-configured', {
                 })
                 
                 this.sliderOptionsComp.data = sessionIds
-                this.sliderOptionsComp.min = this.sliderOptions.data[0]
-                this.sliderOptionsComp.max = this.sliderOptions.data[this.sliderOptions.data.length - 1]
+                
+                console.log("Slider Options")
+                // console.dir(sessionIds)
+                
+                this.sliderOptionsComp.min = this.valueSlider[0] = sessionIds[0]
+                this.sliderOptionsComp.max = this.valueSlider[1] = sessionIds[sessionIds.length - 1]
                 
             }, {immediate: true}
         )

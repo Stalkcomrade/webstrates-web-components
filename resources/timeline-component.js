@@ -7,7 +7,6 @@
 
 window.TimelineComponent = Vue.component('timeline', {
     mixins: [window.dataFetchMixin, window.dataObjectsCreator],
-    // props: ["htmlForParent"],
     components: {
         'd3-timeline': window.d3Timeline,
     },
@@ -54,15 +53,11 @@ window.TimelineComponent = Vue.component('timeline', {
     },
     // SOLVED: get rid of some of the watchers
     watch: {
-        // valueSlider() {
-        //     console.dir("Inside value slider")
-        //     this.getHtmlsPerSessionMixin(this.selected,
-        //                                  this.valueSlider[0], this.valueSlider[1],
-        //                                  false)
-        // },
         selected: async function() {
             // INFO: why emit?
             // this.$emit('update', this.getHtmlsPerSessionMixin(this.selected, undefined, undefined, true))
+
+            store.commit("changeCurrentWebstrateId", this.selected)
             
             let versioningParsed = await this.getOpsJsonMixin(this.selected)
             let sessionGrouped = await this.processData(versioningParsed)
@@ -90,17 +85,7 @@ window.TimelineComponent = Vue.component('timeline', {
             sessionObject = Object.keys(sessionObject).map(key => sessionObject[key])
                 .filter(element => (element.sessionId !== 0))
 
-            // this.sessionObject = sessionObject // INFO: used to transfer data to slider
             store.commit("changeCurrentSessionObject", sessionObject)
-
-            // var counter = 0,
-            //     sessionIds = []
-
-            // sessionObject.forEach((el, index) => {
-            //     counter = counter + 1
-            //     sessionIds.push(counter)
-            // })
-            
 
             // making Set to identify unique session and max/min
             var sessionGrouped = _.chain(sessionObject)

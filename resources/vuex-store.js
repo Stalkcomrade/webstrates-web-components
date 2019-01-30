@@ -3,6 +3,7 @@ webstrate.on('loaded', () => {
     window.store = new Vuex.Store({
         state: {
             currentNode: '',
+            webstrateId: '',
             sessionObject: ''
         },
         getters: {
@@ -16,6 +17,9 @@ webstrate.on('loaded', () => {
             },
             changeCurrentSessionObject (state, payload) {
                 state.sessionObject = payload
+            },
+            changeCurrentWebstrateId (state, payload) {
+                state.webstrateId = payload
             }
         }
     })
