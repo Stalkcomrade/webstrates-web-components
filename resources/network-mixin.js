@@ -29,17 +29,17 @@ window.network = Vue.mixin({
             left: 40
         }
     }),
-    watch: {
-        // TODO: decide on whether to merge watchers
-        d3Data() {
-            console.dir("INSIDE d3Data Watcher")
-            var container = {
-                name: "main",
-                children: this.d3Data
-            }
-            this.rootInstance = this.root(container)
-            this.update(this.rootInstance)
-        }},
+    // TODO: decide on whether to merge watchers
+    // watch: {
+    //     d3Data() {
+    //         console.dir("INSIDE d3Data Watcher")
+    //         var container = {
+    //             name: "main",
+    //             children: this.d3Data
+    //         }
+    //         this.rootInstance = this.root(container)
+    //         this.update(this.rootInstance)
+    //     }},
     // TODO: add second watcher
     computed: {
         viewBox() {
@@ -141,16 +141,52 @@ window.network = Vue.mixin({
         },
 
         // TODO: rewrite considering several trees
-        removeChildren: function() {
-            var myNode = document.getElementById("gLink")
-            while (myNode.firstChild) {
-                myNode.removeChild(myNode.firstChild);
-            }
+        /**
+         * 
+         * @param {string} type - whether delete children of initial or latest tree
+         */
+        removeChildren: function(type) {
 
-            myNode = document.getElementById("gNode")
-            while (myNode.firstChild) {
-                myNode.removeChild(myNode.firstChild);
+            var myNode;
+            
+            if (type === "initial") {
+
+                myNode = document.getElementById("gLink")
+                while (myNode.firstChild) {
+                    myNode.removeChild(myNode.firstChild);
+                }
+
+                myNode = document.getElementById("gNode")
+                while (myNode.firstChild) {
+                    myNode.removeChild(myNode.firstChild);
+                }
+                
+            } else if (type === "latest") {
+
+                myNode = document.getElementById("gLinkLatest")
+                while (myNode.firstChild) {
+                    myNode.removeChild(myNode.firstChild);
+                }
+
+                myNode = document.getElementById("gNodeLatest")
+                while (myNode.firstChild) {
+                    myNode.removeChild(myNode.firstChild);
+                }
+            } else { // INFO: used for compatability with old functions
+
+                myNode = document.getElementById("gLink")
+                while (myNode.firstChild) {
+                    myNode.removeChild(myNode.firstChild);
+                }
+
+                myNode = document.getElementById("gNode")
+                while (myNode.firstChild) {
+                    myNode.removeChild(myNode.firstChild);
+                }
+
             }
+            
+            
         },
         
         sq: function(input) {
@@ -188,25 +224,33 @@ window.network = Vue.mixin({
         },
 
         // INFO: copy or transclusion are local functions
-        // init: function(input, type, copy, transclusion) {
+        /**
+         * 
+         * @param {any} input - object for dom tree creation
+         * @param {any} type 
+         * @param {any} mode
+         */
         init: function(input, type, mode) {
 
             if (typeof type !== "undefined") {
 
-                // console.dir(mode)
                 return mode(input)
 
             } else {
                 
                 if (typeof input !== "undefined"){
+                    console.dir(input)
                     var $el = input.getElementsByTagName("BODY")[0]
                     var el = $el.children[0]
                     return this.sq(el.children)
+                    
                 } else {
+                    
                     // console.dir("init starts")
                     var $el = this.htmlObject.getElementsByTagName("BODY")[0]
                     window.el = $el.children[0]
                     return this.sq(window.el.children)
+                    
                 }
             }
         },
@@ -218,7 +262,7 @@ window.network = Vue.mixin({
             return linkFun
         },
 
-        // FIXME: selectors on input
+        // SOLVED: selectors on input
         /**
          * 
          * @param {object} source - data structure for tree building
@@ -227,14 +271,13 @@ window.network = Vue.mixin({
          */
         update: function(source, alignment, selectors) { // INFO: update now has input for different graph alignment
             // SOLVED: root is not calculated
-            
 
-            // TODO: const for selectors
-            // TODO: eliminate this.diagonal and this.rootInstance and this.tree
+            // SOLVED: const for selectors
+            // SOLVED: eliminate this.diagonal and this.rootInstance and this.tree
             // !!! CRITICAL
             // SOLVED: Messed up source and root
-            // FIXME: one of the variables 
-            // FIXME: this.rootInstance
+            // SOLVED: one of the variables 
+            // SOLVED: this.rootInstance
 
             // INFO: this works assuming the premise that latest is always rendered on the left side
             const root = alignment === "left" ? this.rootInstanceLatest  : this.rootInstance
@@ -242,7 +285,7 @@ window.network = Vue.mixin({
             // const root = source
             
             // INFO: Checking, which version of diagonal fun is used
-            // FIXME: this.diagonal
+            // SOLVED: this.diagonal
             const diagonal = this.layoutLinks(alignment)
             
             const duration = d3.event && d3.event.altKey ? 2500 : 250;
@@ -251,7 +294,7 @@ window.network = Vue.mixin({
             const nodes = root.descendants().reverse()
             const links = root.links()
 
-            // FIXME: tree
+            // SOLVED: tree
             const tree = d3.tree().nodeSize([this.dx, this.dy])
             tree(root)
             // tree(this.rootInstance)
