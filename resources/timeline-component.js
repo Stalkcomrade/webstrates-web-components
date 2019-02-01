@@ -54,8 +54,6 @@ window.TimelineComponent = Vue.component('timeline', {
     // SOLVED: get rid of some of the watchers
     watch: {
         selected: async function() {
-            // INFO: why emit?
-            // this.$emit('update', this.getHtmlsPerSessionMixin(this.selected, undefined, undefined, true))
 
             store.commit("changeCurrentWebstrateId", this.selected)
             
@@ -118,7 +116,7 @@ window.TimelineComponent = Vue.component('timeline', {
     },
     async mounted() {
 
-        console.dir(this.fetchRangeOfTags("wicked-wombat-56"))
+        // console.dir(this.fetchRangeOfTags("wicked-wombat-56"))
         
         let versioningParsed = await this.getOpsJsonMixin(this.selected)
         let sessionGrouped = await this.processData(versioningParsed)

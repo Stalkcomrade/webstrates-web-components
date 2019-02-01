@@ -63,7 +63,15 @@ window.dataFetchMixin = Vue.mixin({
                 .then(body => body.json())
             return versionmax.version
         },
-        getHtmlsPerSessionMixin: async function(selected, initialVersion, finalVersion, snapshot) {
+        /**
+         * 
+         * @param {any} selected - webstrate Id
+         * @param {any} initialVersion - first version to compare
+         * @param {any} finalVersion - second version to compare
+         * @param {boolean} snapshot - whether fetch only last version
+         * @param {numeric} snapshotCustom - fetch input version
+         */
+        getHtmlsPerSessionMixin: async function(selected, initialVersion, finalVersion, snapshot, snapshotCustom) {
 
             // FIXME: fetching range of possible versions for the webstrate
             // INFO: currently last one is fetched
@@ -71,14 +79,20 @@ window.dataFetchMixin = Vue.mixin({
             let wsId = typeof selected === "undefined" ? "wonderful-newt-54" : selected
             
             // INFO: use last version available if no is specified
-            // console.dir(window.serverAddress)
             var versionmax = await fetch(window.serverAddress + wsId + "/?v").then(body => body.json())
             let version = typeof versionmax === "undefined" ? 1 : versionmax.version
 
             console.dir("VERSION INPUT")
-            console.dir(initialVersion)
-            
-            if (snapshot === true){
+
+            if (snapshot === true && snapshotCustom !== "undefined" && snapshotCustom !== null){
+                
+                let webpageInitial = await fetch(window.serverAddress + wsId + "/" + snapshotCustom + "/?raw")
+                let htmlResultInitial = await webpageInitial.text()
+                console.dir('html is fetched successfully')
+                
+                return htmlResultInitial
+                
+            } else if (snapshot === true){
 
                 console.dir("SINGLE VERSION inside SESSION FETCHING")
 

@@ -32,6 +32,19 @@ window.slider = Vue.component('vue-slider-configured', {
     },
     async mounted() {
 
+        // INFO: watching for manipulations made with slider
+        // and mutating corresponding state in store
+        
+        this.$watch((vm) => (vm.valueSlider), val => {
+
+            setTimeout(function () {
+                console.dir("Slider shifted!")
+                store.commit("changeSliderVersions", this.valueSlider)
+            }.bind(this), 3000)
+            
+            
+        })
+
         // INFO: Receiveing session-object from timeline-component
         this.$watch(
             (vm) => (vm.$store.state.sessionObject, Date.now()), val => {
@@ -50,10 +63,10 @@ window.slider = Vue.component('vue-slider-configured', {
                 this.sliderOptionsComp.data = sessionIds
                 
                 console.log("Slider Options")
-                // console.dir(sessionIds)
                 
                 this.sliderOptionsComp.min = this.valueSlider[0] = sessionIds[0]
                 this.sliderOptionsComp.max = this.valueSlider[1] = sessionIds[sessionIds.length - 1]
+                
                 
             }, {immediate: true}
         )

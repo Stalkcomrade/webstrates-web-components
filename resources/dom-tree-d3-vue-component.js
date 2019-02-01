@@ -1,12 +1,12 @@
 // SOLVED: make a new component
 // SOLVED: initiate new nested component for diffs
 // SOLVED: try to use render for this purpose
-
-// FIXME: conisider different versions
-//// TODO: prepare data structure for the versions
+// SOLVED: conisider different versions
+//// SOLVED: prepare data structure for the versions
 
 window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     mixins: [window.dataFetchMixin, window.network],
+    props: ["webstrateId", "initialVersion", "latestVersion"], 
     components: {
         'diff-vue-component': window.diffVueComponent
     },
@@ -72,6 +72,8 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 </div>
         `,
     data: () => ({
+        initSelected: '',
+        isInitiated: false,
         inputVersion: '',
         currentInnerText: '',
         htmlString: '',
@@ -81,6 +83,7 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     watch: {
         d3Data() {
 
+            this.removeChildren("initial")
             console.dir("d3Data 've been watched")
             
             var container = {
@@ -96,7 +99,8 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         },
         // SOLVED: add second watcher
         d3DataLatest() {
-            
+
+            this.removeChildren("latest")
             console.dir("d3DataLatest 've been watched")
             
             var containerLatest = {
@@ -120,35 +124,85 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
     },
     async mounted() {
 
-        // SOLVED: check where diagonal is calculated
-        // this.tree = d3.tree().nodeSize([this.dx, this.dy])
-        // this.getSelectors()
-        // this.getSelectors(true)
-        
-        let containerTmp = await this.getHtmlsPerSessionMixin("wonderful-newt-54", 3, undefined, false)
-        this.htmlString = containerTmp[0]
-        this.htmlStringLatest = containerTmp[1]
-        
-        // TODO: for now, I am just making object with a different name for a the next/previous version of a webstrate
-        // Later on, I need to integrate it into one data structure
-        
-        this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
-        this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
+        // FIXME: divide update logic into new Webstrate and
+        // sliderUpdate(twice, cause we have 2 trees)
 
-        // SOLVED: make init to have an input
-        this.d3Data = await this.init(this.htmlObject, undefined, undefined, undefined)
-        this.d3DataLatest = await this.init(this.htmlObjectVersioned, undefined, undefined, undefined)
+        // INFO: watcher for Initial version update
+        this.$watch(
+            (vm) => (vm.$store.getters.initialVersionGet), async val => {
 
+                console.dir("Initial Version Update")
+                
+                var webstrateId = this.$store.state.webstrateId
+                var initialVersion = store.getters.initialVersionGet
+                
+                let containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
+                                                                      undefined, undefined,
+                                                                      true, initialVersion)
+                
+                this.htmlString = containerTmp
+                this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
+                this.d3Data = await this.init(this.htmlObject, undefined, undefined)
+                
+            }, {immediate: true}
+        )
+        
+        // INFO: watcher for Latest version update
+        this.$watch(
+            (vm) => (vm.$store.getters.latestVersionGet), async val => {
+
+                console.dir("Latest Version update")
+                
+                var webstrateId = this.$store.state.webstrateId
+                var latestVersion = store.getters.latestVersionGet
+
+                let containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
+                                                                      undefined, undefined,
+                                                                      true, latestVersion)
+                this.htmlStringLatest = containerTmp
+                this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
+                this.d3DataLatest = await this.init(this.htmlObjectVersioned, undefined, undefined)
+                
+            }, {immediate: true}
+        )
+
+        
+        // INFO: watcher for webstrate update
+        this.$watch(
+            (vm) => (vm.$store.state.webstrateId), async val => {
+
+                console.dir("dom tree first watcher")
+                
+                var webstrateId = this.$store.state.webstrateId
+                var initialVersion = store.getters.initialVersionGet,
+                    latestVersion = store.getters.latestVersionGet
+
+                let containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
+                                                                      initialVersion, latestVersion, false)
+                
+                this.htmlString = containerTmp[0]
+                this.htmlStringLatest = containerTmp[1]
+                
+                this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
+                this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
+
+                // SOLVED: make init to have an input
+                this.d3Data = await this.init(this.htmlObject, undefined, undefined)
+                this.d3DataLatest = await this.init(this.htmlObjectVersioned, undefined, undefined)
+                
+            }, {immediate: true}
+        )
+        
         this.$watch(
 
             // INFO: watching for data and creating prop for child component
             vm => ([vm.rootInstanceLatest, vm.rootInstance].join()), val =>  {
+
+                console.dir("Inside diff-version watcher")
                 
                 // INFO: this as a prop to childthis.currentVersionSentences
                 // INFO: first goes earlier versions
                 var containerVersionSentences = []
-
-                console.dir(this.rootInstanceLatest)
 
                 // FIXME: eliminate
                 containerVersionSentences.push({

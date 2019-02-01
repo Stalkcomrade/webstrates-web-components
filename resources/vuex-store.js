@@ -1,14 +1,26 @@
 webstrate.on('loaded', () => {
 
+    // SOLVED: dividing slider versions on initial and latest
+    
     window.store = new Vuex.Store({
         state: {
             currentNode: '',
-            webstrateId: '',
-            sessionObject: ''
+            webstrateId: 'hungry-cat-75',
+            sessionObject: '',
+            sliderVersions: [1,2],
         },
         getters: {
             currentNodeGet: state => {
                 return state.currentNode
+            },
+            initialVersionGet: state => {
+                return state.sliderVersions[0]
+            },
+            latestVersionGet: state => {
+                return state.sliderVersions[1]
+            },
+            sliderVersionsFullGet: state => {
+                return [getters.initialVersionGet, getters.latestVersionGet]
             }
         },
         mutations: {
@@ -20,6 +32,9 @@ webstrate.on('loaded', () => {
             },
             changeCurrentWebstrateId (state, payload) {
                 state.webstrateId = payload
+            },
+            changeSliderVersions (state, payload) {
+                state.sliderVersions = payload
             }
         }
     })
