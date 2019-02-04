@@ -1,12 +1,18 @@
 window.DomTreeD3Component = Vue.component('dom-tree-d3', {
     mixins: [window.dataFetchMixin, window.network],
+    components: {
+        'c-m-c': window.cmc
+    },
     props: ['InnerTextToShow'],
     template: `
-<div>
+<div @contextmenu.prevent="$refs.ct.$refs.menu.open">
+
 <br>
 <br>
 <br>
 <br>
+
+<c-m-c ref='ct'/>
 
 <b-container class="container-fluid">
   <b-row>

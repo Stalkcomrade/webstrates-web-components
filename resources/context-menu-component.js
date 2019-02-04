@@ -7,14 +7,24 @@ window.cmc = Vue.component('c-m-c', {
 
 <div>
 <context-menu-component-imported ref="menu">
-  <ul slot-scope="child">
+
+ <ul v-if="currentRoute === '/dom-tree-d3'" slot-scope="child">
+      <li @click="onClick(child.data)">Option 1</li>
+  </ul>
+  <ul v-else slot-scope="child">
     <li @click="onClick(child.data)">Option 1</li>
     <li @click="bookmarkCurrentWebstrate(child.data)">Bookmark Webstrate</li>
     <li @click="visitCurrentWebstrate(child.data)">Visit Webstrate</li>
   </ul>
+
 </context-menu-component-imported>
 </div>
 `,
+    computed: {
+        currentRoute() {
+            return this.$route.path
+        }
+    },
     methods: {
         onClick (data) {
             console.dir("!!!")
@@ -32,6 +42,8 @@ window.cmc = Vue.component('c-m-c', {
         copyCurrentWebstrate: function(webstrateId) {
             // http://<hostname>/<webstrateId>?restore=<versionOrTag>
         }
+    },
+    mounted(){
     }
 
 })
