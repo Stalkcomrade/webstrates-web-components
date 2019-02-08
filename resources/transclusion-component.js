@@ -122,7 +122,8 @@ window.transclusionComponent = Vue.component('transclusion', {
             }
 
             target.push(children)
-
+            console.dir(target)
+            
             return target
         },
 
@@ -159,6 +160,8 @@ window.transclusionComponent = Vue.component('transclusion', {
 
         updateView: async function(selected, mode){
 
+
+            console.log("updateView = ",);
             this.removeChildren() // INFO: Deleting old DOM nodes
             
             var input = typeof selected !== "undefined"
@@ -176,10 +179,14 @@ window.transclusionComponent = Vue.component('transclusion', {
     },
     mounted() {
         // debugger
-
         // this.initiateTransclusion()
         // this.createIframe("tasty-lionfish-70")
         // this.receiveTags("tasty-lionfish-70")
+        // let wsId = "massive-skunk-85"
+        // let wsId = "hungry-cat-75"
+        // let wsId = "wonderful-newt-54/"
+        // let wsId = "tasty-lionfish-70" // copies
+        // let wsId = "short-turtle-55" // transclusions
         
         this.tree = d3.tree().nodeSize([this.dx, this.dy])
         this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
@@ -189,11 +196,8 @@ window.transclusionComponent = Vue.component('transclusion', {
         // INFO: searching for copies by default
         this.d3Data = this.init("short-turtle-55", "type", this.searchCopies, undefined)
 
-        // let wsId = "massive-skunk-85"
-        // let wsId = "hungry-cat-75"
-        // let wsId = "wonderful-newt-54/"
-        // let wsId = "tasty-lionfish-70" // copies
-        // let wsId = "short-turtle-55" // transclusions
+      
         
     }
 })
+console.log("updateView = ", updateView);

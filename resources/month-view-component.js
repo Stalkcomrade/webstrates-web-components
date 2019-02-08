@@ -1,7 +1,7 @@
 // TODO: entities are mapped only during first days
 
 window.MonthViewComponent = Vue.component('month-view', {
-    mixins: [window.mixin],
+    mixins: [window.mixin, window.dataObjectsCreator],
     inherit: true,
     props: ['monthProp', 'yearProp', 'maxWebstratesProp'],
     template: `
@@ -282,7 +282,51 @@ window.MonthViewComponent = Vue.component('month-view', {
             }
         }
     },
-    methods: {
+    methods: { 
+        /**
+         * 
+         * @param {any} selection - current selection
+         */
+        pulsate: function(selection, modifier) {
+                    /**
+                     * input: selection
+                     * attirbute: pulsate - boolean
+                     */
+
+                // console.dir(selection.data()[0])
+                recursive_transitions()
+                
+                function recursive_transitions() {
+                    
+                    // if (selection.data()[0].customPulse !== 1) {
+                        selection.transition()
+                            .duration(400)
+                            .style("customPulse", 1)
+                            .attr("stroke", "#000000")
+                            .attr("stroke-width", 4)
+                            .attr("r", 20) // 8
+                            .ease(d3.easeLinear)
+                            .transition()
+                            .duration(800)
+                            .attr('stroke-width', 2)
+                            .attr("r", 16) // 12
+                            .ease(d3.easeBounceIn)
+                            .duration(1600)
+                            .attr("stroke", "#000000")
+                            .attr("stroke-width", 0)
+                            .attr("r", 8) // 8
+                        .ease(d3.easeBounceIn)
+                        .on("end", recursive_transitions);}
+                // } else {
+                //     // transition back to normal
+                //     console.dir("INSIDE ELSE")
+                //     selection.transition()
+                //         .duration(200)
+                //         .attr("r", 8)
+                //         .attr("stroke-width", 2)
+                //         .attr("stroke-dasharray", "1, 0")
+                // }
+        },
         updateScaling() {
             this.groups.selectAll('circle.activity')
                 .style('fill', ({
@@ -329,48 +373,9 @@ window.MonthViewComponent = Vue.component('month-view', {
 
         },
         mainD3Second: function(days, d3colorsQuantizeMonth, d3colorsQuantileMonth) {
+            
 
-
-            function pulsate(selection) {
-                    /**
-                     * input: selection
-                     * attirbute: pulsate - boolean
-                     */
-
-                console.dir(selection.data()[0])
-                recursive_transitions()
-                
-                function recursive_transitions() {
-                    
-                    if (selection.data()[0].customPulse !== 1) {
-                        selection.transition()
-                            .duration(400)
-                            .style("customPulse", 1)
-                            .attr("stroke", "#000000")
-                            .attr("stroke-width", 16)
-                            .attr("r", 32) // 8
-                            .ease(d3.easeLinear)
-                            .transition()
-                            .duration(800)
-                            .attr('stroke-width', 34)
-                            .attr("r", 12) // 12
-                            .ease(d3.easeBounceIn)
-                            .duration(1600)
-                            .attr("stroke", "#000000")
-                            .attr("stroke-width", 0)
-                            .attr("r", 8) // 8
-                            .ease(d3.easeBounceIn)
-                } else {
-                    // transition back to normal
-                    console.dir("INSIDE ELSE")
-                    selection.transition()
-                        .duration(200)
-                        .attr("r", 8)
-                        .attr("stroke-width", 2)
-                        .attr("stroke-dasharray", "1, 0")
-                }
-                }
-            }
+          
             
             this.groups.selectAll('circle.activity')
                 .data((index, data, x) => {
@@ -421,10 +426,18 @@ window.MonthViewComponent = Vue.component('month-view', {
                 .on("mouseover", ({
                     webstrateId
                 }) => {
-                    this.$route.fullPath === "/embedded" ? this.testSync(webstrateId) : this.showMessage(webstrateId)
+                    this.$route.fullPath === "/embedded"
+                        ? this.testSync(webstrateId)
+                        : this.showMessage(webstrateId)
                 })
                 .on("click", (d, i, nodes, webstrateId) => {
-                    this.$route.fullPath === "/embedded" ? this.changeView("time-machine", d.webstrateId) : pulsate(d3.select(nodes[i]))
+                    
+                    if (this.$route.fullPath === "/embedded") {
+                        this.changeView("time-machine", d.webstrateId)
+                    } else {
+                        this.pulsate(d3.select(nodes[i]))
+                    }
+                    
                 })
                 .append('circle')
                 .attr('class', () => 'activity')
@@ -509,8 +522,56 @@ window.MonthViewComponent = Vue.component('month-view', {
                         effortTotal.add(singleEffort)
                     })
                 })
+            
 
-                webstrateIds = Array.from(webstrateIds).sort()
+            webstrateIds = Array.from(webstrateIds).sort()
+
+
+            const promisesActivities = webstrateIds.map(async (ws) => {
+
+                  // d3.select("[webstrateId=" + ws + "]")
+                  //       .style("fill", "red")
+                
+                var prom = await this.fetchActivityMixin(ws)
+                // console.log("prom = ", prom);
+
+
+                // INFO: 
+                let usersPerWsSet = new Set()
+                let arrFromSet = []
+
+                var dataFetched = prom
+                // console.log("dataFetched = ", dataFetched);
+                
+
+                Object.values(dataFetched).forEach(int => {
+                    Object.values(int).forEach(intN => {
+                        usersPerWsSet.add(intN.userId)
+                    })
+                })
+
+                arrFromSet = Array.from(usersPerWsSet)
+
+                var pulsateBool = arrFromSet.indexOf(userId) > -1
+                    ? true
+                    : false
+                console.log("ws ID = ", ws)
+                console.log("pulsateBool = ", pulsateBool);
+                console.log("users = ", arrFromSet.pop(arrFromSet.indexOf(userId)))
+                console.log("current user = ", userId)
+                
+
+                // INFO: 
+
+                
+                // var pulsateBool = await this.extractContributors(prom)
+                pulsateBool === true && this.pulsate(d3.select("[webstrateId=" + ws + "]"))
+                
+
+            })
+            // console.log("promisesActivities = ", promisesActivities);
+           
+            
                 // this.$emit('webstrateIds', webstrateIds) // is used to trigger listener in another component
 
                 // scalar is used to calculate the sizes of the circles. They need to be different sizes,

@@ -84,7 +84,7 @@ window.dataFetchMixin = Vue.mixin({
 
             console.dir("VERSION INPUT")
 
-            if (snapshot === true && snapshotCustom !== "undefined" && snapshotCustom !== null){
+            if (snapshot === true && typeof snapshotCustom !== "undefined" && snapshotCustom !== null){
                 
                 let webpageInitial = await fetch(window.serverAddress + wsId + "/" + snapshotCustom + "/?raw")
                 let htmlResultInitial = await webpageInitial.text()
@@ -199,29 +199,6 @@ window.dataFetchMixin = Vue.mixin({
         }
     }
 })
-
-window.dataObjectsCreator = Vue.mixin({
-    methods: {
-        listOfWebstrates: function(days) { // INFO: resulted fetched promise should be days object
-
-            let webstrateIds = new Set();
-
-            Object.values(days).forEach(day => {
-                Object.keys(day).forEach(webstrateId => {
-                    webstrateIds.add(webstrateId)
-                })
-            })
-            
-            webstrateIds = Array.from(webstrateIds).sort()
-            console.dir('List of Webstrates Ids is Fetched Successfully')
-            
-            return webstrateIds
-            
-        }
-    }
-})
-
-
 
 window.transclusion = Vue.mixin({
     data: () => ({

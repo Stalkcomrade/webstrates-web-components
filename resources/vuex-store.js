@@ -8,6 +8,7 @@ webstrate.on('loaded', () => {
             webstrateId: 'hungry-cat-75',
             sessionObject: '',
             sliderVersions: [1,2],
+            // currentRoute: 'default'
         },
         getters: {
             currentNodeGet: state => {
@@ -21,7 +22,10 @@ webstrate.on('loaded', () => {
             },
             sliderVersionsFullGet: state => {
                 return [getters.initialVersionGet, getters.latestVersionGet]
-            }
+            },
+            // currentRouteGet: state => {
+            //     return state.currentRoute
+            // }
         },
         mutations: {
             changeCurrentNode (state, payload) {

@@ -227,8 +227,8 @@ window.network = Vue.mixin({
         /**
          * 
          * @param {any} input - object for dom tree creation
-         * @param {any} type 
-         * @param {any} mode
+         * @param {str} type 
+         * @param {string} mode - used for building tree in case of copies/transclusions
          */
         init: function(input, type, mode) {
 

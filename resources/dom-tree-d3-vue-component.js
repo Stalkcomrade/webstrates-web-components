@@ -91,6 +91,9 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                 children: this.d3Data
             }
 
+
+            console.log("containerInitial = ", container);
+
             var selectorsInst = this.getSelectors(false, "initial")
             // console.log("Selectors Initial: \n", selectorsInst)
             
@@ -102,11 +105,13 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
 
             this.removeChildren("latest")
             console.dir("d3DataLatest 've been watched")
+           
             
             var containerLatest = {
                 name: "main",
                 children: this.d3DataLatest
             }
+            console.log("containerLatest = ", containerLatest);
 
             var selectorsInst = this.getSelectors(false, "latest")
             // console.log("Selectors: \n", selectorsInst)
@@ -123,10 +128,61 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
         },
     },
     async mounted() {
+        
 
-        // FIXME: divide update logic into new Webstrate and
-        // sliderUpdate(twice, cause we have 2 trees)
+        function findSelectedInList(list, propertyName, newPropertyName, newPropertyValue){
+            let condition;
+            if (typeof Object.values(list) != "undefined" && typeof Object.values(list) != null) {
+                Object.values(list).some((currentItem) => {
+                    if (typeof currentItem != null) {
+                        if (typeof currentItem[propertyName] != "undefined" | typeof currentItem[propertyName] != null) {
 
+                            if (Array.isArray(currentItem) !== true) {
+                                currentItem[newPropertyName] = newPropertyValue
+                            }; // INFO: important to put semicolon
+
+                            if (typeof currentItem.children != "undefined") {
+                                findSelectedInList(currentItem.children, propertyName, newPropertyName, newPropertyValue)
+                            }
+
+                        }
+                    }
+                }
+                                        )}
+            return list
+        }
+
+        // findSelectedInList(temp1.children, "name", "alignment", "left")
+
+
+        this.$watch(
+            (vm) => ([vm.d3Data, vm.d3DataLatest]), val => {
+
+                // let merged = {...this.d3Data, ...this.d3DataLatest};
+
+                
+                var t1 = findSelectedInList(this.d3Data, "name", "alignment", "left"),
+                    t2 = findSelectedInList(this.d3DataLatest, "name", "alignment", "right")
+
+                var merged = [];
+
+                merged = merged.concat(t1, t2)
+                
+                var containerLatest = {
+                    name: "main",
+                    children: merged
+                }
+                
+                console.log("containerMerged = ", containerLatest);
+                
+                
+        }, {immediate: true}
+        )
+
+
+
+        
+        // SOLVED: divide update logic into new Webstrate and
         // INFO: watcher for Initial version update
         this.$watch(
             (vm) => (vm.$store.getters.initialVersionGet), async val => {

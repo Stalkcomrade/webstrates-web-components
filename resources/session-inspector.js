@@ -1,8 +1,6 @@
 // SOLVED: make a new component
 // SOLVED: avoid using await and calling other functions from inside functions
 // SOLVED: wait for data from session inspector
-//// TODO: make a child component emit every time data is fetched 
-// TODO: choose initial version/session
 
 window.SessionInspectorComponent = Vue.component('session-inspector', {
     components: {
@@ -47,5 +45,7 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
     beforeCreate() {},
     async created() {},
     async mounted() {
+
+        // window.this = this
     }
 })
