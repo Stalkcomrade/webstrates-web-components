@@ -217,6 +217,10 @@ window.DomTreeD3VueComponent = Vue.component('dom-tree-d3-vue', {
                                                                       true, latestVersion)
                 this.htmlStringLatest = containerTmp
                 this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
+
+                console.log("wsID", webstrateId)
+                console.log("!!!!!", this.htmlObjectVersioned)
+                
                 this.d3DataLatest = await this.init(this.htmlObjectVersioned, undefined, undefined)
                 
             }, {immediate: true}

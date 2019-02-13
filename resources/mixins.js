@@ -34,6 +34,7 @@ window.dataFetchMixin = Vue.mixin({
         usersPerWs: ''
     }),
     methods: {
+        
         fetchTags: async function(selected) {
             let tags = await fetch(window.serverAddress + selected  + "/?tags").then(results => results.json())
             return tags
@@ -73,6 +74,18 @@ window.dataFetchMixin = Vue.mixin({
          */
         getHtmlsPerSessionMixin: async function(selected, initialVersion, finalVersion, snapshot, snapshotCustom) {
 
+
+            let tmp = await fetch("https://webstrates.cs.au.dk/horrible-dingo-75/")
+            let tmp1 = await tmp.text()
+            window.tmp2 = new DOMParser().parseFromString(tmp1, "text/html")
+            
+            console.log("tmp2!!!! = ", window.tmp2);
+
+            let tmpR = await fetch("https://webstrates.cs.au.dk/horrible-dingo-75/3000/?raw")
+            let tmpR1 = await tmpR.text()
+            window.tmpR2 = new DOMParser().parseFromString(tmpR1, "text/html")
+            console.log("tmpR2!!!! = ", tmp2);
+            
             // FIXME: fetching range of possible versions for the webstrate
             // INFO: currently last one is fetched
             // INFO: use default value if no selected id is specified
@@ -88,6 +101,9 @@ window.dataFetchMixin = Vue.mixin({
                 
                 let webpageInitial = await fetch(window.serverAddress + wsId + "/" + snapshotCustom + "/?raw")
                 let htmlResultInitial = await webpageInitial.text()
+
+              
+                
                 console.dir('html is fetched successfully')
                 
                 return htmlResultInitial
@@ -122,6 +138,8 @@ window.dataFetchMixin = Vue.mixin({
                 let webpageLastJson = await fetch(window.serverAddress + wsId + "/" + numberLast + "/?json")
                 let htmlResultLastJson = await webpageLastJson.text()
 
+             
+                
                 let results = await Promise.all([
                     htmlResultInitial,
                     htmlResultLast,

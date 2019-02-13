@@ -4,11 +4,12 @@ webstrate.on('loaded', () => {
     
     window.store = new Vuex.Store({
         state: {
+            contextMenuObject: '', // INFO: transfering data 
+            contextMenuContext: '', // INFO: using this on order to pop-up approp version
             currentNode: '',
             webstrateId: 'hungry-cat-75',
             sessionObject: '',
             sliderVersions: [1,2],
-            // currentRoute: 'default'
         },
         getters: {
             currentNodeGet: state => {
@@ -23,11 +24,14 @@ webstrate.on('loaded', () => {
             sliderVersionsFullGet: state => {
                 return [getters.initialVersionGet, getters.latestVersionGet]
             },
-            // currentRouteGet: state => {
-            //     return state.currentRoute
-            // }
         },
         mutations: {
+            changeContextMenuContext (state, payload) {
+                state.changeContextMenuContext = payload
+            },
+            changeContextMenuObject (state, payload) {
+                state.contextMenuObject = payload
+            },
             changeCurrentNode (state, payload) {
                 state.currentNode = payload
             },

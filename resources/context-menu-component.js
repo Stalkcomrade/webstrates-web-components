@@ -6,10 +6,19 @@ window.cmc = Vue.component('c-m-c', {
     template: `
 
 <div>
+
 <context-menu-component-imported ref="menu">
 
  <ul v-if="currentRoute === '/dom-tree-d3'" slot-scope="child">
       <li @click="onClick(child.data)">Option 1</li>
+  </ul>
+  <ul v-else-if="currentRoute === '/calendar'" slot-scope="child">
+      <li @click="visitCurrentWebstrate(child.data)">Visit Webstrate</li>
+      <li @click="visitCurrentWebstrate(child.data)">Inspect Sessions</li>
+      <li @click="visitCurrentWebstrate(child.data)">Inspect Versions</li>
+      <li @click="visitCurrentWebstrate(child.data)">Compare Changes</li>
+      <li> ---- </li>
+      <li @click="visitCurrentWebstrate(child.data)">Copy Webstrate</li>
   </ul>
   <ul v-else slot-scope="child">
     <li @click="onClick(child.data)">Option 1</li>

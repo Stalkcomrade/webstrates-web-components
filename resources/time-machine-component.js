@@ -45,7 +45,8 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     },
     methods: {
         testSelectRangeMethod: function(dateTimeStart, dateTimeEnd) {
-
+            // selv = this
+            console.log("this: ", this)
             var filtered = this.slc.filter(object => {
                 // return object.values.some((el) => { // filters objects without this date
                     return object.at > dateTimeStart  &&

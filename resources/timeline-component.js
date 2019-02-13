@@ -9,6 +9,7 @@ window.TimelineComponent = Vue.component('timeline', {
     mixins: [window.dataFetchMixin, window.dataObjectsCreator],
     components: {
         'd3-timeline': window.d3Timeline,
+        'c-m-c': window.cmc
     },
     data: () => ({
         // sessionObject: {}, // INFO: use value from store instead
@@ -20,16 +21,19 @@ window.TimelineComponent = Vue.component('timeline', {
     }),
     template: `
 
-<b-container class="container-fluid">
+<b-container class="container-fluid" @contextmenu.prevent="$refs.ct.$refs.menu.open($event, $store.state.contextMenuObject)">
 
 <br>
 <br>
+
+<c-m-c ref='ct'/>
 
   <b-row>
     <d3-timeline
       v-bind:data="dt"
       width="100%"
-      height="300px">
+      height="300px"
+      @range-updated="(dateTimeStart, dateTimeEnd) => testSelectRangeMethodSessions(dateTimeStart, dateTimeEnd)">
     </d3-timeline>
   </b-row>
 
@@ -52,6 +56,7 @@ window.TimelineComponent = Vue.component('timeline', {
         }
     },
     // SOLVED: get rid of some of the watchers
+    // TODO: keep data of the webstrate
     watch: {
         selected: async function() {
 
@@ -59,6 +64,10 @@ window.TimelineComponent = Vue.component('timeline', {
             
             let versioningParsed = await this.getOpsJsonMixin(this.selected)
             let sessionGrouped = await this.processData(versioningParsed)
+            this.sessionGrouped = sessionGrouped
+
+            // this.
+            
             this.dt = await this.createDataObject(sessionGrouped)
             console.dir("Updated in timeline-component")
         }
@@ -68,6 +77,27 @@ window.TimelineComponent = Vue.component('timeline', {
         this.options = this.listOfWebstrates(DaysPromise)
     },
     methods: {
+
+        testSelectRangeMethodSessions: function(dateTimeStart, dateTimeEnd) {
+
+            var session = this.sessionGrouped
+            console.log("session = ", session);
+            // console.log(this.data)
+
+            
+
+            var filtered = session.filter(object => {
+                // return object.values.some((el) => { // filters objects without this date
+                    return object.connectTime > dateTimeStart  &&
+                        object.maxConnectTime < dateTimeEnd
+                // })
+            })
+
+            console.dir(filtered)
+            store.commit("changeSliderVersions", [filtered[0].minVersion, filtered[filtered.length - 1].maxVersion])
+            
+        },
+        
         processData: function(versioningParsed) {
 
             // TODO: put into mixins later
@@ -82,6 +112,8 @@ window.TimelineComponent = Vue.component('timeline', {
             // INFO: filtering non-sessions
             sessionObject = Object.keys(sessionObject).map(key => sessionObject[key])
                 .filter(element => (element.sessionId !== 0))
+            
+            console.log("sessionObject = ", sessionObject);
 
             store.commit("changeCurrentSessionObject", sessionObject)
 
@@ -91,11 +123,13 @@ window.TimelineComponent = Vue.component('timeline', {
                 .map(session => ({
                     "sessionId": session[0]['sessionId'],
                     "connectTime": session[0]['connectTime'],
+                    "users": [...new Set(_.map(session, "userId"))],
                     "maxConnectTime": _.maxBy(session, "timestamp")['timestamp'],
                     "minConnectTime": _.minBy(session, "timestamp")['timestamp'],
                     "maxVersion": _.maxBy(session, "timestamp")['version'],
                     "minVersion": _.minBy(session, "timestamp")['version']
                 })).value()
+            console.log("sessionGrouped = ", sessionGrouped);
 
             console.dir('Data is Processed Successfully')
             return sessionGrouped
@@ -105,9 +139,9 @@ window.TimelineComponent = Vue.component('timeline', {
             return sessionGrouped.map(int => ({
                 from: new Date(int.minConnectTime),
                 to: new Date(int.maxConnectTime),
-                title: "new",
-                label: "new",
-                group: 'edition',
+                title: int.sessionId,
+                label: int.users,
+                group: int.users,
                 className: 'entry--point--default'
             }))
             
@@ -121,5 +155,37 @@ window.TimelineComponent = Vue.component('timeline', {
         let versioningParsed = await this.getOpsJsonMixin(this.selected)
         let sessionGrouped = await this.processData(versioningParsed)
         this.dt = await this.createDataObject(sessionGrouped)
+
+        // window.self = this
+        // self = this
+        // console.log("this.$refs.ct.$refs.menu = ", this.$refs.ct.$refs.menu);
+        
+            // this.$watch(
+            //     (vm) => (vm.dt, Date.now()), val => {
+            //         console.dir("WATCHER!!!")
+            //         // window.self.$refs.ct.$event
+            //         setTimeout(function () {
+            //             console.log("WIND S: ", window.self.$refs.ct.$refs.menu)
+            //             console.log("window.self.refs = ", window.self.$refs.ct);
+            //         console.log("window.self.even = ", window.self.$event);
+            //             d3.selectAll("path.entry--point--default")
+            //                 .on("click", () => {
+            //                     console.log("TEEEEEEEEEEEEE")
+            //                     console.log(this.$refs.ct.$refs.menu)
+            //                 })
+            //                 .on("contextmenu", function() {
+            //                     d3.event.preventDefault();
+            //                     window.self.$refs.ct.$refs.menu.open(window.self.$event, "1")
+            //                     console.log("TEEEEEEEEEEEEE")
+            //                 })
+            //         }, 4000)
+            //         // Executes if YY, YY, or Y have changed.
+            //     }, {immediate: true}
+            // )
+        
     },
+    update() {
+
+       
+    }
 });

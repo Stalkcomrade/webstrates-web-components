@@ -1,9 +1,14 @@
+// SOLVED: !use date instead of only month!
 // TODO: entities are mapped only during first days
 
 window.MonthViewComponent = Vue.component('month-view', {
     mixins: [window.mixin, window.dataObjectsCreator],
     inherit: true,
     props: ['monthProp', 'yearProp', 'maxWebstratesProp'],
+    components: {
+        'webstrate-legend-component': WebstrateLegendComponent,
+        'c-m-c': window.cmc
+    },
     template: `
 <transition name="fade">
   
@@ -12,6 +17,9 @@ window.MonthViewComponent = Vue.component('month-view', {
        v-on:input="$emit('input', $event.target.value)">
 
     <b-container class="container-fluid">
+
+    <c-m-c ref='ct'/>
+
       <b-row>
         <b-col class="col-md-4">
           
@@ -67,10 +75,9 @@ window.MonthViewComponent = Vue.component('month-view', {
       <br>
       <br>
 
-      
       <b-row>
         <b-col class="col-md-10">
-          <svg class="calendar"></svg>
+          <svg class="calendar" @contextmenu.prevent="$refs.ct.$refs.menu.open($event, $store.state.contextMenuObject)"></svg>
         </b-col>
         <b-col class="col-md-2">
           <webstrate-legend/>
@@ -83,11 +90,6 @@ window.MonthViewComponent = Vue.component('month-view', {
 
 </transition>
 `,
-    // SOLVED: !use date instead of only month!
-    components: {
-        'webstrate-legend-component': WebstrateLegendComponent
-    },
-
     data: () => ({
         webstrateIdProp,
         show: true,
@@ -101,7 +103,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         selected: 'A',
         selectedText: '',
         options: [{
-                text: 'Default',
+                text: 'Day',
                 value: 'A'
             },
             {
@@ -287,7 +289,7 @@ window.MonthViewComponent = Vue.component('month-view', {
          * 
          * @param {any} selection - current selection
          */
-        pulsate: function(selection, modifier) {
+        pulsate: function(selection) {
                     /**
                      * input: selection
                      * attirbute: pulsate - boolean
@@ -375,6 +377,7 @@ window.MonthViewComponent = Vue.component('month-view', {
         mainD3Second: function(days, d3colorsQuantizeMonth, d3colorsQuantileMonth) {
             
 
+            var self = this
           
             
             this.groups.selectAll('circle.activity')
@@ -423,6 +426,7 @@ window.MonthViewComponent = Vue.component('month-view', {
                 )
                 .enter()
                 .append('a')
+            // .attr("@contextmenu.prevent", function(d,i) {return self.$refs.ct.$refs.menu.open(self.$event, d.webstrateId)})
                 .on("mouseover", ({
                     webstrateId
                 }) => {
@@ -438,6 +442,30 @@ window.MonthViewComponent = Vue.component('month-view', {
                         this.pulsate(d3.select(nodes[i]))
                     }
                     
+               })
+               // .each(function(d, i) {
+
+                    // .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
+                    // console.log(this)
+                    // d3.event.preventDefault();
+                    // if (typeof self !== "undefined"){
+                    // d3.select(this).node().addEventListener("contextmenu.prevent", () => {
+                    //     return  self.$refs.ct.$refs.menu.open(self.$event, d.webstrateId)
+                    // })
+                    // console.log("d.webstrateId = ", d.webstrateId);
+                      // })
+
+                     // })
+            // @contextmenu.prevent="$refs.ct.$refs.menu.open($event)"
+                .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
+                    console.log(this)
+                    d3.event.preventDefault();
+                    if (typeof self !== "undefined"){
+                        store.commit("changeContextMenuObject", d.webstrateId)
+                       // self.$refs.ct.$refs.menu.open(self.$event, d.webstrateId)
+                        console.log("d.webstrateId = ", d.webstrateId);
+                        
+                    }
                 })
                 .append('circle')
                 .attr('class', () => 'activity')
