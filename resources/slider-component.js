@@ -11,19 +11,23 @@ window.slider = Vue.component('vue-slider-configured', {
     components: {
         'vue-slider': window.vueSlider
     },
+                  // :min="sliderOptionsComp.min" :max="sliderOptionsComp.max"  :interval="sliderOptionsComp.interval"
     template: `
 <div>
 
  <vue-slider v-model="valueSlider" ref="slider" 
-              :options="sliderOptionsComp" :piecewise="true" :interval="2"
-              :min="sliderOptionsComp.min" :max="sliderOptionsComp.max" 
+              :options="sliderOptionsComp" :piecewise="true" :piecewiseLabel="sliderOptionsComp.piecewiseLabel"  :piecewiseLabel="sliderOptionsComp.piecewiseLabel"
+
               :formatter="sliderOptionsComp.formatter" 
               mergeFormatter="¥{value[0]} ~ ¥{value[1]}"
+              :piecewiseStyle="sliderOptionsComp.piecewiseStyle"
+              :piecewiseActiveStyle="sliderOptionsComp.piecewiseActiveStyle"
+              :labelActiveStyle="sliderOptionsComp.labelActiveStyle"
               :enableCross="false"> 
   </vue-slider>
 
     <button @click="fetchActivity(selected)">Version Mode</button>
-    <button @click="fetchActivity(selected)">Auto-Tag Mode</button>
+    <button @click="changeMode('sessions')">Auto-Tag aka Sessions Mode</button>
     <button @click="changeMode('tags')">Tags Mode</button>
 
 </div>
@@ -34,46 +38,138 @@ window.slider = Vue.component('vue-slider-configured', {
         sliderOptionsComp: {
             value: '',
             data: '',
+            interval: 1,
             min: 0,
             max: 100,
             formatter: ""
         },
     }),
     computed: {
-        currentModeComp() {
-            return this.currentMode === "default"
-                ? {data: this.sliderOptionsComp.data,
-                   min: this.sliderOptionsComp.min,
-                   max: this.sliderOptionsComp.max}
-            : {data: this.sliderOptionsComp.data,
-                   min: this.sliderOptionsComp.min,
-               max: this.sliderOptionsComp.max,
-               formatter: "¥{value}"}
-        }
+        // currentModeComp() {
+        //     return this.currentMode === "default"
+        //         ? {data: this.sliderOptionsComp.data,
+        //            min: this.sliderOptionsComp.min,
+        //            max: this.sliderOptionsComp.max}
+        //     : {data: this.sliderOptionsComp.data,
+        //            min: this.sliderOptionsComp.min,
+        //        max: this.sliderOptionsComp.max,
+        //        formatter: "¥{value}"}
+        // }
     },
     methods: {
         changeMode: async function(mode) {
+            
             if (mode === "tags") {
                 
                 var tags = await this.fetchTags(this.$store.state.webstrate) // FIXME:
                 console.log("tags = ", tags);
 
-                var tt = tags.forEach(el => {
-                    return el.label
-                })
-                console.log("tt = ", tt);
+                try {
+                    var tt = tags.forEach(el => {
+                        return el.label
+
+                        this.sliderOptionsComp.min = tags[0].v
+                        this.sliderOptionsComp.max = tags[tags.length - 1].v
+
+
+                        this.sliderOptionsComp.piecewiseStyle = {
+                            "backgroundColor": "#ccc",
+                            "visibility": "visible",
+                            "width": "12px",
+                            "height": "12px"
+                        }
+
+                        this.sliderOptionsComp.piecewiseLabel = true
+                        this.sliderOptionsComp.piecewiseActiveStyle = {
+                            "backgroundColor": "#3498db"
+                        }
+                        
+                        this.sliderOptionsComp.labelActiveStyle =  {
+                            "color": "#3498db"
+                        }
+                        
+                        
+                        this.sliderOptionsComp.formatter = "¥{value}"
+                        
+                    })
+                    console.log("tt = ", tt);
+                } catch (err) {
+                    console.error("Probably, issue is that there is only 1 tag:\n", err)
+                } finally {
+                }
+               
 
                 // this.sliderOptionsComp.data = sessionIds // FIXME: delete
                 // this.sliderOptionsComp.value = sessionIds
-                
                 // this.sliderOptionsComp.formatter = "¥" {{ this.sliderOptionsComp.value }}
-                this.sliderOptionsComp.min = tags[0].v
-                this.sliderOptionsComp.max = tags[tags.length - 1].v
                 
-                this.sliderOptionsComp.formatter = "¥{value}"
+                
+            } else if (mode === "sessions") {
+
+                var wsId = this.$store.state.webstrateId
+                var tags = await this.fetchTags(wsId)
+                console.log(tags)
+                
+                var vSession = [];
+                var vLabel = [];
+                
+                tags.forEach(el => {
+                    vSession.push(el.v)
+                    vLabel.push(el.label)
+                })
+                
+                // var rTags = await this.fetchRangeOfTags(wsId)
+                // console.log("rTags = ", rTags);
+
+                var vUnited = [];
+                
+                
+                tags.forEach(el => {
+                    vUnited.push(el.v + "||" + el.label)
+                })
+
+                console.log("vUnited = ", vUnited);
+
+                this.sliderOptionsComp.data = vUnited // FIXME: delete
+                // this.sliderOptionsComp.formatter = "¥" {{ this.sliderOptionsComp.value }}
+                // this.sliderOptionsComp.value = vUnited
+
+                // this.refresh()
+                
+                // this.sliderOptionsComp.min = 0
+                // this.sliderOptionsComp.max = tags.length - 1
+                // this.sliderOptionsComp.interval = 1
+                this.sliderOptionsComp.piecewiseLabel = true
+
+                // this.sliderOptionsComp.min = tags[0].v
+                // this.sliderOptionsComp.max = tags[tags.length - 1].v
+
+                
+                this.sliderOptionsComp.piecewiseStyle = {
+                    "backgroundColor": "#ccc",
+                    "visibility": "visible",
+                    "width": "12px",
+                    "height": "12px"
+                }
+
+                
+                this.sliderOptionsComp.piecewiseStyle = {
+                    "backgroundColor": "#3498db"
+                }
+                
+                this.sliderOptionsComp.piecewiseStyle =  {
+                    "color": "#3498db"
+                }
+                
+                
+                this.sliderOptionsComp.formatter = "{value}"
+
+                
                 
             } else {
+                
                 this.sliderOptionsComp.formatter = "{value}"
+                
             }
         }
     },
@@ -87,7 +183,7 @@ window.slider = Vue.component('vue-slider-configured', {
             setTimeout(function () {
                 console.dir("Slider shifted!")
                 store.commit("changeSliderVersions", this.valueSlider)
-            }.bind(this), 3000)
+            }, 3000)
             
             
         })
@@ -101,14 +197,13 @@ window.slider = Vue.component('vue-slider-configured', {
                 console.log("sessionObject = ", sessionObject);// INFO: getting from store
 
                 // fetching tags
-                // var wsId = this.$store.state.webstrateId
+                var wsId = this.$store.state.webstrateId
                 // console.log("wsId = ", wsId);
 
                 // var tags = await this.fetchTags(wsId)
                 // console.log("tags = ", tags);
-                var rTags = await this.fetchRangeOfTags(wsId)
-                console.log("rTags = ", rTags);
-                
+                // var rTags = await this.fetchRangeOfTags(wsId)
+                // console.log("rTags = ", rTags);
                 // fetching tags
                 
                 var counter = 0,

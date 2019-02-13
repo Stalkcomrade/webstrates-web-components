@@ -295,21 +295,21 @@ window.MonthViewComponent = Vue.component('month-view', {
                      * attirbute: pulsate - boolean
                      */
 
-                // console.dir(selection.data()[0])
                 recursive_transitions()
                 
                 function recursive_transitions() {
+
                     
-                    // if (selection.data()[0].customPulse !== 1) {
+                    setTimeout(function () {
                         selection.transition()
-                            .duration(400)
+                            .duration(1600)
                             .style("customPulse", 1)
                             .attr("stroke", "#000000")
                             .attr("stroke-width", 4)
                             .attr("r", 20) // 8
                             .ease(d3.easeLinear)
                             .transition()
-                            .duration(800)
+                            .duration(3200)
                             .attr('stroke-width', 2)
                             .attr("r", 16) // 12
                             .ease(d3.easeBounceIn)
@@ -317,17 +317,22 @@ window.MonthViewComponent = Vue.component('month-view', {
                             .attr("stroke", "#000000")
                             .attr("stroke-width", 0)
                             .attr("r", 8) // 8
-                        .ease(d3.easeBounceIn)
-                        .on("end", recursive_transitions);}
-                // } else {
-                //     // transition back to normal
-                //     console.dir("INSIDE ELSE")
-                //     selection.transition()
-                //         .duration(200)
-                //         .attr("r", 8)
-                //         .attr("stroke-width", 2)
-                //         .attr("stroke-dasharray", "1, 0")
-                // }
+                            .ease(d3.easeBounceIn)
+                            .on("end", recursive_transitions);
+                        
+                    }, 7000)
+                }
+
+            // if (selection.data()[0].customPulse !== 1) {
+            // } else {
+            //     // transition back to normal
+            //     console.dir("INSIDE ELSE")
+            //     selection.transition()
+            //         .duration(200)
+            //         .attr("r", 8)
+            //         .attr("stroke-width", 2)
+            //         .attr("stroke-dasharray", "1, 0")
+            // }
         },
         updateScaling() {
             this.groups.selectAll('circle.activity')
@@ -340,6 +345,52 @@ window.MonthViewComponent = Vue.component('month-view', {
         update() {
             this.groups.selectAll('circle.activity')
                 .style('fill', ({}) => ("yellow"))
+        },
+        pulsateGlobal: async function(webstrateIds) {
+
+            const promisesActivities = webstrateIds.map(async (ws) => {
+
+                // d3.select("[webstrateId=" + ws + "]")
+                //       .style("fill", "red")
+                
+                var prom = await this.fetchActivityMixin(ws)
+                // console.log("prom = ", prom);
+
+
+                // INFO: 
+                let usersPerWsSet = new Set()
+                let arrFromSet = []
+
+                var dataFetched = prom
+                // console.log("dataFetched = ", dataFetched);
+                
+
+                Object.values(dataFetched).forEach(int => {
+                    Object.values(int).forEach(intN => {
+                        usersPerWsSet.add(intN.userId)
+                    })
+                })
+
+                arrFromSet = Array.from(usersPerWsSet)
+
+                var pulsateBool = arrFromSet.indexOf(userId) > -1
+                    ? true
+                    : false
+                console.log("ws ID = ", ws)
+                console.log("pulsateBool = ", pulsateBool);
+                console.log("users = ", arrFromSet.pop(arrFromSet.indexOf(userId)))
+                console.log("current user = ", userId)
+                
+
+                // INFO: 
+
+                
+                // var pulsateBool = await this.extractContributors(prom)
+                pulsateBool === true && this.pulsate(d3.select("[webstrateId=" + ws + "]"))
+                
+
+            })
+            
         },
         mainD3: function() {
           
@@ -443,18 +494,6 @@ window.MonthViewComponent = Vue.component('month-view', {
                     }
                     
                })
-               // .each(function(d, i) {
-
-                    // .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
-                    // console.log(this)
-                    // d3.event.preventDefault();
-                    // if (typeof self !== "undefined"){
-                    // d3.select(this).node().addEventListener("contextmenu.prevent", () => {
-                    //     return  self.$refs.ct.$refs.menu.open(self.$event, d.webstrateId)
-                    // })
-                    // console.log("d.webstrateId = ", d.webstrateId);
-                      // })
-
                      // })
             // @contextmenu.prevent="$refs.ct.$refs.menu.open($event)"
                 .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
@@ -553,60 +592,16 @@ window.MonthViewComponent = Vue.component('month-view', {
             
 
             webstrateIds = Array.from(webstrateIds).sort()
-
-
-            const promisesActivities = webstrateIds.map(async (ws) => {
-
-                  // d3.select("[webstrateId=" + ws + "]")
-                  //       .style("fill", "red")
-                
-                var prom = await this.fetchActivityMixin(ws)
-                // console.log("prom = ", prom);
-
-
-                // INFO: 
-                let usersPerWsSet = new Set()
-                let arrFromSet = []
-
-                var dataFetched = prom
-                // console.log("dataFetched = ", dataFetched);
-                
-
-                Object.values(dataFetched).forEach(int => {
-                    Object.values(int).forEach(intN => {
-                        usersPerWsSet.add(intN.userId)
-                    })
-                })
-
-                arrFromSet = Array.from(usersPerWsSet)
-
-                var pulsateBool = arrFromSet.indexOf(userId) > -1
-                    ? true
-                    : false
-                console.log("ws ID = ", ws)
-                console.log("pulsateBool = ", pulsateBool);
-                console.log("users = ", arrFromSet.pop(arrFromSet.indexOf(userId)))
-                console.log("current user = ", userId)
-                
-
-                // INFO: 
-
-                
-                // var pulsateBool = await this.extractContributors(prom)
-                pulsateBool === true && this.pulsate(d3.select("[webstrateId=" + ws + "]"))
-                
-
-            })
-            // console.log("promisesActivities = ", promisesActivities);
-           
+            this.pulsateGlobal(webstrateIds)
             
-                // this.$emit('webstrateIds', webstrateIds) // is used to trigger listener in another component
+            // console.log("promisesActivities = ", promisesActivities);
+            // this.$emit('webstrateIds', webstrateIds) // is used to trigger listener in another component
 
-                // scalar is used to calculate the sizes of the circles. They need to be different sizes,
-                // so we can distinguish very active webstrates from not-so-active webstrates. However, a
-                // linear scaling usually doesn't give us a very good representation, so we just do some
-                // random trial-and-error Math here. There's no great insight to be had, other than the fact
-                // that we're using a logarithmic scale.
+            // scalar is used to calculate the sizes of the circles. They need to be different sizes,
+            // so we can distinguish very active webstrates from not-so-active webstrates. However, a
+            // linear scaling usually doesn't give us a very good representation, so we just do some
+            // random trial-and-error Math here. There's no great insight to be had, other than the fact
+            // that we're using a logarithmic scale.
 
                 this.maxOps = Math.log(d3.max(Object.values(days), (day) => d3.max(Object.values(day)))) / 2
                 this.scalar = 1 / (this.maxOps / (this.cellSize / 19)) // after all, changes the diameter of the webstrates actitivity
@@ -746,7 +741,7 @@ window.MonthViewComponent = Vue.component('month-view', {
 
             this.mainD3()
             this.mainD3Second(days, d3colorsQuantizeMonth, d3colorsQuantileMonth)
-
+            this.pulsateGlobal(webstrateIds) // SOLVED: replace with one-liner from methods
         })
     },
 
