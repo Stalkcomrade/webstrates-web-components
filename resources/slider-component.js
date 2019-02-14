@@ -1,9 +1,8 @@
 // This component intended to be used with dom-tree
 // in order to eliminate repetitive data creation I connected its logic with
 // timeline-component, seens needed data is fetched there
-
 // SOLVED: try range mode
-// TODO: emit current version for use cases with dom-d3-vue
+
 // webstrate.on('loaded', () => {
 
 window.slider = Vue.component('vue-slider-configured', {
@@ -11,24 +10,26 @@ window.slider = Vue.component('vue-slider-configured', {
     components: {
         'vue-slider': window.vueSlider
     },
-                  // :min="sliderOptionsComp.min" :max="sliderOptionsComp.max"  :interval="sliderOptionsComp.interval"
+    // :min="sliderOptionsComp.min" :max="sliderOptionsComp.max"
+    // :options="sliderOptionsComp"
     template: `
 <div>
 
  <vue-slider v-model="valueSlider" ref="slider" 
-              :options="sliderOptionsComp" :piecewise="true" :piecewiseLabel="sliderOptionsComp.piecewiseLabel"  :piecewiseLabel="sliderOptionsComp.piecewiseLabel"
-
+              :data="sliderOptionsComp.data"
+              :interval="sliderOptionsComp.interval"
+              :piecewise="true"
               :formatter="sliderOptionsComp.formatter" 
-              mergeFormatter="¥{value[0]} ~ ¥{value[1]}"
+              :mergeFormatter="sliderOptionsComp.mergeFormatter"
               :piecewiseStyle="sliderOptionsComp.piecewiseStyle"
               :piecewiseActiveStyle="sliderOptionsComp.piecewiseActiveStyle"
               :labelActiveStyle="sliderOptionsComp.labelActiveStyle"
               :enableCross="false"> 
   </vue-slider>
 
-    <button @click="fetchActivity(selected)">Version Mode</button>
-    <button @click="changeMode('sessions')">Auto-Tag aka Sessions Mode</button>
-    <button @click="changeMode('tags')">Tags Mode</button>
+    <button @click="changeMode('versions')">Version Mode</button>
+    <button @click="changeMode('sessions')">Sessions aka Auto-Tag Mode</button>
+    <button @click="changeMode('tags')">Users Tags Mode</button>
 
 </div>
 `,
@@ -44,32 +45,49 @@ window.slider = Vue.component('vue-slider-configured', {
             formatter: ""
         },
     }),
-    computed: {
-        // currentModeComp() {
-        //     return this.currentMode === "default"
-        //         ? {data: this.sliderOptionsComp.data,
-        //            min: this.sliderOptionsComp.min,
-        //            max: this.sliderOptionsComp.max}
-        //     : {data: this.sliderOptionsComp.data,
-        //            min: this.sliderOptionsComp.min,
-        //        max: this.sliderOptionsComp.max,
-        //        formatter: "¥{value}"}
-        // }
-    },
     methods: {
         changeMode: async function(mode) {
             
-            if (mode === "tags") {
+            if (mode === "tags") { // INFO: user Tags Mode
                 
                 var tags = await this.fetchTags(this.$store.state.webstrate) // FIXME:
                 console.log("tags = ", tags);
 
-                try {
-                    var tt = tags.forEach(el => {
-                        return el.label
+                // var regSrc = /\<iframe.*?src="\/(.*?)\/*?".*?<\/iframe\>/gi
+                // var regSrc = /.*Session of smth.*/gi
+                // input.match(regSrc)
+                
+                var regSrc = /.*?Session.*?/gi
 
+                this.sliderOptionsComp.mergeFormatter = "¥{value[0]} ~ ¥{value[1]}"
+                
+                try {
+                    var tt = tags.forEach((el, i, tags) => {
+                        return el.label.match(regSrc).length === null && tags[i].label
+                    })
+
+                    if (typeof tt === "undefined") {
+                        
+                        console.log("NO User-Defined Tags")
+                        console.log("tt = ", tt);
+
+                        this.sliderOptionsComp.data = [1]
+                        this.sliderOptionsComp.min = 0
+                        this.sliderOptionsComp.max = 1
+
+                        
+                    } else {
+                        
+                        console.log("There User-Defined Tags")
+                        console.log("tt = ", tt);
+
+                        this.sliderOptionsComp.data = tt
+                        this.sliderOptionsComp.interval = 1
+                        this.sliderOptionsComp.piecewiseLabel = true
                         this.sliderOptionsComp.min = tags[0].v
                         this.sliderOptionsComp.max = tags[tags.length - 1].v
+                        this.sliderOptionsComp.formatter = "¥{value}"
+                        this.sliderOptionsComp.mergeFormatter = "¥{value[0]} ~ ¥{value[1]}"
 
 
                         this.sliderOptionsComp.piecewiseStyle = {
@@ -88,21 +106,13 @@ window.slider = Vue.component('vue-slider-configured', {
                             "color": "#3498db"
                         }
                         
-                        
-                        this.sliderOptionsComp.formatter = "¥{value}"
-                        
-                    })
-                    console.log("tt = ", tt);
+                    }
+
+                    
                 } catch (err) {
                     console.error("Probably, issue is that there is only 1 tag:\n", err)
-                } finally {
-                }
+                } finally { }
                
-
-                // this.sliderOptionsComp.data = sessionIds // FIXME: delete
-                // this.sliderOptionsComp.value = sessionIds
-                // this.sliderOptionsComp.formatter = "¥" {{ this.sliderOptionsComp.value }}
-                
                 
             } else if (mode === "sessions") {
 
@@ -118,8 +128,6 @@ window.slider = Vue.component('vue-slider-configured', {
                     vLabel.push(el.label)
                 })
                 
-                // var rTags = await this.fetchRangeOfTags(wsId)
-                // console.log("rTags = ", rTags);
 
                 var vUnited = [];
                 
@@ -131,18 +139,9 @@ window.slider = Vue.component('vue-slider-configured', {
                 console.log("vUnited = ", vUnited);
 
                 this.sliderOptionsComp.data = vUnited // FIXME: delete
-                // this.sliderOptionsComp.formatter = "¥" {{ this.sliderOptionsComp.value }}
-                // this.sliderOptionsComp.value = vUnited
-
-                // this.refresh()
-                
-                // this.sliderOptionsComp.min = 0
-                // this.sliderOptionsComp.max = tags.length - 1
-                // this.sliderOptionsComp.interval = 1
+                this.sliderOptionsComp.interval = 1
                 this.sliderOptionsComp.piecewiseLabel = true
-
-                // this.sliderOptionsComp.min = tags[0].v
-                // this.sliderOptionsComp.max = tags[tags.length - 1].v
+                this.sliderOptionsComp.mergeFormatter = "¥{value[0]} ~ ¥{value[1]}"
 
                 
                 this.sliderOptionsComp.piecewiseStyle = {
@@ -166,9 +165,22 @@ window.slider = Vue.component('vue-slider-configured', {
 
                 
                 
-            } else {
+            } else { // INFO: just raw versions
+
+                console.log("raw versions")
+
+                this.sliderOptionsComp.min = 1
+                this.sliderOptionsComp.max = await this.lastVersion(wsId)
+
+                const range = (start, stop, step = 1) =>
+                      Array(Math.ceil((stop - start) / step)).fill(start).map((x, y) => x + y * step)
                 
+                this.sliderOptionsComp.data = range(this.sliderOptionsComp.min, this.sliderOptionsComp.max)
+                    
+                this.sliderOptionsComp.interval = 30
+                this.sliderOptionsComp.piecewiseLabel = false
                 this.sliderOptionsComp.formatter = "{value}"
+                this.sliderOptionsComp.mergeFormatter = "¥{value[0]} ~ ¥{value[1]}"
                 
             }
         }
