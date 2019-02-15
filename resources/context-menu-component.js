@@ -19,6 +19,9 @@ window.cmc = Vue.component('c-m-c', {
       <li @click="visitCurrentWebstrate(child.data)">Compare Changes</li>
       <li> ---- </li>
       <li @click="visitCurrentWebstrate(child.data)">Copy Webstrate</li>
+      <li @click="inspectSessions">Inspect Sessions</li>
+      <li @click="inspectVersions">Inspect Versions</li>
+      <li @click="goBack">Go Back</li>
   </ul>
   <ul v-else slot-scope="child">
     <li @click="onClick(child.data)">Option 1</li>
@@ -35,6 +38,17 @@ window.cmc = Vue.component('c-m-c', {
         }
     },
     methods: {
+        goBack() {
+            this.$router.go(-1)
+        },
+        inspectVersions() {
+            this.$router.push({ path: '/time-machine' })
+            
+        },
+        inspectSessions() {
+            this.$router.push({ path: '/timeline' })
+            
+        },
         onClick (data) {
             console.dir("!!!")
             console.dir(data)

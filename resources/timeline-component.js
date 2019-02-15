@@ -13,12 +13,25 @@ window.TimelineComponent = Vue.component('timeline', {
     },
     data: () => ({
         // sessionObject: {}, // INFO: use value from store instead
-        selected: 'hungry-cat-75', // INFO: initial value
+        // selected: 'hungry-cat-75', // INFO: initial value
         options: [],
         dt: [],
         sessionGrouped: '',
         versioningParsed: "",
     }),
+    watch: {
+        '$route' (to, from) {
+            // this.$route.params.id,
+            // console.log("Watched Route Change: ", this.$store.state.contextMenuContext)
+            // this.selected = this.$store.state.contextMenuContext
+            // console.log("Watched Route Change: ", this.$store.state.contextMenuContext)
+        }
+    },
+    // beforeRouteEnter (to, from, next) {
+  //       // console.log("Watched Route Change: ", this.$store.state.webstrateId)
+  //       // this.selected = this.$store.state.contextMenuContext
+  //       // console.log("Watched Route Change: ", this.$store.state.contextMenuContext)
+  // },
     template: `
 
 <b-container class="container-fluid" @contextmenu.prevent="$refs.ct.$refs.menu.open($event, $store.state.contextMenuObject)">
@@ -51,6 +64,17 @@ window.TimelineComponent = Vue.component('timeline', {
 </b-container>
   `,
     computed: {
+        selected: { // INFO: if contextMenuContext is "", then default
+            get () {
+                // return this.$store.state.obj.message
+                return this.$store.state.contextMenuObject === ''
+                    ? this.$store.state.webstrateId
+                    : this.$store.state.contextMenuObject
+            },
+            set (value) {
+                this.$store.commit('changeCurrentWebstrateId', value)
+            }
+        }, 
         sessionObjectComp(){
             return this.sessionObject
         }

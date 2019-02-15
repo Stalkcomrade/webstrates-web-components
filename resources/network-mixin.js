@@ -40,7 +40,6 @@ window.network = Vue.mixin({
     //         this.rootInstance = this.root(container)
     //         this.update(this.rootInstance)
     //     }},
-    // TODO: add second watcher
     computed: {
         viewBox() {
             return [-this.margin.left*20, -this.margin.top, this.width, this.dx]
@@ -155,7 +154,7 @@ window.network = Vue.mixin({
                 while (myNode.firstChild) {
                     myNode.removeChild(myNode.firstChild);
                 }
-
+                
                 myNode = document.getElementById("gNode")
                 while (myNode.firstChild) {
                     myNode.removeChild(myNode.firstChild);
@@ -185,7 +184,6 @@ window.network = Vue.mixin({
                 }
 
             }
-            
             
         },
         
@@ -262,7 +260,7 @@ window.network = Vue.mixin({
             return linkFun
         },
 
-        // SOLVED: selectors on input
+        
         /**
          * 
          * @param {object} source - data structure for tree building
@@ -270,47 +268,38 @@ window.network = Vue.mixin({
          * @param {object} selectors - object with selectors
          */
         update: function(source, alignment, selectors) { // INFO: update now has input for different graph alignment
+            // SOLVED: selectors on input
             // SOLVED: root is not calculated
 
             // SOLVED: const for selectors
             // SOLVED: eliminate this.diagonal and this.rootInstance and this.tree
-            // !!! CRITICAL
+            
+            // INFO:   !!! CRITICAL
             // SOLVED: Messed up source and root
             // SOLVED: one of the variables 
             // SOLVED: this.rootInstance
 
+            var self = this
+            
             // INFO: this works assuming the premise that latest is always rendered on the left side
             const root = alignment === "left" ? this.rootInstanceLatest  : this.rootInstance
-            // source???
-            // const root = source
             
             // INFO: Checking, which version of diagonal fun is used
             // SOLVED: this.diagonal
             const diagonal = this.layoutLinks(alignment)
             
             const duration = d3.event && d3.event.altKey ? 2500 : 250;
-            // const nodes = this.rootInstance.descendants().reverse()
-            // const links = this.rootInstance.links()
             const nodes = root.descendants().reverse()
             const links = root.links()
 
             // SOLVED: tree
             const tree = d3.tree().nodeSize([this.dx, this.dy])
             tree(root)
-            // tree(this.rootInstance)
-            // this.tree(this.rootInstance) // Compute the new tree layout.
-
-            // let left = this.rootInstance
-            // let right = this.rootInstance
-            // this.rootInstance.eachBefore(node => {
-                
-            //     if (node.x < left.x) left = node;
-            //     if (node.x > right.x) right = node
-                
-            // });
+            
 
             let left = root
             let right = root
+            
             root.eachBefore(node => {
                 
                 if (node.x < left.x) left = node;
@@ -320,7 +309,6 @@ window.network = Vue.mixin({
 
             const height = right.x - left.x + this.margin.top + this.margin.bottom + 250
 
-            var self = this
 
             // INFO: compute viewBox params here
             let viewBoxInst = alignment === "left" ? -this.margin.left : -this.margin.left * 20
@@ -413,10 +401,10 @@ window.network = Vue.mixin({
                         });
                     });
 
-                // Transition links to their new position.
-                link.merge(linkEnter).transition(transition)
-            // .attr("d", self.diagonal);
+            // Transition links to their new position.
+            link.merge(linkEnter).transition(transition)
                 .attr("d", diagonal)
+            // .attr("d", self.diagonal);
 
                 // Transition exiting nodes to the parent's new position.
                 link.exit().transition(transition).remove()
@@ -433,8 +421,7 @@ window.network = Vue.mixin({
                         });
                     });
 
-                // Stash the old positions for transition.
-            // this.rootInstance.eachBefore(d => {
+            // Stash the old positions for transition.
             root.eachBefore(d => {
                 d.x0 = d.x;
                 d.y0 = d.y;

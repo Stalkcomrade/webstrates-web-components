@@ -10,7 +10,6 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     data: () => ({
         wbsAuthor: '',
         slc: '',
-        selected: 'warm-liger-47', // default value
         options: [],
         dt: [],
     }),
@@ -33,12 +32,29 @@ window.TimeMachineComponent = Vue.component('time-machine', {
 
 </div>
   `,
-    watch: {
-        selected: function(newValue, oldValue) {
-            console.dir("Initial State Watch in time-machine-component.js")
-            this.fetchAll(newValue)
-        },
+    computed: {
+        selected: {
+            get() {
+                return this.$store.state.contextMenuObject === ''
+                    ? this.$store.state.webstrateId
+                    : this.$store.state.contextMenuObject
+            },
+
+            set(value) {
+                this.$store.commit('changeCurrentWebstrateId', value)
+            }
+        }
     },
+    // watch: {
+    //     selected() {
+    //         console.dir("Initial State Watch in time-machine-component.js")
+    //         this.fetchAll(this.selected)
+    //     },
+    //     // selected: function(value) {
+    //     //     console.dir("Initial State Watch in time-machine-component.js")
+    //     //     this.fetchAll(value)
+    //     // },
+    // },
     async created() {
         var DaysPromise = await this.fetchDaysOverview((new Date))
         this.options = this.listOfWebstrates(DaysPromise)
@@ -132,6 +148,14 @@ window.TimeMachineComponent = Vue.component('time-machine', {
         }
     },
     async mounted() {
-        this.selected = this.$parent.relationName
+
+        // this.selected = this.$parent.relationName
+        
+        this.$watch(
+            (vm) => (vm.selected,  Date.now()), val => {
+                console.dir("Initial State Watch in time-machine-component.js")
+                this.fetchAll(this.selected)
+            }, {immediate: true})
+        
     },
 });
