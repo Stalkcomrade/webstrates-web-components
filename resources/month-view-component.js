@@ -36,8 +36,9 @@ window.MonthViewComponent = Vue.component('month-view', {
           <br>
           <br>
 
-          <button @click='changeView("time-machine")'> Change View </button>
-          <button v-on:click="show = !show"> Toggle </button>
+          <button @click='disablePulsate'> Disable Pulsate </button>
+          <!-- <button @click='changeView("time-machine")'> Change View </button> -->
+          <!-- <button v-on:click="show = !show"> Toggle </button> -->
 
           <br>
           <br>
@@ -176,7 +177,7 @@ window.MonthViewComponent = Vue.component('month-view', {
 
         // TODO: replace with mixin api
         var daysFetched = await this.fetchDaysOverview()
-        
+
         let webstrateIds = new Set();
         let effortTotal = new Set();
 
@@ -210,8 +211,8 @@ window.MonthViewComponent = Vue.component('month-view', {
         d3Const() {
             const d3week = d3.timeFormat("%V")
             const dayRange = d3.timeDays(new Date(this.date.getFullYear(),
-                                                  this.date.getMonth() - 1, 1),
-                                         new Date(this.date.getFullYear(), this.date.getMonth(), 1))
+                    this.date.getMonth() - 1, 1),
+                new Date(this.date.getFullYear(), this.date.getMonth(), 1))
             const d3day = (date) => d3.timeFormat("%u")(date) - 1
             return {
                 d3week,
@@ -284,55 +285,55 @@ window.MonthViewComponent = Vue.component('month-view', {
             }
         }
     },
-    methods: { 
+    methods: {
+        disablePulsate: function() {
+
+            this.webstrateIds.forEach(ws => {
+                d3.select("[webstrateId=" + ws + "]")
+                    .transition()
+                    .duration(200)
+                    .attr("r", 8)
+                    .attr("stroke-width", 2)
+                    .attr("stroke-dasharray", "1, 0")
+            })
+        },
         /**
          * 
          * @param {any} selection - current selection
          */
         pulsate: function(selection) {
-                    /**
-                     * input: selection
-                     * attirbute: pulsate - boolean
-                     */
+            /**
+             * input: selection
+             * attirbute: pulsate - boolean
+             */
 
-                recursive_transitions()
-                
-                function recursive_transitions() {
+            recursive_transitions()
 
-                    
-                    setTimeout(function () {
-                        selection.transition()
-                            .duration(1600)
-                            .style("customPulse", 1)
-                            .attr("stroke", "#000000")
-                            .attr("stroke-width", 4)
-                            .attr("r", 20) // 8
-                            .ease(d3.easeLinear)
-                            .transition()
-                            .duration(3200)
-                            .attr('stroke-width', 2)
-                            .attr("r", 16) // 12
-                            .ease(d3.easeBounceIn)
-                            .duration(1600)
-                            .attr("stroke", "#000000")
-                            .attr("stroke-width", 0)
-                            .attr("r", 8) // 8
-                            .ease(d3.easeBounceIn)
-                            .on("end", recursive_transitions);
-                        
-                    }, 7000)
-                }
+            function recursive_transitions() {
 
-            // if (selection.data()[0].customPulse !== 1) {
-            // } else {
-            //     // transition back to normal
-            //     console.dir("INSIDE ELSE")
-            //     selection.transition()
-            //         .duration(200)
-            //         .attr("r", 8)
-            //         .attr("stroke-width", 2)
-            //         .attr("stroke-dasharray", "1, 0")
-            // }
+
+                setTimeout(function() {
+                    selection.transition()
+                        .duration(1600)
+                        .style("customPulse", 1)
+                        .attr("stroke", "#000000")
+                        .attr("stroke-width", 4)
+                        .attr("r", 20) // 8
+                        .ease(d3.easeLinear)
+                        .transition()
+                        .duration(3200)
+                        .attr('stroke-width', 2)
+                        .attr("r", 16) // 12
+                        .ease(d3.easeBounceIn)
+                        .duration(1600)
+                        .attr("stroke", "#000000")
+                        .attr("stroke-width", 0)
+                        .attr("r", 8) // 8
+                        .ease(d3.easeBounceIn)
+                        .on("end", recursive_transitions);
+
+                }, 7000)
+            }
         },
         updateScaling() {
             this.groups.selectAll('circle.activity')
@@ -348,328 +349,318 @@ window.MonthViewComponent = Vue.component('month-view', {
         },
         pulsateGlobal: async function(webstrateIds) {
 
-            const promisesActivities = webstrateIds.map(async (ws) => {
+                this.webstrateIds = webstrateIds
 
-                // d3.select("[webstrateId=" + ws + "]")
-                //       .style("fill", "red")
-                
-                var prom = await this.fetchActivityMixin(ws)
-                // console.log("prom = ", prom);
+                const promisesActivities = webstrateIds.map(async (ws) => {
 
 
-                // INFO: 
-                let usersPerWsSet = new Set()
-                let arrFromSet = []
-
-                var dataFetched = prom
-                // console.log("dataFetched = ", dataFetched);
-                
-
-                Object.values(dataFetched).forEach(int => {
-                    Object.values(int).forEach(intN => {
-                        usersPerWsSet.add(intN.userId)
-                    })
-                })
-
-                arrFromSet = Array.from(usersPerWsSet)
-
-                var pulsateBool = arrFromSet.indexOf(userId) > -1
-                    ? true
-                    : false
-                console.log("ws ID = ", ws)
-                console.log("pulsateBool = ", pulsateBool);
-                console.log("users = ", arrFromSet.pop(arrFromSet.indexOf(userId)))
-                console.log("current user = ", userId)
-                
-
-                // INFO: 
-
-                
-                // var pulsateBool = await this.extractContributors(prom)
-                pulsateBool === true && this.pulsate(d3.select("[webstrateId=" + ws + "]"))
-                
-
-            })
-            
-        },
-        mainD3: function() {
-          
-
-            this.svg = d3.select(this.$el.querySelector('.calendar'))
-                .attr("width", this.padded.width)
-                .attr("height", this.padded.height)
-                .append("g")
-                .attr("transform", "translate(" + (this.margin.left + (this.padded.width - this.cellSize * 7) / 2) + "," +
-                    (this.margin.top + (this.padded.height - this.cellSize * 6) / 2) + ")")
-
-            this.groups = this.svg.selectAll("g.day")
-                .data(this.d3Const.dayRange)
-                .enter()
-                .append("g")
-                .attr('day', d => d.getDate())
-
-            this.groups
-                .append('rect')
-                .attr("class", "day")
-                .attr("width", this.cellSize)
-                .attr("height", this.cellSize)
-                .attr("x", date => this.d3Const.d3day(date) * this.cellSize)
-                .attr("y", date => (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
-                    date.getMonth(), 1))) * this.cellSize)
-
-            this.groups
-                .append('text')
-                .attr("x", date => 5 + this.d3Const.d3day(date) * this.cellSize)
-                .attr("y", date => 20 + (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
-                    date.getMonth(), 1))) * this.cellSize)
-                .text(d => d.getDate())
-
-        },
-        mainD3Second: function(days, d3colorsQuantizeMonth, d3colorsQuantileMonth) {
-            
-
-            var self = this
-          
-            
-            this.groups.selectAll('circle.activity')
-                .data((index, data, x) => {
-                    const date = index
-                        var x = Object.keys(days[date.getDate()] || {})
-                            .map(webstrateId => ({
-                                date,
-                                webstrateId,
-                                activities: days[date.getDate()][webstrateId],
-                            }))
-                            .sort((a, b) => b.activities - a.activities)
+                    var prom = await this.fetchActivityMixin(ws)
 
 
-                        x.forEach(webstrateId => {
-                            webstrateId.radius = webstrateId.activities.radius;
-                        })
-                        var arrayRadius = x.map(webstrateId => webstrateId.radius) // ADDED THIS TO DATA
-                        this.arrayRadius = arrayRadius
+                    let usersPerWsSet = new Set()
+                    let arrFromSet = []
+                    var dataFetched = prom
 
-                        var d3colorsQuantile = this.d3Scaling.colorQuantileScaling(arrayRadius)
-                        var d3colorsQuantize = this.d3Scaling.colorQuantizeScaling(arrayRadius)
-                        let colorQSet = new Set()
-
-                        // ----------- Day-based Scaling
-                        x.forEach(webstrateId => {
-                            webstrateId.color = d3colorsQuantile(webstrateId.radius)
-                        })
-                        x.forEach(webstrateId => {
-                            webstrateId.colorQ = d3colorsQuantize(webstrateId.radius)
-                            colorQSet.add(webstrateId.colorq)
-                        })
-
-                        this.colorQ = colorQSet
-                        // ----------- Month-based Scaling
-                        x.forEach(webstrateId => {
-                            webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius)
-                        })
-                        x.forEach(webstrateId => {
-                            webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius)
-                        })
-                        // this.$emit('webstrateIds', this.colorQ, this.arrayRadius) // is used to trigger listener in another component
-                        return x
-                    }
-
-                )
-                .enter()
-                .append('a')
-            // .attr("@contextmenu.prevent", function(d,i) {return self.$refs.ct.$refs.menu.open(self.$event, d.webstrateId)})
-                .on("mouseover", ({
-                    webstrateId
-                }) => {
-                    this.$route.fullPath === "/embedded"
-                        ? this.testSync(webstrateId)
-                        : this.showMessage(webstrateId)
-                })
-                .on("click", (d, i, nodes, webstrateId) => {
-                    
-                    if (this.$route.fullPath === "/embedded") {
-                        this.changeView("time-machine", d.webstrateId)
-                    } else {
-                        this.pulsate(d3.select(nodes[i]))
-                    }
-                    
-               })
-                     // })
-            // @contextmenu.prevent="$refs.ct.$refs.menu.open($event)"
-                .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
-                    console.log(this)
-                    d3.event.preventDefault();
-                    if (typeof self !== "undefined"){
-                        store.commit("changeContextMenuObject", d.webstrateId)
-                       // self.$refs.ct.$refs.menu.open(self.$event, d.webstrateId)
-                        console.log("d.webstrateId = ", d.webstrateId);
-                        
-                    }
-                })
-                .append('circle')
-                .attr('class', () => 'activity')
-                .attr('cx', ({
-                    date,
-                    activities
-                }) => this.d3Const.d3day(date) * this.cellSize + activities.position.x + activities.radius / 2)
-                .attr('cy', ({
-                    date,
-                    activities
-                }) => (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
-                    date.getMonth(), 1))) * this.cellSize + activities.position.y + activities.radius / 2)
-                .attr('r', ({
-                    activities
-                }) => activities.radius)
-                .style('fill', ({
-                    colorQ
-                }) => colorQ) // DAILY BASIS
-                // .style('fill', ({ scaling, colorMonthQ, colorQ }) => (transformedScaling == "changed") ? colorMonthQ : colorQ) // MONTHLY BASIS
-                .attr('webstrateId', ({
-                    webstrateId
-                }) => webstrateId)
-                .append('svg:title')
-                .text(({
-                    webstrateId,
-                    activities
-                }) => webstrateId + "\n" + activities.radius) // added info about radius ~ to activity
-
-        },
-        showMessage: async function(d) {
-            this.todoHovered = `${d}`
-            this.fetchActivity(d)
-            this.tags = await this.fetchTags(d)
-        },
-        // SOLVED: replace with one in mixin
-        // TODO: change name
-        fetchActivity: async function(webstrateIdInst) {
-
-            let usersPerWsSet = new Set()
-            let arrFromSet = []
-
-            var dataFetched = await this.fetchActivityMixin(webstrateIdInst)
-
-                Object.values(dataFetched).forEach(int => {
-                    Object.values(int).forEach(intN => {
-                        usersPerWsSet.add(intN.userId)
-                    })
-                })
-
-            arrFromSet = Array.from(usersPerWsSet)
-            this.usersPerWs = `${arrFromSet}`
-
-        },
-        mainInit: async function(inputDate) {
-            
-            var month = this.date.getMonth()
-            var year = this.date.getFullYear()
-
-            console.dir("DAY FUN")
-            console.dir(this.date.getDate())
-            console.dir("MONTH FUN")
-            console.dir(month)
-            console.dir("YEAR FUN")
-            console.dir(year)
-
-            var days = await this.fetchDaysOverview(inputDate)
-            
-            // dataFetcher('month', {
-            //     month,
-            //     year
-            // }).then(async (days) => {
-
-                let webstrateIds = new Set()
-                let effortTotal = new Set()
-
-                Object.values(days).forEach(day => {
-                    Object.keys(day).forEach(webstrateId => {
-                        webstrateIds.add(webstrateId)
-                    });
-
-                    Object.values(day).forEach(singleEffort => {
-                        effortTotal.add(singleEffort)
-                    })
-                })
-            
-
-            webstrateIds = Array.from(webstrateIds).sort()
-            this.pulsateGlobal(webstrateIds)
-            
-            // console.log("promisesActivities = ", promisesActivities);
-            // this.$emit('webstrateIds', webstrateIds) // is used to trigger listener in another component
-
-            // scalar is used to calculate the sizes of the circles. They need to be different sizes,
-            // so we can distinguish very active webstrates from not-so-active webstrates. However, a
-            // linear scaling usually doesn't give us a very good representation, so we just do some
-            // random trial-and-error Math here. There's no great insight to be had, other than the fact
-            // that we're using a logarithmic scale.
-
-                this.maxOps = Math.log(d3.max(Object.values(days), (day) => d3.max(Object.values(day)))) / 2
-                this.scalar = 1 / (this.maxOps / (this.cellSize / 19)) // after all, changes the diameter of the webstrates actitivity
-
-
-                // days is here indexed properly, starting from 1.
-                const promises = Object.keys(days).map(day => this.circleCoords.calculateCircleCoodrinates(days[day], this.scalar, this.cellSize));
-                // days has now become zero-indexed, so the data for the 1st of the month is at index position
-                // 0 and so on. We'll correct this, so it now corresponds to what days looked like above.
-
-
-                days = await Promise.all(promises);
-                for (let i = days.length; i; --i) {
-                    days[i + 1] = days[i];
-                }
-
-                delete days[0];
-
-                try {
-                    Object.values(days).forEach(day => {
-                        Object.values(day).forEach(singleEffort => {
-                            this.totalAcitvityPerMotnh.push(Object.values(singleEffort)[2])
+                    Object.values(dataFetched).forEach(int => {
+                        Object.values(int).forEach(intN => {
+                            usersPerWsSet.add(intN.userId)
                         })
                     })
-                } catch (err) {
-                    console.dir("Undefined is caught")
-                }
 
-                var d3colorsQuantizeMonth = this.d3Scaling.colorQuantizeScaling(this.totalAcitvityPerMotnh)
-                this.d3colorsQuantizeMonth = d3colorsQuantizeMonth
+                    arrFromSet = Array.from(usersPerWsSet)
 
-                var dom = d3colorsQuantizeMonth.domain(),
-                    l = (dom[1] - dom[0]) / d3colorsQuantizeMonth.range().length,
-                    breaks = d3.range(dom[0], dom[1], l)
+                    var pulsateBool = arrFromSet.indexOf(userId) > -1 ?
+                        true :
+                        false
 
-                this.breaks = breaks
-                this.$emit('webstrateIds', this.colorQ, this.breaks) // is used to trigger listener in another component
+                    // console.log("ws ID = ", ws)
+                    // console.log("pulsateBool = ", pulsateBool);
+                    // console.log("users = ", arrFromSet.pop(arrFromSet.indexOf(userId)))
+                    // console.log("current user = ", userId)
 
-                var d3colorsQuantileMonth = this.d3Scaling.colorQuantileScaling(this.totalAcitvityPerMotnh)
+                    pulsateBool === true && this.pulsate(d3.select("[webstrateId=" + ws + "]"))
 
-                this.mainD3()
-                this.mainD3Second(days, d3colorsQuantizeMonth, d3colorsQuantileMonth)
+                })
 
-            // })
+            },
+            mainD3: function() {
 
-        },
-        previousMonth: function() {
 
-            var myNode = this.$el.querySelector('svg')
-            while (myNode.firstChild) {
-                myNode.removeChild(myNode.firstChild);
-            }
-            
-            var containerMonth = this.date.getMonth()
-            this.date = (new Date(this.date.setMonth(containerMonth - 1)))
-            this.mainInit(this.date)
-        },
-        nextMonth: function() {
+                this.svg = d3.select(this.$el.querySelector('.calendar'))
+                    .attr("width", this.padded.width)
+                    .attr("height", this.padded.height)
+                    .append("g")
+                    .attr("transform", "translate(" + (this.margin.left + (this.padded.width - this.cellSize * 7) / 2) + "," +
+                        (this.margin.top + (this.padded.height - this.cellSize * 6) / 2) + ")")
 
-            var myNode = this.$el.querySelector('svg')
-            while (myNode.firstChild) {
-                myNode.removeChild(myNode.firstChild);
-            }
-            
-            var containerMonth = this.date.getMonth()
-            this.date = (new Date(this.date.setMonth(containerMonth + 1)))
-            this.mainInit(this.date)
-        },
+                this.groups = this.svg.selectAll("g.day")
+                    .data(this.d3Const.dayRange)
+                    .enter()
+                    .append("g")
+                    .attr('day', d => d.getDate())
+
+                this.groups
+                    .append('rect')
+                    .attr("class", "day")
+                    .attr("width", this.cellSize)
+                    .attr("height", this.cellSize)
+                    .attr("x", date => this.d3Const.d3day(date) * this.cellSize)
+                    .attr("y", date => (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
+                        date.getMonth(), 1))) * this.cellSize)
+
+                this.groups
+                    .append('text')
+                    .attr("x", date => 5 + this.d3Const.d3day(date) * this.cellSize)
+                    .attr("y", date => 20 + (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
+                        date.getMonth(), 1))) * this.cellSize)
+                    .text(d => d.getDate())
+
+            },
+            mainD3Second: function(days, d3colorsQuantizeMonth, d3colorsQuantileMonth) {
+
+
+                var self = this
+
+
+                this.groups.selectAll('circle.activity')
+                    .data((index, data, x) => {
+                            const date = index
+                            var x = Object.keys(days[date.getDate()] || {})
+                                .map(webstrateId => ({
+                                    date,
+                                    webstrateId,
+                                    activities: days[date.getDate()][webstrateId],
+                                }))
+                                .sort((a, b) => b.activities - a.activities)
+
+
+                            x.forEach(webstrateId => {
+                                webstrateId.radius = webstrateId.activities.radius;
+                            })
+                            var arrayRadius = x.map(webstrateId => webstrateId.radius) // ADDED THIS TO DATA
+                            this.arrayRadius = arrayRadius
+
+                            var d3colorsQuantile = this.d3Scaling.colorQuantileScaling(arrayRadius)
+                            var d3colorsQuantize = this.d3Scaling.colorQuantizeScaling(arrayRadius)
+                            let colorQSet = new Set()
+
+                            // ----------- Day-based Scaling
+                            x.forEach(webstrateId => {
+                                webstrateId.color = d3colorsQuantile(webstrateId.radius)
+                            })
+                            x.forEach(webstrateId => {
+                                webstrateId.colorQ = d3colorsQuantize(webstrateId.radius)
+                                colorQSet.add(webstrateId.colorq)
+                            })
+
+                            this.colorQ = colorQSet
+                            // ----------- Month-based Scaling
+                            x.forEach(webstrateId => {
+                                webstrateId.colorMonth = d3colorsQuantileMonth(webstrateId.radius)
+                            })
+                            x.forEach(webstrateId => {
+                                webstrateId.colorMonthQ = d3colorsQuantizeMonth(webstrateId.radius)
+                            })
+                            // this.$emit('webstrateIds', this.colorQ, this.arrayRadius) // is used to trigger listener in another component
+                            return x
+                        }
+
+                    )
+                    .enter()
+                    .append('a')
+                    // .attr("@contextmenu.prevent", function(d,i) {return self.$refs.ct.$refs.menu.open(self.$event, d.webstrateId)})
+                    .on("mouseover", ({
+                        webstrateId
+                    }) => {
+                        this.$route.fullPath === "/embedded" ?
+                            this.testSync(webstrateId) :
+                            this.showMessage(webstrateId)
+                    })
+                    .on("click", (d, i, nodes, webstrateId) => {
+
+                        if (this.$route.fullPath === "/embedded") {
+                            this.changeView("time-machine", d.webstrateId)
+                        } else {
+                            this.pulsate(d3.select(nodes[i]))
+                        }
+
+                    })
+                    // })
+                    // @contextmenu.prevent="$refs.ct.$refs.menu.open($event)"
+                    .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
+                        console.log(this)
+                        d3.event.preventDefault();
+                        if (typeof self !== "undefined") {
+                            store.commit("changeContextMenuObject", d.webstrateId)
+                            // self.$refs.ct.$refs.menu.open(self.$event, d.webstrateId)
+                            console.log("d.webstrateId = ", d.webstrateId);
+
+                        }
+                    })
+                    .append('circle')
+                    .attr('class', () => 'activity')
+                    .attr('cx', ({
+                        date,
+                        activities
+                    }) => this.d3Const.d3day(date) * this.cellSize + activities.position.x + activities.radius / 2)
+                    .attr('cy', ({
+                        date,
+                        activities
+                    }) => (this.d3Const.d3week(date) - this.d3Const.d3week(new Date(date.getFullYear(),
+                        date.getMonth(), 1))) * this.cellSize + activities.position.y + activities.radius / 2)
+                    .attr('r', ({
+                        activities
+                    }) => activities.radius)
+                    .style('fill', ({
+                        colorQ
+                    }) => colorQ) // DAILY BASIS
+                    // .style('fill', ({ scaling, colorMonthQ, colorQ }) => (transformedScaling == "changed") ? colorMonthQ : colorQ) // MONTHLY BASIS
+                    .attr('webstrateId', ({
+                        webstrateId
+                    }) => webstrateId)
+                    .append('svg:title')
+                    .text(({
+                        webstrateId,
+                        activities
+                    }) => webstrateId + "\n" + activities.radius) // added info about radius ~ to activity
+
+            },
+            showMessage: async function(d) {
+                    this.todoHovered = `${d}`
+                    this.fetchActivity(d)
+                    this.tags = await this.fetchTags(d)
+                },
+                // SOLVED: replace with one in mixin
+                // TODO: change name
+                fetchActivity: async function(webstrateIdInst) {
+
+                        let usersPerWsSet = new Set()
+                        let arrFromSet = []
+
+                        var dataFetched = await this.fetchActivityMixin(webstrateIdInst)
+
+                        Object.values(dataFetched).forEach(int => {
+                            Object.values(int).forEach(intN => {
+                                usersPerWsSet.add(intN.userId)
+                            })
+                        })
+
+                        arrFromSet = Array.from(usersPerWsSet)
+                        this.usersPerWs = `${arrFromSet}`
+
+                    },
+                    mainInit: async function(inputDate) {
+
+                            var month = this.date.getMonth()
+                            var year = this.date.getFullYear()
+
+                            console.dir("DAY FUN")
+                            console.dir(this.date.getDate())
+                            console.dir("MONTH FUN")
+                            console.dir(month)
+                            console.dir("YEAR FUN")
+                            console.dir(year)
+
+                            var days = await this.fetchDaysOverview(inputDate)
+
+                            // dataFetcher('month', {
+                            //     month,
+                            //     year
+                            // }).then(async (days) => {
+
+                            let webstrateIds = new Set()
+                            let effortTotal = new Set()
+
+                            Object.values(days).forEach(day => {
+                                Object.keys(day).forEach(webstrateId => {
+                                    webstrateIds.add(webstrateId)
+                                });
+
+                                Object.values(day).forEach(singleEffort => {
+                                    effortTotal.add(singleEffort)
+                                })
+                            })
+
+
+                            webstrateIds = Array.from(webstrateIds).sort()
+                            this.pulsateGlobal(webstrateIds)
+
+                            // console.log("promisesActivities = ", promisesActivities);
+                            // this.$emit('webstrateIds', webstrateIds) // is used to trigger listener in another component
+
+                            // scalar is used to calculate the sizes of the circles. They need to be different sizes,
+                            // so we can distinguish very active webstrates from not-so-active webstrates. However, a
+                            // linear scaling usually doesn't give us a very good representation, so we just do some
+                            // random trial-and-error Math here. There's no great insight to be had, other than the fact
+                            // that we're using a logarithmic scale.
+
+                            this.maxOps = Math.log(d3.max(Object.values(days), (day) => d3.max(Object.values(day)))) / 2
+                            this.scalar = 1 / (this.maxOps / (this.cellSize / 19)) // after all, changes the diameter of the webstrates actitivity
+
+
+                            // days is here indexed properly, starting from 1.
+                            const promises = Object.keys(days).map(day => this.circleCoords.calculateCircleCoodrinates(days[day], this.scalar, this.cellSize));
+                            // days has now become zero-indexed, so the data for the 1st of the month is at index position
+                            // 0 and so on. We'll correct this, so it now corresponds to what days looked like above.
+
+
+                            days = await Promise.all(promises);
+                            for (let i = days.length; i; --i) {
+                                days[i + 1] = days[i];
+                            }
+
+                            delete days[0];
+
+                            try {
+                                Object.values(days).forEach(day => {
+                                    Object.values(day).forEach(singleEffort => {
+                                        this.totalAcitvityPerMotnh.push(Object.values(singleEffort)[2])
+                                    })
+                                })
+                            } catch (err) {
+                                console.dir("Undefined is caught")
+                            }
+
+                            var d3colorsQuantizeMonth = this.d3Scaling.colorQuantizeScaling(this.totalAcitvityPerMotnh)
+                            this.d3colorsQuantizeMonth = d3colorsQuantizeMonth
+
+                            var dom = d3colorsQuantizeMonth.domain(),
+                                l = (dom[1] - dom[0]) / d3colorsQuantizeMonth.range().length,
+                                breaks = d3.range(dom[0], dom[1], l)
+
+                            this.breaks = breaks
+                            this.$emit('webstrateIds', this.colorQ, this.breaks) // is used to trigger listener in another component
+
+                            var d3colorsQuantileMonth = this.d3Scaling.colorQuantileScaling(this.totalAcitvityPerMotnh)
+
+                            this.mainD3()
+                            this.mainD3Second(days, d3colorsQuantizeMonth, d3colorsQuantileMonth)
+
+                            // })
+
+                        },
+                        previousMonth: function() {
+
+                            var myNode = this.$el.querySelector('svg')
+                            while (myNode.firstChild) {
+                                myNode.removeChild(myNode.firstChild);
+                            }
+
+                            var containerMonth = this.date.getMonth()
+                            this.date = (new Date(this.date.setMonth(containerMonth - 1)))
+                            this.mainInit(this.date)
+                        },
+                        nextMonth: function() {
+
+                            var myNode = this.$el.querySelector('svg')
+                            while (myNode.firstChild) {
+                                myNode.removeChild(myNode.firstChild);
+                            }
+
+                            var containerMonth = this.date.getMonth()
+                            this.date = (new Date(this.date.setMonth(containerMonth + 1)))
+                            this.mainInit(this.date)
+                        },
     },
     mounted() {
 
@@ -750,5 +741,3 @@ window.MonthViewComponent = Vue.component('month-view', {
     }
 
 })
-            
-            

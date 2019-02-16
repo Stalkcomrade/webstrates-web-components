@@ -29,10 +29,14 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
         isUpdated: false, // INFO: in order to keep info about prop and selected I use this
         selected: this.mode // INFO: important for first init
     }),
-    watch: {
-    },
     computed: {
-        currentNodeComputed () {
+
+        // ...mapState([
+        //     currentNodeInitial,
+        //     currentNodeLatest
+        // ]),
+
+        currentNodeComputed() {
             return this.$store.getters.currentNodeGet
         },
         counter() {
@@ -43,33 +47,35 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
             console.dir("DYNAMIC COMPONENT")
 
             var diff = this.diff
-            
+
             return {
                 render(h) {
                     return h('div', {
-                        'class': 'omg'
-                    },
-                             [h('pre', {'id': 'display'},
-                                diff.map(el => (h('span', // SOLVED: returning array in a map
-                                                 {
-                                                     style: {'color': el.added ? 'green' :
-                                                             el.removed ? 'red' : 'grey'},
-                                                     domProps: {
-                                                         innerHTML: el.value
-                                                     }
-                                                 }))
-                                        ))]
-                            )
+                            'class': 'omg'
+                        },
+                        [h('pre', {
+                                'id': 'display'
+                            },
+                            diff.map(el => (h('span', // SOLVED: returning array in a map
+                                {
+                                    style: {
+                                        'color': el.added ? 'green' : el.removed ? 'red' : 'grey'
+                                    },
+                                    domProps: {
+                                        innerHTML: el.value
+                                    }
+                                }))))]
+                    )
                 }
             }
         }
     },
     methods: {
-        findSelectedInList: function(list, propertyName, valueFilter){
+        findSelectedInList: function(list, propertyName, valueFilter) {
             let selected
-            
+
             function innerFunction(list, propertyName, valueFilter) {
-                
+
 
                 if (typeof Object.values(list) != "undefined") {
                     Object.values(list).some((currentItem) => {
@@ -80,18 +86,18 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                                     (typeof currentItem.children !== "undefined" && innerFunction(currentItem.children, propertyName, valueFilter))
                             }
                         }
-                    }
-                                            )}
+                    })
+                }
                 return selected
             }
 
 
             return innerFunction(list, propertyName, valueFilter)
-            
+
         }
     },
     async mounted() {
-        
+
         // FIXME: this is used only once
         this.$watch(
             vm => ([vm.currentNodeComputed, vm.selected, vm.counter].join()), val => {
@@ -108,15 +114,15 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                     this.isUpdated = true
                 } else {
                     localMode = this.selected
-                } 
-                
+                }
+
                 var preDiffLocal = []
                 preDiffLocal.push(this.findSelectedInList(this.counter[0].data.children,
-                                                          "name",
-                                                          this.currentNodeComputed)) // INFO: initial version
+                    "name",
+                    this.currentNodeComputed)) // INFO: initial version
                 preDiffLocal.push(this.findSelectedInList(this.counter[1].data.children,
-                                                          "name",
-                                                          this.currentNodeComputed) + "NEW") // INFO: later version
+                    "name",
+                    this.currentNodeComputed) + "NEW") // INFO: later version
 
                 console.log("Counter: \n", this.counter)
                 console.log("PreDIF :\n", preDiffLocal)
@@ -127,36 +133,40 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                     var funToReturn;
 
                     switch (mode) {
-                    case "patch":
-                        funToReturn = window.jsdiffTrue.createPatch
-                        break;
-                    case "sentence":
-                        funToReturn = window.jsdiffTrue.diffSentences
-                        break;
-                    case "line":
-                        funToReturn = window.jsdiffTrue.diffLines
-                        break;
-                    case "char":
-                        funToReturn = window.jsdiffTrue.diffChars
-                        break;
+                        case "patch":
+                            funToReturn = window.jsdiffTrue.createPatch
+                            break;
+                        case "sentence":
+                            funToReturn = window.jsdiffTrue.diffSentences
+                            break;
+                        case "line":
+                            funToReturn = window.jsdiffTrue.diffLines
+                            break;
+                        case "char":
+                            funToReturn = window.jsdiffTrue.diffChars
+                            break;
                     }
                     return funToReturn
                 }
-                
+
                 var funDiff = calculateDiff(localMode)
                 // console.dir(funDiff)
                 // console.dir("nmew fund idff")
                 // console.dir(localMode)
 
-                this.diff = localMode === 'patch'
-                    ? funDiff("test", preDiffLocal[0], preDiffLocal[1], "old", "new" )
-                    : funDiff(preDiffLocal[0], preDiffLocal[1])
+                this.diff = localMode === 'patch' ?
+                    funDiff("test", preDiffLocal[0], preDiffLocal[1], "old", "new") :
+                    funDiff(preDiffLocal[0], preDiffLocal[1])
 
-                
+
                 if (localMode === 'patch') {
                     var diffHtml = Diff2Html.getPrettyHtml(
-                        this.diff,
-                        {inputFormat: 'diff', showFiles: false, matching: 'lines', outputFormat: 'side-by-side'}
+                        this.diff, {
+                            inputFormat: 'diff',
+                            showFiles: false,
+                            matching: 'lines',
+                            outputFormat: 'side-by-side'
+                        }
                     )
                     document.getElementById("pretty-diff-custom").innerHTML = diffHtml;
                 } else {

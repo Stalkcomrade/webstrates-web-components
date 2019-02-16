@@ -13,15 +13,19 @@ window.cmc = Vue.component('c-m-c', {
       <li @click="onClick(child.data)">Option 1</li>
   </ul>
   <ul v-else-if="currentRoute === '/calendar'" slot-scope="child">
-      <li @click="visitCurrentWebstrate(child.data)">Visit Webstrate</li>
-      <li @click="visitCurrentWebstrate(child.data)">Inspect Sessions</li>
-      <li @click="visitCurrentWebstrate(child.data)">Inspect Versions</li>
-      <li @click="visitCurrentWebstrate(child.data)">Compare Changes</li>
-      <li> ---- </li>
+      <li @click="visitCurrentWebstrate">Visit Webstrate</li>
       <li @click="visitCurrentWebstrate(child.data)">Copy Webstrate</li>
+      <li> ---- </li>
       <li @click="inspectSessions">Inspect Sessions</li>
       <li @click="inspectVersions">Inspect Versions</li>
+      <li @click="inspectTree">Inspect Tree</li>
+      <li @click="inspectTransclusions">Inspect Transclusions</li>
+      <li @click="inspectCopies">Inspect Copies</li>
+      <li @click="inspectComplex">Inspect Complex</li>
+      <li> ---- </li>
       <li @click="goBack">Go Back</li>
+      <li> ---- </li>
+      <li @click="$store.dispatch('getWebstratesList')">Store</li>
   </ul>
   <ul v-else slot-scope="child">
     <li @click="onClick(child.data)">Option 1</li>
@@ -41,15 +45,48 @@ window.cmc = Vue.component('c-m-c', {
         goBack() {
             this.$router.go(-1)
         },
+        inspectTransclusions() {
+            this.$store.commit("changeCurrentWebstrateId", this.$store.state.contextMenuObject)
+            // this.$router.push({ name: 'foo', })
+            this.$router.push({
+                path: '/transclusion1',
+                params: {
+                    modeProp: 'transclusion'
+                }
+            })
+        },
+        inspectCopies() {
+            this.$store.commit("changeCurrentWebstrateId", this.$store.state.contextMenuObject)
+            this.$router.push({
+                path: '/transclusion1',
+                params: {
+                    modeProp: 'copy'
+                }
+            })
+        },
+        inspectTree() {
+            this.$store.commit("changeCurrentWebstrateId", this.$store.state.contextMenuObject)
+            this.$router.push({
+                path: '/dom-tree-d3'
+            })
+        },
+        inspectComplex() {
+            this.$store.commit("changeCurrentWebstrateId", this.$store.state.contextMenuObject)
+            this.$router.push({
+                path: '/session-inspector'
+            })
+        },
         inspectVersions() {
-            this.$router.push({ path: '/time-machine' })
-            
+            this.$router.push({
+                path: '/time-machine'
+            })
         },
         inspectSessions() {
-            this.$router.push({ path: '/timeline' })
-            
+            this.$router.push({
+                path: '/timeline'
+            })
         },
-        onClick (data) {
+        onClick(data) {
             console.dir("!!!")
             console.dir(data)
         },
@@ -60,13 +97,13 @@ window.cmc = Vue.component('c-m-c', {
             console.dir(webstrateId)
         },
         visitCurrentWebstrate: function(webstrateId) {
-            window.location.replace(window.serverAddress + webstrateId + "/")
+            window.open(window.serverAddress + this.$store.state.contextMenuObject + "/", '_blank') // INFO: new tabs
         },
+        // TODO: 
         copyCurrentWebstrate: function(webstrateId) {
             // http://<hostname>/<webstrateId>?restore=<versionOrTag>
         }
     },
-    mounted(){
-    }
+    mounted() {}
 
 })

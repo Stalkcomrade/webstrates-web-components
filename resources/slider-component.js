@@ -10,8 +10,6 @@ window.slider = Vue.component('vue-slider-configured', {
     components: {
         'vue-slider': window.vueSlider
     },
-    // :min="sliderOptionsComp.min" :max="sliderOptionsComp.max"
-    // :options="sliderOptionsComp"
     template: `
 <div>
 

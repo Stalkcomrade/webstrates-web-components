@@ -60,7 +60,8 @@ webstrate.on('loaded', () => {
             },
             {
                 path: '/transclusion1',
-                component: transclusionComponent
+                component: transclusionComponent,
+                props: true
             },
             {
                 path: '/recent',

@@ -1,5 +1,8 @@
+// FIXME: transient tags is invisible
+
 window.transclusionComponent = Vue.component('transclusion', {
     mixins: [window.dataFetchMixin, window.dataObjectsCreator, window.network],
+    props: ["modeProp"],
     components: {
         'c-m-c': window.cmc
     },
@@ -13,7 +16,7 @@ window.transclusionComponent = Vue.component('transclusion', {
 
 <c-m-c ref='ct'/>
 
-<b-btn variant="info" @click="updateView(selected, 'copy')">Show Copies</b-btn>
+<b-btn variant="info"    @click="updateView(selected, 'copy')">Show Copies</b-btn>
 <b-btn variant="primary" @click="updateView(selected, 'transclusions')">Show Transclusions</b-btn>
 
 <br>
@@ -56,19 +59,51 @@ window.transclusionComponent = Vue.component('transclusion', {
 </div>
 `,
     watch: {
+        d3Data() {
+            
+            console.dir("INSIDE d3Data Watcher")
+            this.removeChildren("initial")
+            
+            var container = {
+                name: "main",
+                children: this.d3Data
+            }
+            this.rootInstance = this.root(container)
+            console.log("this.rootInstance = ", this.rootInstance);
+            // INFO: right - important here cause is used in versioning
+            console.log("this.selectors = ", this.selectors);
+            
+            var selectors = this.getSelectors(false, "initial")
+            this.update(this.rootInstance, "right", selectors)
+            
+        },
         selected: function(newValue, oldValue) {
             console.dir("Initial State Watch in time-machine-component.js")
             // this.updateView(newValue)
         },
     },
+    computed: {
+        selected: {
+            get() {
+                return this.$store.state.contextMenuObject === ''
+                    ? this.$store.state.webstrateId
+                    : this.$store.state.contextMenuObject
+            },
+
+            set(value) {
+                this.$store.commit('changeCurrentWebstrateId', value)
+            }
+        }
+    },
     data: () => ({
-        selected: 'short-turtle-55', // INFO: default value
+        // selected: 'short-turtle-55', // INFO: default value
+        d3Data: "",
         options: ''
     }),
     methods: {
         
         extractSummary: function(input) {
-
+ 
             // var reg = /(?=\<iframe.*?src="\/(.*?)\/*?".*?<\/iframe\>)|(?=\<iframe.*?wid="(.*?)".*?<\/iframe\>)/gi
             // var reg = /\<iframe src="\/(.*?)\/".*?\_\_wid="(.*?)".*?<\/iframe\>/gi // INFO: two groups
             var regSrc = /\<iframe.*?src="\/(.*?)\/*?".*?<\/iframe\>/gi
@@ -81,12 +116,14 @@ window.transclusionComponent = Vue.component('transclusion', {
                          src: e.replace(regSrc, '$1'),
                      }
                  })
+                console.log("src = ", src);
 
                  var wid =  (input.match(regWid) || []).map(e => {
                      return {
                          wid: e.replace(regWid, '$1'),
                      }
                  })
+                console.log("wid = ", wid);
 
                  var tt = wid.map((el, index) => {
                      return {
@@ -94,14 +131,15 @@ window.transclusionComponent = Vue.component('transclusion', {
                          src: src[index].src
                      }
                  })
+                console.log("tt = ", tt);
 
+               
                  return tt
 
              } catch (err) {
                  return null
              }
         },
-        
         searchCopies: async function(input){
 
             console.dir("Copies")
@@ -110,6 +148,8 @@ window.transclusionComponent = Vue.component('transclusion', {
                 children = []
             
             var cpsWs = await this.getOpsJsonMixin(input)
+            // console.log("cpsWs = ", cpsWs);
+            
             
             children = {
                 value: (typeof cpsWs[0].create !== "undefined" && typeof cpsWs[0].create.id !== "undefined"
@@ -126,7 +166,6 @@ window.transclusionComponent = Vue.component('transclusion', {
             
             return target
         },
-
         sqt: async function(input){
 
             console.dir("Transclusion")
@@ -152,32 +191,37 @@ window.transclusionComponent = Vue.component('transclusion', {
                     target.push(children)
                 }
             } else {
+                
                 console.dir("else statement")
+                
             }
             return target
 
         },
-
         updateView: async function(selected, mode){
 
-
             console.log("updateView = ",);
-            this.removeChildren() // INFO: Deleting old DOM nodes
+            // this.removeChildren("initial") // INFO: Deleting old DOM nodes
             
-            var input = typeof selected !== "undefined"
+            var input = typeof selected !== undefined
                 ? this.selected
                 : selected
 
             this.d3Data = mode == "copy"
                 ? await this.init(input, "type", this.searchCopies)
                 : await this.init(input, "type", this.sqt)
+            
+            console.log("this.d3Data = ", this.d3Data);
         }
     },
     async created() {
+        
         var DaysPromise = await this.fetchDaysOverview((new Date))
         this.options = this.listOfWebstrates(DaysPromise)
+        
     },
-    mounted() {
+   async mounted() {
+        
         // debugger
         // this.initiateTransclusion()
         // this.createIframe("tasty-lionfish-70")
@@ -187,17 +231,25 @@ window.transclusionComponent = Vue.component('transclusion', {
         // let wsId = "wonderful-newt-54/"
         // let wsId = "tasty-lionfish-70" // copies
         // let wsId = "short-turtle-55" // transclusions
-        
+
         this.tree = d3.tree().nodeSize([this.dx, this.dy])
         this.diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x)
-        this.getSelectors()
+        this.selectors = this.getSelectors(true)
 
         // INFO: Creating graph
         // INFO: searching for copies by default
-        this.d3Data = this.init("short-turtle-55", "type", this.searchCopies, undefined)
+       // this.d3Data = await this.init("short-turtle-55", "type", this.searchCopies)
+       // this.d3Data = await this.init(this.selected, "type", this.searchCopies)
+
+       this.modeProp === "copy"
+           ? this.d3Data = await this.init(this.selected, "type", this.searchCopies)
+           : this.d3Data = await this.init(this.selected, "type", this.sqt)
+       
+       // this.d3Data = await this.init(this.selected, "type", this.searchCopies)
+
+       this.updateView()
 
       
         
     }
 })
-console.log("updateView = ", updateView);
