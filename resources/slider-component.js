@@ -94,18 +94,13 @@ window.slider = Vue.component('vue-slider-configured', {
             if (mode === "tags") { // INFO: user Tags Mode
 
                 var tags = await this.fetchTags(this.$store.state.webstrateId)
-                console.log("this.$store = ", this.$store.state.webstrateId); // FIXME:
-                console.log("tags = ", tags);
-
-                // var regSrc = /\<iframe.*?src="\/(.*?)\/*?".*?<\/iframe\>/gi
-                // var regSrc = /.*Session of smth.*/gi
-                // input.match(regSrc)
+                // console.log("this.$store = ", this.$store.state.webstrateId); // FIXME:
+                // console.log("tags = ", tags);
 
                 var regSrc = /.*?Session.*?/gi
 
-                window.tags = tags
-
-                this.sliderOptionsComp.mergeFormatter = "¥{value[0]} ~ ¥{value[1]}"
+                // window.tags = tags
+                // this.sliderOptionsComp.mergeFormatter = "¥{value[0]} ~ ¥{value[1]}"
 
                 try {
                     var tt = tags.map((el, i, tags) => {
@@ -115,13 +110,14 @@ window.slider = Vue.component('vue-slider-configured', {
                             label: tags[i].label
                         }
                     }).filter(el => el !== false)
-                    console.log("tt = ", tt);
+
+                    // console.log("tt = ", tt);
 
 
                     if (typeof tt === "undefined") {
 
                         console.log("NO User-Defined Tags")
-                        console.log("tt = ", tt);
+                        // console.log("tt = ", tt);
 
                         this.sliderOptionsComp.data = [1]
                         this.sliderOptionsComp.min = 0
@@ -131,22 +127,22 @@ window.slider = Vue.component('vue-slider-configured', {
                     } else {
 
                         console.log("There User-Defined Tags")
-                        console.log("tt = ", tt);
+
+                        // console.log("tt = ", tt);
+                        // console.log("this.sliderOptionsComp = ", this.sliderOptionsComp.data);
+
+
 
                         this.sliderOptionsComp.data = tt
-                        console.log("this.sliderOptionsComp = ", this.sliderOptionsComp.data);
-                        this.sliderOptionsComp.interval = 1
                         this.sliderOptionsComp.piecewiseLabel = true
                         this.sliderOptionsComp.min = tt[0].v
                         this.sliderOptionsComp.max = tt[tt.length - 1].v
-                        setTimeout(() => {
 
+
+                        this.$nextTick(() => {
                             this.sliderOptionsComp.formatter = (v) => `${v.label}`
                             this.sliderOptionsComp.mergeFormatter = (v1, v2) => `¥${v1.label} ~ ¥${v2.label}`
-
-                        }, 2000)
-
-
+                        });
 
                         this.sliderOptionsComp.piecewiseStyle = {
                             "backgroundColor": "#ccc",
@@ -197,11 +193,21 @@ window.slider = Vue.component('vue-slider-configured', {
 
                 // this.sliderOptionsComp.data = vUnited // FIXME: delete
                 this.sliderOptionsComp.data = tags // FIXME: delete
-                this.sliderOptionsComp.interval = 1
+                // this.sliderOptionsComp.interval = 1
                 this.sliderOptionsComp.piecewiseLabel = true
                 // this.sliderOptionsComp.formatter = "(v) => `¥{v.label}`"
-                this.sliderOptionsComp.formatter = (v) => `${v.label}`
-                this.sliderOptionsComp.mergeFormatter = (v1, v2) => `¥${v1.label} ~ ¥${v2.label}`
+
+                this.$nextTick(() => {
+                    this.sliderOptionsComp.formatter = (v) => `${v.label}`
+                    this.sliderOptionsComp.mergeFormatter = (v1, v2) => `¥${v1.label} ~ ¥${v2.label}`
+                });
+
+                // setTimeout(() => {
+                //     this.sliderOptionsComp.formatter = (v) => `${v.label}`
+                //     this.sliderOptionsComp.mergeFormatter = (v1, v2) => `¥${v1.label} ~ ¥${v2.label}`
+                // }, 100)
+
+
                 // this.sliderOptionsComp.mergeFormatter = "¥{value[0]} ~ ¥{value[1]}"
 
 
@@ -226,16 +232,25 @@ window.slider = Vue.component('vue-slider-configured', {
 
                 console.log("raw versions")
 
+                var lastVersion = await this.lastVersion(this.$store.state.webstrateId)
+
+                this.sliderOptionsComp.piecewiseLabel = false
                 this.sliderOptionsComp.min = 1
-                this.sliderOptionsComp.max = await this.lastVersion(wsId)
+                this.sliderOptionsComp.max = lastVersion
+
+                // console.log(this.getOpsJsonMixin(this.$store.state.webstrateId))
+                // console.log("Last version", this.sliderOptionsComp.max)
+                // console.log("this.sliderOptionsComp.data = ", this.sliderOptionsComp.data);
 
                 const range = (start, stop, step = 1) =>
                     Array(Math.ceil((stop - start) / step)).fill(start).map((x, y) => x + y * step)
 
                 this.sliderOptionsComp.data = range(this.sliderOptionsComp.min, this.sliderOptionsComp.max)
 
-                this.sliderOptionsComp.interval = 30
+                this.sliderOptionsComp.interval = 20
                 this.sliderOptionsComp.piecewiseLabel = false
+
+
                 this.sliderOptionsComp.formatter = "{value}"
                 this.sliderOptionsComp.mergeFormatter = "¥{value[0]} ~ ¥{value[1]}"
 
@@ -277,16 +292,28 @@ window.slider = Vue.component('vue-slider-configured', {
 
             // INFO: checking whether versions are wrapped in array of objects
 
-            if (typeof this.valueSlider[0].v !== undefined) {
+            if (this.valueSlider[0].v !== undefined && this.valueSlider[0].v !== null) {
+
+                console.log(this.valueSlider)
+                console.log("CHECKING Slider type", typeof this.valueSlider[0].v !== undefined)
+
                 var parsedVersions = this.valueSlider.map(el => {
                     return el.v
                 })
                 console.log("this.valueSlider = ", this.valueSlider);
                 console.log("parsedVersions = ", parsedVersions);
-                this.$store.commit("changeSliderVersions", parsedVersions)
+
+                setTimeout(() => {
+                    this.$store.commit("changeSliderVersions", parsedVersions)
+                }, 3000)
+
+
 
             } else {
-                this.$store.commit("changeSliderVersions", this.valueSlider)
+                setTimeout(() => {
+                    this.$store.commit("changeSliderVersions", this.valueSlider)
+                }, 3000)
+
             }
 
             console.log("SLIDER STORE:", this.$store.state.valueSlider)

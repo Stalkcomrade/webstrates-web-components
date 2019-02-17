@@ -7,7 +7,7 @@ webstrate.on('loaded', () => {
             listWebstrates: '', // INFO: list of webstrates
             contextMenuObject: '', // INFO: transfering data 
             contextMenuContext: '', // INFO: using this on order to pop-up approp version
-            currentNode: '', // FIXME: legacy
+            currentGraphData: '',
             currentNode: '',
             currentNodeInitial: '',
             currentNodeLatest: '',
@@ -31,6 +31,9 @@ webstrate.on('loaded', () => {
             },
         },
         mutations: {
+            changeGraphData(state, payload) {
+                state.GraphData = payload
+            },
             changeWebstratesList(state, payload) {
                 state.listWebstrates = payload
             },
@@ -70,7 +73,7 @@ webstrate.on('loaded', () => {
         actions: {
             async getWebstratesList(context) {
 
-                if (store.state.listWebstrates === '') {
+                if (this.$store.state.listWebstrates === '') {
 
                     var inputDate = new Date()
 

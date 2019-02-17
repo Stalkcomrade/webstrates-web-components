@@ -102,7 +102,7 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 
             var tw = d3.selectAll("#gNode")
 
-            tw.select("text")
+            tw.selectAll("text")
                 .attr("stroke", d => {
                     if (d.class === "section section-hidden") {
                         return "blue"
@@ -200,6 +200,8 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 
                 var selectorsInst = this.getSelectors(false, "initial")
                 this.rootInstance = this.root(containerLatest)
+                window.dfr = this.rootInstance
+                // changeGraphData
                 this.update(this.rootInstance, selectorsInst)
 
             }, {

@@ -92,9 +92,18 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                     Object.values(list).some((currentItem) => {
                         if (typeof currentItem != null | typeof currentItem !== "undefined") {
                             if (typeof currentItem[propertyName] !== "undefined" | typeof currentItem[propertyName] != null) {
-                                currentItem[propertyName] === valueFilter && currentItem._alignment === alignment ?
-                                    selected = currentItem.innerText :
+                                if (currentItem[propertyName] === valueFilter && currentItem.alignment === alignment) {
+                                    selected = currentItem.innerText
+                                    console.group("1")
+                                    console.log("currentItem", currentItem)
+                                    console.log("currentItem Alignment", currentItem.alignment)
+                                    console.log("alignment", alignment)
+                                    console.log("value filer", valueFilter)
+                                    console.log("propertyName", propertyName)
+                                    console.groupEnd("1")
+                                } else {
                                     (typeof currentItem.children !== "undefined" && innerFunction(currentItem.children, propertyName, valueFilter, alignment))
+                                }
                             }
                         }
                     })
@@ -103,7 +112,7 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
             }
 
 
-            return innerFunction(list, propertyName, valueFilter)
+            return innerFunction(list, propertyName, valueFilter, alignment)
 
         }
     },
@@ -113,10 +122,10 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
         this.$watch(
             vm => ([vm.currentNodeComputed, vm.selected, vm.counter].join()), val => {
 
-                console.dir("Watched")
-                console.dir("STATE:")
-                console.dir(this.$store.state.currentNode)
-                console.log("selected: ", this.selected)
+                console.dir("Inside diff")
+                // console.dir("STATE:")
+                // console.dir(this.$store.state.currentNode)
+                // console.log("selected mode: ", this.selected)
                 console.log("currentNodeComputed: ", this.currentNodeComputed)
                 console.log("counter: ", this.counter)
 
@@ -130,14 +139,31 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                     localMode = this.selected
                 }
 
+                console.log("checking whether array is empty", preDiffLocal)
                 var preDiffLocal = []
 
-                console.log("!!!!!!!", this.counter[0])
-
+                // console.log("!!!!!!!", this.counter[0])
                 // FIXME: eliminate counter since there is no more need for array
-                preDiffLocal.push(this.findSelectedInList(this.counter[0].data.children,
+                // FIXME: update counter
+                // FIXME: consider case with empty list
+                // d3.select("#svgMain").
+
+
+                // console.log("Left", this.findSelectedInList(window.dfr.data.children,
+                //     "name", this.currentNodeComputed, "left"))
+                // console.log("Right", this.findSelectedInList(window.dfr.data.children,
+                //     "name", this.currentNodeComputed, "right"))
+
+                // this.findSelectedInList(window.dfr.data.children,
+                //     "name", this.currentNodeComputed, "left")
+                // "Right", this.findSelectedInList(window.dfr.data.children,
+                //     "name", this.currentNodeComputed, "right")
+
+
+                // this.counter[0].data.children
+                preDiffLocal.push(this.findSelectedInList(window.dfr.data.children,
                     "name", this.currentNodeComputed, "left")) // INFO: initial version
-                preDiffLocal.push(this.findSelectedInList(this.counter[0].data.children,
+                preDiffLocal.push(this.findSelectedInList(window.dfr.data.children,
                     "name", this.currentNodeComputed, "right") + "NEW") // INFO: later version
 
                 console.log("Counter: \n", this.counter)
@@ -171,7 +197,9 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                 // console.dir(localMode)
 
                 this.diff = localMode === 'patch' ?
-                    funDiff("test", preDiffLocal[0], preDiffLocal[1], "old", "new") :
+                    funDiff(this.$store.state.webstrateId, preDiffLocal[0], preDiffLocal[1],
+                        "version: " + this.$store.state.sliderVersions[0],
+                        "version: " + this.$store.state.sliderVersions[1]) :
                     funDiff(preDiffLocal[0], preDiffLocal[1])
 
 

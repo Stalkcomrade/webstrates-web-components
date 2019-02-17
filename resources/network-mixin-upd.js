@@ -432,7 +432,6 @@ window.networkUpd = Vue.mixin({
                     console.log(d)
 
 
-
                     let selected = []
                     var re = self.findSelectedInList(selected, root.children, "name", d.data.name)
 
@@ -440,7 +439,7 @@ window.networkUpd = Vue.mixin({
                     re.forEach((el) => {
                         el.children = el.children ? null : el._children;
                         self.update(el, selectors)
-                        this.codestrateMode()
+
 
                         // store.commit('changeCurrentNode', d.data.name)
 
@@ -452,6 +451,8 @@ window.networkUpd = Vue.mixin({
                         // console.dir(d.data.innerText)
 
                     })
+
+                    this.codestrateModeFlag === true && this.codestrateMode()
 
 
 
