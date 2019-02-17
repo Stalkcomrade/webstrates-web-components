@@ -28,8 +28,7 @@ window.cmc = Vue.component('c-m-c', {
       <li @click="$store.dispatch('getWebstratesList')">Store</li>
   </ul>
   <ul v-else slot-scope="child">
-    <li @click="onClick(child.data)">Option 1</li>
-    <li @click="bookmarkCurrentWebstrate(child.data)">Bookmark Webstrate</li>
+    <li @click="inspectTree">Inspect Diff in Selected Sessions</li>
     <li @click="visitCurrentWebstrate(child.data)">Visit Webstrate</li>
   </ul>
 
@@ -64,8 +63,9 @@ window.cmc = Vue.component('c-m-c', {
                 }
             })
         },
+        // INFO: if it is called from calendar - mutate webstrateId from node, if not - use current wsId
         inspectTree() {
-            this.$store.commit("changeCurrentWebstrateId", this.$store.state.contextMenuObject)
+            this.$route === "/calendar" && this.$store.commit("changeCurrentWebstrateId", this.$store.state.contextMenuObject)
             this.$router.push({
                 path: '/dom-tree-d3'
             })

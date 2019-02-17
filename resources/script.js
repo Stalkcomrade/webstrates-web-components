@@ -1,6 +1,7 @@
 webstrate.on('loaded', () => {
 
     Vue.config.ignoredElements = ['transient'];
+    Vue.config.devtools = true;
     // Create container and instantiate template.
     const containerElement = document.createElement('transient');
     containerElement.setAttribute('id', 'container');
@@ -54,7 +55,7 @@ webstrate.on('loaded', () => {
                 path: '/embedded',
                 component: Embedded
             },
-                 {
+            {
                 path: '/session-inspector',
                 component: SessionInspectorComponent
             },
@@ -78,7 +79,7 @@ webstrate.on('loaded', () => {
     });
 
     const store = window.store
-    
+
     // Create Vue application and mount in container.
     const app = new Vue({
         router,

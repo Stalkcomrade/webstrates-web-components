@@ -8,13 +8,15 @@ webstrate.on('loaded', () => {
             contextMenuObject: '', // INFO: transfering data 
             contextMenuContext: '', // INFO: using this on order to pop-up approp version
             currentNode: '', // FIXME: legacy
+            currentNode: '',
             currentNodeInitial: '',
             currentNodeLatest: '',
             webstrateId: 'hungry-cat-75',
             sessionObject: '',
-            sliderVersions: [1, 2],
+            sliderVersions: [1, 2], // INFO: versioning
         },
         getters: {
+            // FIXME:
             currentNodeGet: state => {
                 return state.currentNode
             },
@@ -54,9 +56,16 @@ webstrate.on('loaded', () => {
             changeCurrentWebstrateId(state, payload) {
                 state.webstrateId = payload
             },
-            changeSliderVersions(state, payload) {
+            changeSliderVersions(state, payload) { // INFO: change both versions
                 state.sliderVersions = payload
+            },
+            changeInitialVersion(state, payload) { // INFO: change intial version
+                state.sliderVersions[0] = payload
+            },
+            changeLatestVersion(state, payload) { // INFO: change intial version
+                state.sliderVersions[1] = payload
             }
+
         },
         actions: {
             async getWebstratesList(context) {

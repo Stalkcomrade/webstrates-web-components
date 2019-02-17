@@ -77,6 +77,8 @@ window.dataFetchMixin = Vue.mixin({
                      */
                     getHtmlsPerSessionMixin: async function(selected, initialVersion, finalVersion, snapshot, snapshotCustom) {
 
+                            console.log("SELCTED: ", selected)
+
                             let tmp = await fetch("https://webstrates.cs.au.dk/horrible-dingo-75/")
                             let tmp1 = await tmp.text()
                             window.tmp2 = new DOMParser().parseFromString(tmp1, "text/html")
@@ -94,7 +96,13 @@ window.dataFetchMixin = Vue.mixin({
                             let wsId = typeof selected === "undefined" ? "wonderful-newt-54" : selected
 
                             // INFO: use last version available if no is specified
-                            var versionmax = await fetch(window.serverAddress + wsId + "/?v").then(body => body.json())
+
+                            console.log(fetch(window.serverAddress + wsId + "/?v"))
+                            var versionmaxTmp = await fetch(window.serverAddress + wsId + "/?v")
+                            // .then(body => body.json())
+                            // var versionmax = await versionmaxTmp.json()
+                            var versionmax = versionmaxTmp.json()
+
                             let version = typeof versionmax === "undefined" ? 1 : versionmax.version
 
                             console.dir("VERSION INPUT")
@@ -131,6 +139,7 @@ window.dataFetchMixin = Vue.mixin({
                                 let numberLast = typeof finalVersion === "undefined" ? 2 : finalVersion // INFO: if undefined, simply last version
 
                                 let webpageInitial = await fetch(window.serverAddress + wsId + "/" + numberInitial + "/?raw")
+                                // debugger
                                 let htmlResultInitial = await webpageInitial.text()
                                 let webpageInitialJson = await fetch(window.serverAddress + wsId + "/" + numberInitial + "/?json")
                                 let htmlResultInitialJson = await webpageInitialJson.text()

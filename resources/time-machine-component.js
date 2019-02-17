@@ -35,9 +35,9 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     computed: {
         selected: {
             get() {
-                return this.$store.state.contextMenuObject === ''
-                    ? this.$store.state.webstrateId
-                    : this.$store.state.contextMenuObject
+                return this.$store.state.contextMenuObject === '' ?
+                    this.$store.state.webstrateId :
+                    this.$store.state.contextMenuObject
             },
 
             set(value) {
@@ -62,100 +62,106 @@ window.TimeMachineComponent = Vue.component('time-machine', {
     methods: {
         testSelectRangeMethod: function(dateTimeStart, dateTimeEnd) {
             // selv = this
-            console.log("this: ", this)
+            // console.log("this: ", this)
+
+            console.log("this.slc = ", this.slc);
+
             var filtered = this.slc.filter(object => {
                 // return object.values.some((el) => { // filters objects without this date
-                    return object.at > dateTimeStart  &&
-                        object.at < dateTimeEnd
+                return object.at > dateTimeStart &&
+                    object.at < dateTimeEnd
                 // })
             })
+
 
             console.dir(filtered)
             console.dir(dateTimeStart)
             console.dir(dateTimeEnd)
-            
+
         },
         // INFO: used for building clientJoins/Leaves
         createDataObject: function(activityPromise) {
 
             var data = activityPromise
 
-                var intPerWs = []
-                
-                Object.values(data).forEach(int => {
-                    Object.values(int).forEach(intN => {
-                        intPerWs.push(intN)
-                    })
+            var intPerWs = []
+
+            Object.values(data).forEach(int => {
+                Object.values(int).forEach(intN => {
+                    intPerWs.push(intN)
                 })
+            })
 
-            
+
             console.dir(intPerWs)
-            
-                return intPerWs.map(int => ({
-                    at: new Date(int.timestamp),
-                    title: Math.random().toString(),
-                    group: int.userId,
-                    className: (int.type === "clientPart") ? 'entry--point--warn' : 'entry--point--info',
-                    symbol: (int.type === "clientPart") ? 'symbolDiamond' : 'symbolSquare',
-                    link: 0,
-                    webstrateId: this.selected
-                }))
 
-           
-            
-        },
-        fetchAndCreateData: async function(webstrateId){
-            var activityPromiceInst = await this.fetchActivityMixin(webstrateId)
-            return this.createDataObject(activityPromiceInst)
-        },
-
-        // INFO: used for mapping opsp log
-        createDataObject2: function(promise) {
-            
-            var versioningRaw = promise
-            
-            // INFO: if session exists, checking for author of webstrate
-            this.wbsAuthor = (typeof versioningRaw[0].session !== "undefined") ?
-                (typeof versioningRaw[0].session.userId === "undefined") ? "unknown" :  versioningRaw[0].session.userId
-            : "unknown"
-
-            return versioningRaw.map(int => ({
-                at: new Date(int.m.ts),
-                title: int.v,
-                group: (Object.keys(int).indexOf('create') !== -1) ? 'create' : 'edition',
-                className: (Object.keys(int).indexOf('create') !== -1) ? 'entry--point--success' : 'entry--point--default',
-                symbol: (Object.keys(int).indexOf('create') !== -1) ? 'symbolCross' : 'symbolTriangle',
-                link: int.v,
+            return intPerWs.map(int => ({
+                at: new Date(int.timestamp),
+                title: Math.random().toString(),
+                group: int.userId,
+                className: (int.type === "clientPart") ? 'entry--point--warn' : 'entry--point--info',
+                symbol: (int.type === "clientPart") ? 'symbolDiamond' : 'symbolSquare',
+                link: 0,
                 webstrateId: this.selected
             }))
-        }, 
 
-        // TODO: divide and into mixins
-        getVersioningJson: async function(webstrateId) {
-            var fetchOpsPromise = await this.getOpsJsonMixin(webstrateId)
-            return this.createDataObject2(fetchOpsPromise)
+
+
         },
-       
-        fetchAll: async function(webstrateId) {
-            
-            this.dt.length = 0 // INFO: in order to avoid stacking
-            var dt1 = await this.fetchAndCreateData(webstrateId)
-            this.slc = dt1 // INFO: use for range updates
-            
-            var dt2 = await this.getVersioningJson(webstrateId)
-            this.dt = this.dt.concat(dt1, dt2)
-            
-        }
+        fetchAndCreateData: async function(webstrateId) {
+                var activityPromiceInst = await this.fetchActivityMixin(webstrateId)
+                return this.createDataObject(activityPromiceInst)
+            },
+
+            // INFO: used for mapping opsp log
+            createDataObject2: function(promise) {
+
+                var versioningRaw = promise
+
+                // INFO: if session exists, checking for author of webstrate
+                this.wbsAuthor = (typeof versioningRaw[0].session !== "undefined") ?
+                    (typeof versioningRaw[0].session.userId === "undefined") ? "unknown" : versioningRaw[0].session.userId :
+                    "unknown"
+
+                return versioningRaw.map(int => ({
+                    at: new Date(int.m.ts),
+                    title: int.v,
+                    group: (Object.keys(int).indexOf('create') !== -1) ? 'create' : 'edition',
+                    className: (Object.keys(int).indexOf('create') !== -1) ? 'entry--point--success' : 'entry--point--default',
+                    symbol: (Object.keys(int).indexOf('create') !== -1) ? 'symbolCross' : 'symbolTriangle',
+                    link: int.v,
+                    webstrateId: this.selected
+                }))
+            },
+
+            // TODO: divide and into mixins
+            getVersioningJson: async function(webstrateId) {
+                    var fetchOpsPromise = await this.getOpsJsonMixin(webstrateId)
+                    return this.createDataObject2(fetchOpsPromise)
+                },
+
+                fetchAll: async function(webstrateId) {
+
+                    this.dt.length = 0 // INFO: in order to avoid stacking
+                    var dt1 = await this.fetchAndCreateData(webstrateId)
+                    this.slc = dt1 // INFO: use for range updates
+
+                    var dt2 = await this.getVersioningJson(webstrateId)
+                    this.dt = this.dt.concat(dt1, dt2)
+
+                }
     },
     async mounted() {
 
         // this.selected = this.$parent.relationName
-        
+
         this.$watch(
-            (vm) => (vm.selected,  Date.now()), val => {
+            (vm) => (vm.selected, Date.now()), val => {
                 console.dir("Initial State Watch in time-machine-component.js")
                 this.fetchAll(this.selected)
-            }, {immediate: true})
-        
+            }, {
+                immediate: true
+            })
+
     },
 });

@@ -6,7 +6,7 @@
 
 window.DomTreeD3Component = Vue.component('dom-tree-d3', {
     mixins: [window.dataFetchMixin, window.networkUpd],
-    props: ["webstrateId", "initialVersion", "latestVersion"], 
+    props: ["webstrateId", "initialVersion", "latestVersion"],
     components: {
         'diff-vue-component': window.diffVueComponent
     },
@@ -20,7 +20,7 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 <b-container class="container-fluid">
 
 <b-row>
-  <b-col sm="3">
+  <b-col sm="9">
     <diff-vue-component 
               :rootInstanceProp="currentToChild"
               :currentNode="$store.state.currentNode"
@@ -79,58 +79,20 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
         htmlString: '',
         htmlStringLatest: '',
         currentVersionSentences: [],
+        webstrateId: ''
     }),
-    watch: {
-        // d3Data() {
-
-        //     // TODO: fix
-        //     // this.removeChildren("initial")
-        //     console.dir("d3Data 've been watched")
-            
-        //     var container = {
-        //         name: "main",
-        //         children: this.d3Data
-        //     }
-
-
-        //     console.log("containerInitial = ", container);
-
-        //     // console.log("Selectors Initial: \n", selectorsInst)
-        //     // var selectorsInst = this.getSelectors(false, "initial")
-        //     // this.rootInstance = this.root(container)
-        //     // this.update(this.rootInstance, "right", selectorsInst)
-        // },
-        // SOLVED: add second watcher
-        // d3DataLatest() {
-
-        //     // TODO: fix
-        //     // this.removeChildren("latest")
-        //     console.dir("d3DataLatest 've been watched")
-           
-            
-        //     var containerLatest = {
-        //         name: "main",
-        //         children: this.d3DataLatest
-        //     }
-
-        //     console.log("containerLatest = ", containerLatest);
-            
-        //     // var selectorsInst = this.getSelectors(false, "latest")
-        //     // this.rootInstanceLatest = this.root(containerLatest)
-        //     // this.update(this.rootInstanceLatest, "left", selectorsInst)
-            
-            
-        // },
-    },
     computed: {
         currentToChild() {
             return this.currentVersionSentences
         },
     },
+    created() {
+        this.webstrateId = this.$store.state.webstrateId
+    },
     async mounted() {
-        
 
-        function findSelectedInList(list, propertyName, newPropertyName, newPropertyValue){
+
+        function findSelectedInList(list, propertyName, newPropertyName, newPropertyValue) {
             let condition;
             if (typeof Object.values(list) != "undefined" && typeof Object.values(list) != null) {
                 Object.values(list).some((currentItem) => {
@@ -147,8 +109,8 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 
                         }
                     }
-                }
-                                        )}
+                })
+            }
             return list
         }
 
@@ -157,14 +119,14 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
             (vm) => ([vm.d3Data, vm.d3DataLatest]), val => {
 
                 this.removeChildren("initial")
-                
+
                 // FIXME: WTF?
                 var t1 = findSelectedInList(this.d3Data, "name", "alignment", "left"),
                     t2 = findSelectedInList(this.d3DataLatest, "name", "alignment", "right")
 
                 var merged = [];
                 merged = merged.concat(t1, t2)
-                
+
                 var containerLatest = {
                     name: "main",
                     children: merged
@@ -175,10 +137,11 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 this.rootInstance = this.root(containerLatest)
                 this.update(this.rootInstance, selectorsInst)
 
-        }, {immediate: true}
+            }, {
+                immediate: true
+            }
         )
 
-        
         // SOLVED: divide update logic into new Webstrate and
         // TODO: 
         // INFO: watcher for Initial version update
@@ -186,101 +149,110 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
             (vm) => (vm.$store.getters.initialVersionGet), async val => {
 
                 console.dir("Initial Version Update")
-                
+
                 var webstrateId = this.$store.state.webstrateId
-                var initialVersion = store.getters.initialVersionGet
-                
-                let containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
-                                                                      undefined, undefined,
-                                                                      true, initialVersion)
-                
+                console.log("webstrateId = ", webstrateId);
+                var initialVersion = this.$store.getters.initialVersionGet
+                console.log("initialVersion = ", initialVersion);
+
+                var containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
+                    undefined, undefined,
+                    true, initialVersion)
+
                 this.htmlString = containerTmp
                 this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
                 this.d3Data = await this.init(this.htmlObject, undefined, undefined)
-                
-            }, {immediate: true}
+
+            }, {
+                immediate: true
+            }
         )
-        
+
         // INFO: watcher for Latest version update
         // TODO: 
         this.$watch(
             (vm) => (vm.$store.getters.latestVersionGet), async val => {
 
                 console.dir("Latest Version update")
-                
-                var webstrateId = this.$store.state.webstrateId
-                var latestVersion = store.getters.latestVersionGet
 
-                let containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
-                                                                      undefined, undefined,
-                                                                      true, latestVersion)
+                var webstrateId = this.$store.state.webstrateId
+                var latestVersion = this.$store.getters.latestVersionGet
+
+                var containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
+                    undefined, undefined,
+                    true, latestVersion)
                 this.htmlStringLatest = containerTmp
                 this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
 
-                console.log("wsID", webstrateId)
-                console.log("!!!!!", this.htmlObjectVersioned)
-                
+                // console.log("wsID", webstrateId)
+                // console.log("!!!!!", this.htmlObjectVersioned)
+
                 this.d3DataLatest = await this.init(this.htmlObjectVersioned, undefined, undefined)
-                
-            }, {immediate: true}
+
+            }, {
+                immediate: true
+            }
         )
 
-        
+
         // INFO: watcher for webstrate update
         // TODO: 
         this.$watch(
             (vm) => (vm.$store.state.webstrateId), async val => {
 
-                console.dir("dom tree first watcher")
-                
+                console.dir("watcher for webstrate update")
+
                 var webstrateId = this.$store.state.webstrateId
-                var initialVersion = store.getters.initialVersionGet,
-                    latestVersion = store.getters.latestVersionGet
+                var initialVersion = this.$store.getters.initialVersionGet,
+                    latestVersion = this.$store.getters.latestVersionGet
 
                 let containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
-                                                                      initialVersion, latestVersion, false)
-                
+                    initialVersion, latestVersion, false)
+
                 this.htmlString = containerTmp[0]
                 this.htmlStringLatest = containerTmp[1]
-                
+
                 this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
                 this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
 
                 // SOLVED: make init to have an input
                 this.d3Data = await this.init(this.htmlObject, undefined, undefined)
                 this.d3DataLatest = await this.init(this.htmlObjectVersioned, undefined, undefined)
-                
-            }, {immediate: true}
+
+            }, {
+                immediate: true
+            }
         )
-        
+
         this.$watch(
             // TODO: 
             // INFO: watching for data and creating prop for child component
-            vm => ([vm.rootInstanceLatest, vm.rootInstance].join()), val =>  {
+            vm => (vm.rootInstance), val => {
 
-                console.dir("Inside diff-version watcher")
-                
+                console.dir("Inside diff-version watcher", this.rootInstance)
+
                 // INFO: this as a prop to childthis.currentVersionSentences
                 // INFO: first goes earlier versions
                 var containerVersionSentences = []
 
                 // FIXME: eliminate
                 containerVersionSentences.push({
-                    'data': this.rootInstanceLatest.data,
-                    // 'field': "name",
-                    // 'value': "VDnPvJ36"
-                })
-                
-                containerVersionSentences.push({
                     'data': this.rootInstance.data,
                     // 'field': "name",
                     // 'value': "VDnPvJ36"
                 })
-                
+
+                // containerVersionSentences.push({
+                //     'data': this.rootInstance.data,
+                //     // 'field': "name",
+                //     // 'value': "VDnPvJ36"
+                // })
+
+                console.log("currentVersionSentences !!!!", this.currentVersionSentences)
                 this.currentVersionSentences = containerVersionSentences // INFO: to avoid evoking component before data is ready
-            
+
             },
         )
-        
+
     }
 })

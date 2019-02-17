@@ -1,5 +1,6 @@
 // SOLVED: declare props
 // SOLVED: add reactivity and add possible options
+// var mapState = Vuex.mapState
 
 window.diffVueComponent = Vue.component('diff-vue-component', {
     props: {
@@ -34,7 +35,7 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
         // ...mapState([
         //     currentNodeInitial,
         //     currentNodeLatest
-        // ]),
+        // ]),        
 
         currentNodeComputed() {
             return this.$store.getters.currentNodeGet
@@ -71,19 +72,29 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
         }
     },
     methods: {
-        findSelectedInList: function(list, propertyName, valueFilter) {
+        // TODO: look for selected with particualr _alignment
+        // TODO: search for both initial and latest
+        /**
+         * 
+         * filter util for objects
+         * @param {any} list - object to search in
+         * @param {any} propertyName - desired property
+         * @param {any} valueFilter - value of desired property
+         * @param {any} alignment - alignment ~ initial or latest state
+         */
+        findSelectedInList: function(list, propertyName, valueFilter, alignment) {
             let selected
 
-            function innerFunction(list, propertyName, valueFilter) {
+            function innerFunction(list, propertyName, valueFilter, alignment) {
 
 
                 if (typeof Object.values(list) != "undefined") {
                     Object.values(list).some((currentItem) => {
                         if (typeof currentItem != null | typeof currentItem !== "undefined") {
                             if (typeof currentItem[propertyName] !== "undefined" | typeof currentItem[propertyName] != null) {
-                                currentItem[propertyName] === valueFilter ?
+                                currentItem[propertyName] === valueFilter && currentItem._alignment === alignment ?
                                     selected = currentItem.innerText :
-                                    (typeof currentItem.children !== "undefined" && innerFunction(currentItem.children, propertyName, valueFilter))
+                                    (typeof currentItem.children !== "undefined" && innerFunction(currentItem.children, propertyName, valueFilter, alignment))
                             }
                         }
                     })
@@ -105,6 +116,9 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                 console.dir("Watched")
                 console.dir("STATE:")
                 console.dir(this.$store.state.currentNode)
+                console.log("selected: ", this.selected)
+                console.log("currentNodeComputed: ", this.currentNodeComputed)
+                console.log("counter: ", this.counter)
 
                 // INFO: mechanism to keep both prop and selected
                 var localMode
@@ -117,12 +131,14 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                 }
 
                 var preDiffLocal = []
+
+                console.log("!!!!!!!", this.counter[0])
+
+                // FIXME: eliminate counter since there is no more need for array
                 preDiffLocal.push(this.findSelectedInList(this.counter[0].data.children,
-                    "name",
-                    this.currentNodeComputed)) // INFO: initial version
-                preDiffLocal.push(this.findSelectedInList(this.counter[1].data.children,
-                    "name",
-                    this.currentNodeComputed) + "NEW") // INFO: later version
+                    "name", this.currentNodeComputed, "left")) // INFO: initial version
+                preDiffLocal.push(this.findSelectedInList(this.counter[0].data.children,
+                    "name", this.currentNodeComputed, "right") + "NEW") // INFO: later version
 
                 console.log("Counter: \n", this.counter)
                 console.log("PreDIF :\n", preDiffLocal)
@@ -174,6 +190,5 @@ window.diffVueComponent = Vue.component('diff-vue-component', {
                 }
 
             })
-
     }
 })

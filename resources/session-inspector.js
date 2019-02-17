@@ -6,7 +6,8 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
     components: {
         'TimelineComponent': window.TimelineComponent,
         'vueSliderConfigured': window.slider,
-        'dom-tree-d3-vue': window.DomTreeD3VueComponent
+        'dom-tree-d3-vue': window.DomTreeD3VueComponent,
+        'dom-tree-d3': window.DomTreeD3Component
     },
     template: `
 <div>
@@ -15,8 +16,10 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
 <br>
 <br>
 
-<dom-tree-d3-vue>
-</dom-tree-d3-vue>
+<dom-tree-d3>
+</dom-tree-d3>
+<!-- <dom-tree-d3-vue> -->
+<!-- </dom-tree-d3-vue> -->
 
 <b-container class="container-fluid">
 
@@ -40,8 +43,7 @@ window.SessionInspectorComponent = Vue.component('session-inspector', {
         htmlString: '',
         htmlForParent: '',
     }),
-    methods: {
-    },
+    methods: {},
     beforeCreate() {},
     async created() {},
     async mounted() {
