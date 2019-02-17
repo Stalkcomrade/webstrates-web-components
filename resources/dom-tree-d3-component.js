@@ -8,11 +8,23 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
     mixins: [window.dataFetchMixin, window.networkUpd],
     props: ["webstrateId", "initialVersion", "latestVersion"],
     components: {
-        'diff-vue-component': window.diffVueComponent
+        'diff-vue-component': window.diffVueComponent,
+        'vue-slider': window.vueSlider
     },
     template: `
 
 <div>
+
+<br>
+<br>
+
+<vue-slider-configured >
+  </vue-slider-configured>
+
+<br>
+<br>
+
+    <button @click="codestrateMode">Codestrate Mode</button>
 
 <br>
 <br>
@@ -48,6 +60,7 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
       </svg>
     </b-col>
 
+
     <!-- <b-col class="col-md-6">
          <div class="treeD3" id="tree-container">
          </div>
@@ -79,15 +92,67 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
         htmlString: '',
         htmlStringLatest: '',
         currentVersionSentences: [],
+        codestrateModeFlag: false, // INFO: used to color/filter children if codestrate mode is enabled
         webstrateId: ''
     }),
+    methods: {
+        codestrateMode() {
+
+            this.codestrateModeFlag = true
+
+            var tw = d3.selectAll("#gNode")
+
+            tw.select("text")
+                .attr("stroke", d => {
+                    if (d.class === "section section-hidden") {
+                        return "blue"
+                    } else if (d.unapproved === "") {
+                        return "yellow"
+                    } else {
+                        return "red"
+                    }
+                })
+
+            var checkNested = function(obj /*, level1, level2, ... levelN*/ ) {
+                var args = Array.prototype.slice.call(arguments, 1);
+                for (var i = 0; i < args.length; i++) {
+                    if (!obj || !obj.hasOwnProperty(args[i])) {
+                        return false;
+                    }
+                    obj = obj[args[i]];
+                }
+                return true;
+            }
+
+            var findSelectedInList = function(selected, list, propertyName, valueFilter) {
+
+                Object.values(list).some((currentItem) => {
+
+                    // // INFO: using this in order to parse 1-level svg elements
+                    if (checkNested(currentItem, 'data', propertyName)) {
+                        currentItem.data[propertyName] === valueFilter ?
+                            selected.push(currentItem) // ? selected = currentItem.__data__.data.name
+                            :
+                            (typeof currentItem._children != "undefined" && findSelectedInList(selected, currentItem._children, propertyName, valueFilter))
+                    }
+                })
+                return selected
+            }
+
+            var selected = []
+            console.log(findSelectedInList(selected, this.rootInstance.children, "unapproved", ""))
+
+        }
+    },
     computed: {
         currentToChild() {
             return this.currentVersionSentences
         },
     },
     created() {
-        this.webstrateId = this.$store.state.webstrateId
+        // this.webstrateId = this.$store.state.webstrateId
+        this.webstrateId = "cowardly-octopus-29"
+        this.$store.commit('changeCurrentWebstrateId', "cowardly-octopus-29")
     },
     async mounted() {
 
@@ -142,8 +207,8 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
             }
         )
 
-        // SOLVED: divide update logic into new Webstrate and
         // TODO: 
+        // SOLVED: divide update logic into new Webstrate and
         // INFO: watcher for Initial version update
         this.$watch(
             (vm) => (vm.$store.getters.initialVersionGet), async val => {
@@ -152,7 +217,8 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 
                 var webstrateId = this.$store.state.webstrateId
                 console.log("webstrateId = ", webstrateId);
-                var initialVersion = this.$store.getters.initialVersionGet
+                // var initialVersion = this.$store.getters.initialVersionGet
+                var initialVersion = this.$store.state.sliderVersions[0]
                 console.log("initialVersion = ", initialVersion);
 
                 var containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
@@ -176,7 +242,8 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 console.dir("Latest Version update")
 
                 var webstrateId = this.$store.state.webstrateId
-                var latestVersion = this.$store.getters.latestVersionGet
+                // var latestVersion = this.$store.getters.latestVersionGet
+                var latestVersion = this.$store.state.sliderVersions[1]
 
                 var containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
                     undefined, undefined,

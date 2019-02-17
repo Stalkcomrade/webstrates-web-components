@@ -88,7 +88,7 @@ window.TimelineComponent = Vue.component('timeline', {
 
             let versioningParsed = await this.getOpsJsonMixin(this.selected)
             let sessionGrouped = await this.processData(versioningParsed)
-            this.sessionGrouped = sessionGrouped
+            // this.sessionGrouped = sessionGrouped
 
             // this.
 
@@ -143,7 +143,7 @@ window.TimelineComponent = Vue.component('timeline', {
 
                 console.log("sessionObject = ", sessionObject);
 
-                store.commit("changeCurrentSessionObject", sessionObject)
+                this.$store.commit("changeCurrentSessionObject", sessionObject)
 
                 // making Set to identify unique session and max/min
                 var sessionGrouped = _.chain(sessionObject)
@@ -157,9 +157,11 @@ window.TimelineComponent = Vue.component('timeline', {
                         "maxVersion": _.maxBy(session, "timestamp")['version'],
                         "minVersion": _.minBy(session, "timestamp")['version']
                     })).value()
-                console.log("sessionGrouped = ", sessionGrouped);
 
-                console.dir('Data is Processed Successfully')
+                console.log("sessionGrouped = ", sessionGrouped);
+                console.dir('Data is Processed Successfully, session-grouped:', sessionGrouped)
+
+                this.sessionGrouped = sessionGrouped
                 return sessionGrouped
             },
             createDataObject: function(sessionGrouped) { // INFO: updating vue vis component
@@ -173,7 +175,7 @@ window.TimelineComponent = Vue.component('timeline', {
                     className: 'entry--point--default'
                 }))
 
-                console.dir('Data Object is Created Successfully')
+                console.dir('Data Object is Created Successfully: ', sessionGrouped)
             },
         },
         async mounted() {
