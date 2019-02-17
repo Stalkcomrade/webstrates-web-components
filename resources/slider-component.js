@@ -103,12 +103,20 @@ window.slider = Vue.component('vue-slider-configured', {
 
                 var regSrc = /.*?Session.*?/gi
 
+                window.tags = tags
+
                 this.sliderOptionsComp.mergeFormatter = "¥{value[0]} ~ ¥{value[1]}"
 
                 try {
-                    var tt = tags.forEach((el, i, tags) => {
-                        return el.label.match(regSrc).length === null && tags[i].label
-                    })
+                    var tt = tags.map((el, i, tags) => {
+                        // return el.label.match(regSrc).length === null && tags[i].label
+                        return el.label.match(regSrc) === null && {
+                            v: tags[i].v,
+                            label: tags[i].label
+                        }
+                    }).filter(el => el !== false)
+                    console.log("tt = ", tt);
+
 
                     if (typeof tt === "undefined") {
 
@@ -126,12 +134,18 @@ window.slider = Vue.component('vue-slider-configured', {
                         console.log("tt = ", tt);
 
                         this.sliderOptionsComp.data = tt
+                        console.log("this.sliderOptionsComp = ", this.sliderOptionsComp.data);
                         this.sliderOptionsComp.interval = 1
                         this.sliderOptionsComp.piecewiseLabel = true
-                        this.sliderOptionsComp.min = tags[0].v
-                        this.sliderOptionsComp.max = tags[tags.length - 1].v
-                        this.sliderOptionsComp.formatter = "¥{value}"
-                        this.sliderOptionsComp.mergeFormatter = "¥{value[0]} ~ ¥{value[1]}"
+                        this.sliderOptionsComp.min = tt[0].v
+                        this.sliderOptionsComp.max = tt[tt.length - 1].v
+                        setTimeout(() => {
+
+                            this.sliderOptionsComp.formatter = (v) => `${v.label}`
+                            this.sliderOptionsComp.mergeFormatter = (v1, v2) => `¥${v1.label} ~ ¥${v2.label}`
+
+                        }, 2000)
+
 
 
                         this.sliderOptionsComp.piecewiseStyle = {
@@ -174,7 +188,6 @@ window.slider = Vue.component('vue-slider-configured', {
 
 
                 var vUnited = [];
-
 
                 tags.forEach(el => {
                     vUnited.push(el.v + "||" + el.label)
