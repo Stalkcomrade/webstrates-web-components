@@ -62,8 +62,8 @@ window.cmc = Vue.component('c-m-c', {
                     modeProp: 'copy'
                 }
             })
+            // INFO: if it is called from calendar - mutate webstrateId from node, if not - use current wsId
         },
-        // INFO: if it is called from calendar - mutate webstrateId from node, if not - use current wsId
         inspectTree() {
             this.$route === "/calendar" && this.$store.commit("changeCurrentWebstrateId", this.$store.state.contextMenuObject)
             this.$router.push({

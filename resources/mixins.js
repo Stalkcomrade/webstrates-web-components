@@ -79,16 +79,16 @@ window.dataFetchMixin = Vue.mixin({
 
                             console.log("SELCTED: ", selected)
 
-                            let tmp = await fetch("https://webstrates.cs.au.dk/horrible-dingo-75/")
-                            let tmp1 = await tmp.text()
-                            window.tmp2 = new DOMParser().parseFromString(tmp1, "text/html")
+                            // let tmp = await fetch("https://webstrates.cs.au.dk/horrible-dingo-75/")
+                            // let tmp1 = await tmp.text()
+                            // window.tmp2 = new DOMParser().parseFromString(tmp1, "text/html")
 
-                            console.log("tmp2!!!! = ", window.tmp2);
+                            // console.log("tmp2!!!! = ", window.tmp2);
 
-                            let tmpR = await fetch("https://webstrates.cs.au.dk/horrible-dingo-75/3000/?raw")
-                            let tmpR1 = await tmpR.text()
-                            window.tmpR2 = new DOMParser().parseFromString(tmpR1, "text/html")
-                            console.log("tmpR2!!!! = ", tmp2);
+                            // let tmpR = await fetch("https://webstrates.cs.au.dk/horrible-dingo-75/3000/?raw")
+                            // let tmpR1 = await tmpR.text()
+                            // window.tmpR2 = new DOMParser().parseFromString(tmpR1, "text/html")
+                            // console.log("tmpR2!!!! = ", tmp2);
 
                             // FIXME: fetching range of possible versions for the webstrate
                             // INFO: currently last one is fetched
@@ -97,11 +97,11 @@ window.dataFetchMixin = Vue.mixin({
 
                             // INFO: use last version available if no is specified
 
-                            console.log(fetch(window.serverAddress + wsId + "/?v"))
+                            // console.log(fetch(window.serverAddress + wsId + "/?v"))
                             var versionmaxTmp = await fetch(window.serverAddress + wsId + "/?v")
                             // .then(body => body.json())
                             // var versionmax = await versionmaxTmp.json()
-                            var versionmax = versionmaxTmp.json()
+                            var versionmax = await versionmaxTmp.json()
 
                             let version = typeof versionmax === "undefined" ? 1 : versionmax.version
 

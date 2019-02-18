@@ -42,14 +42,14 @@ window.network = Vue.mixin({
     //     }},
     computed: {
         viewBox() {
-            return [-this.margin.left*20, -this.margin.top, this.width, this.dx]
+            return [-this.margin.left * 20, -this.margin.top, this.width, this.dx]
         },
         svgViewBox() {
-            return [-this.margin.left*12, -this.margin.top, this.width, this.dx]
+            return [-this.margin.left * 12, -this.margin.top, this.width, this.dx]
         }
     },
     methods: {
-        onChildUpdate (newValue) { // INFO: it is used to catch htmls from timeline component
+        onChildUpdate(newValue) { // INFO: it is used to catch htmls from timeline component
             console.dir("Updated")
             this.htmlString = newValue[0] // SOLVED: make a parent listen to child instead of using global scopes
             this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
@@ -65,42 +65,42 @@ window.network = Vue.mixin({
         getSelectors: function(legacy, version) {
 
             var domSelectors = {}
-            
+
             if (legacy === true) {
-                
+
                 this.svg = d3.select("#svgMain")
                 this.gLink = d3.select("#gLink")
                 this.gNode = d3.select("#gNode")
-                
-            } else if(version === "initial") {
-                
+
+            } else if (version === "initial") {
+
                 domSelectors.svg = d3.select("#svgMain")
                 domSelectors.gLink = d3.select("#gLink")
                 domSelectors.gNode = d3.select("#gNode")
-                
+
                 // this.svg = d3.select("#svgMain")
                 // this.gLink = d3.select("#gLink")
                 // this.gNode = d3.select("#gNode")
-                
+
             } else {
 
                 domSelectors.svg = d3.select("#svgMainLatest")
                 domSelectors.gLink = d3.select("#gLinkLatest")
                 domSelectors.gNode = d3.select("#gNodeLatest")
-                
+
             }
 
             return domSelectors
         },
-        
+
         changeCurrent: function(innerText) {
             this.currentInnerText = `${innerText}`
         },
-        
+
         handler: function(e) {
             e.preventDefault();
         },
-        
+
         // get children from parentnoted
         getLevelNodes: function(node) {
             return Array.from(node.parentNode.children)
@@ -147,19 +147,19 @@ window.network = Vue.mixin({
         removeChildren: function(type) {
 
             var myNode;
-            
+
             if (type === "initial") {
 
                 myNode = document.getElementById("gLink")
                 while (myNode.firstChild) {
                     myNode.removeChild(myNode.firstChild);
                 }
-                
+
                 myNode = document.getElementById("gNode")
                 while (myNode.firstChild) {
                     myNode.removeChild(myNode.firstChild);
                 }
-                
+
             } else if (type === "latest") {
 
                 myNode = document.getElementById("gLinkLatest")
@@ -184,9 +184,9 @@ window.network = Vue.mixin({
                 }
 
             }
-            
+
         },
-        
+
         sq: function(input) {
 
             var target = [] // INFO: local-global scope
@@ -235,32 +235,32 @@ window.network = Vue.mixin({
                 return mode(input)
 
             } else {
-                
-                if (typeof input !== "undefined"){
+
+                if (typeof input !== "undefined") {
                     console.dir(input)
                     var $el = input.getElementsByTagName("BODY")[0]
                     var el = $el.children[0]
                     return this.sq(el.children)
-                    
+
                 } else {
-                    
+
                     // console.dir("init starts")
                     var $el = this.htmlObject.getElementsByTagName("BODY")[0]
                     window.el = $el.children[0]
                     return this.sq(window.el.children)
-                    
+
                 }
             }
         },
 
-        layoutLinks: function(alignment) {    // INFO: firstly, I need to wrap diagonal to method with the alignment side (lef/right)
-            var linkFun = alignment === "left"
-                ? d3.linkHorizontal().x(d => d.y).y(d => d.x)
-                : d3.linkHorizontal().x(d => -d.y).y(d => d.x)
+        layoutLinks: function(alignment) { // INFO: firstly, I need to wrap diagonal to method with the alignment side (lef/right)
+            var linkFun = alignment === "left" ?
+                d3.linkHorizontal().x(d => d.y).y(d => d.x) :
+                d3.linkHorizontal().x(d => -d.y).y(d => d.x)
             return linkFun
         },
 
-        
+
         /**
          * 
          * @param {object} source - data structure for tree building
@@ -273,21 +273,22 @@ window.network = Vue.mixin({
 
             // SOLVED: const for selectors
             // SOLVED: eliminate this.diagonal and this.rootInstance and this.tree
-            
+
             // INFO:   !!! CRITICAL
             // SOLVED: Messed up source and root
             // SOLVED: one of the variables 
             // SOLVED: this.rootInstance
 
+            // debugger
             var self = this
-            
+
             // INFO: this works assuming the premise that latest is always rendered on the left side
-            const root = alignment === "left" ? this.rootInstanceLatest  : this.rootInstance
-            
+            const root = alignment === "left" ? this.rootInstanceLatest : this.rootInstance
+
             // INFO: Checking, which version of diagonal fun is used
             // SOLVED: this.diagonal
             const diagonal = this.layoutLinks(alignment)
-            
+
             const duration = d3.event && d3.event.altKey ? 2500 : 250;
             const nodes = root.descendants().reverse()
             const links = root.links()
@@ -295,16 +296,16 @@ window.network = Vue.mixin({
             // SOLVED: tree
             const tree = d3.tree().nodeSize([this.dx, this.dy])
             tree(root)
-            
+
 
             let left = root
             let right = root
-            
+
             root.eachBefore(node => {
-                
+
                 if (node.x < left.x) left = node;
                 if (node.x > right.x) right = node
-                
+
             });
 
             const height = right.x - left.x + this.margin.top + this.margin.bottom + 250
@@ -312,114 +313,118 @@ window.network = Vue.mixin({
 
             // INFO: compute viewBox params here
             let viewBoxInst = alignment === "left" ? -this.margin.left : -this.margin.left * 20
-            
-            // const transition = this.svg
-            const transition = selectors.svg
-                  .transition()
-                  .duration(duration)
-                  .attr("height", height)
-                  .attr("viewBox", [viewBoxInst,
-                                        left.x - this.margin.top,
-                                        this.width,
-                                        height])
-            // .tween("resize", window.ResizeObserver ? null : () => () => self.svg
-            .tween("resize", window.ResizeObserver ? null : () => () => selectors.svg
-                           .dispatch("toggle"));
 
-                // Update the nodes…
-                const node = selectors.gNode.selectAll("g")
-                    .data(nodes, d => d.id);
+            debugger
+            // console.log("D#!!", selectors)
+            // const transition = selectors.svg
+            const transition = selectors.svg
+                .transition()
+                .duration(duration)
+                .attr("height", height)
+                .attr("viewBox", [viewBoxInst,
+                    left.x - this.margin.top,
+                    this.width,
+                    height
+                ])
+                // .tween("resize", window.ResizeObserver ? null : () => () => self.svg
+                .tween("resize", window.ResizeObserver ? null : () => () => selectors.svg
+                    .dispatch("toggle"));
+
+
+            // Update the nodes…
+            const node = selectors.gNode.selectAll("g")
+                .data(nodes, d => d.id);
 
             // Enter any new nodes at the parent's previous position.
             const nodeEnter = node.enter().append("g")
-                  .attr("transform", d => alignment === "left"
-                        ? `translate(${source.y0},${source.x0})`
-                        : `translate(${source.y0 - 2*source.y0},${source.x0})`)
-                  .attr("fill-opacity", 0)
-                  .attr("stroke-opacity", 0)
-                  .on("click", (d) => {
-                      store.commit('changeCurrentNode', d.data.name)
-                      d.children = d.children ? null : d._children
-                      self.update(d, alignment, selectors)
-                      this.currentInnerText = d.data.innerText
-                      console.dir(d.data.innerText)
-                  })
-                  .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
-                      d3.event.preventDefault();
-                      if (typeof self !== "undefined"){
-                          self.$refs.ct.$refs.menu.open(self.$event, d.data.value)
-                      }
-                  })
+                .attr("transform", d => alignment === "left" ?
+                    `translate(${source.y0},${source.x0})` :
+                    `translate(${source.y0 - 2*source.y0},${source.x0})`)
+                .attr("fill-opacity", 0)
+                .attr("stroke-opacity", 0)
+                .on("click", (d) => {
+                    store.commit('changeCurrentNode', d.data.name)
+                    d.children = d.children ? null : d._children
+                    self.update(d, alignment, selectors)
+                    this.currentInnerText = d.data.innerText
+                    console.dir(d.data.innerText)
+                })
+                .on("contextmenu", function(d, i) { // INFO: binding listeners to nodes
+                    d3.event.preventDefault();
+                    if (typeof self !== "undefined") {
+                        self.$refs.ct.$refs.menu.open(self.$event, d.data.value)
+                    }
+                })
 
-                nodeEnter.append("circle")
-                    .attr("r", 2.5)
-                    .attr("fill", d => d._children ? "#555" : "#999");
+            nodeEnter.append("circle")
+                .attr("r", 2.5)
+                .attr("fill", d => d._children ? "#555" : "#999");
 
-                nodeEnter.append("text")
-                    .attr("dy", "0.31em")
-                    .attr("x", d => d._children ? -6 : 6)
-                    .attr("text-anchor", d => d._children ? "end" : "start")
-                    .text(d => d.data.name)
-                    .style("fill", d => d.data.class == "paragraph code-paragraph" ? "red" : "black")
-                    .clone(true).lower()
-                    .attr("stroke-linejoin", "round")
-                    .attr("stroke-width", 3)
-                    .attr("stroke", "white");
+            nodeEnter.append("text")
+                .attr("dy", "0.31em")
+                .attr("x", d => d._children ? -6 : 6)
+                .attr("text-anchor", d => d._children ? "end" : "start")
+                .text(d => d.data.name)
+                .style("fill", d => d.data.class == "paragraph code-paragraph" ? "red" : "black")
+                .clone(true).lower()
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-width", 3)
+                .attr("stroke", "white");
 
-                // Transition nodes to their new position.
-                const nodeUpdate = node.merge(nodeEnter).transition(transition)
-                      .attr("transform", d => alignment === "left"
-                            ? `translate(${d.y},${d.x})`
-                            : `translate(${d.y - 2*d.y},${d.x})`)
-                    .attr("fill-opacity", 1)
-                    .attr("stroke-opacity", 1);
+            // Transition nodes to their new position.
+            const nodeUpdate = node.merge(nodeEnter).transition(transition)
+                .attr("transform", d => alignment === "left" ?
+                    `translate(${d.y},${d.x})` :
+                    `translate(${d.y - 2*d.y},${d.x})`)
+                .attr("fill-opacity", 1)
+                .attr("stroke-opacity", 1);
 
-                // Transition exiting nodes to the parent's new position.
-                const nodeExit = node.exit().transition(transition).remove()
-                      .attr("transform", d => alignment === "left"
-                            ? `translate(${source.y},${source.x})`
-                            : `translate(${source.y - 2*source.y},${source.x})`)
-                    .attr("fill-opacity", 0)
-                    .attr("stroke-opacity", 0);
+            // Transition exiting nodes to the parent's new position.
+            const nodeExit = node.exit().transition(transition).remove()
+                .attr("transform", d => alignment === "left" ?
+                    `translate(${source.y},${source.x})` :
+                    `translate(${source.y - 2*source.y},${source.x})`)
+                .attr("fill-opacity", 0)
+                .attr("stroke-opacity", 0);
 
-                // Update the links…
-                const link = selectors.gLink.selectAll("path")
-                    .data(links, d => d.target.id);
+            // Update the links…
+            const link = selectors.gLink.selectAll("path")
+                .data(links, d => d.target.id);
 
-                // Enter any new links at the parent's previous position.
-                const linkEnter = link.enter().append("path")
-                    .attr("d", d => {
-                        const o = {
-                            x: source.x0,
-                            y: source.y0
-                        };
-                        // return this.diagonal({
-                        // return self.diagonal({
-                        return diagonal({
-                            source: o,
-                            target: o
-                        });
+            // Enter any new links at the parent's previous position.
+            const linkEnter = link.enter().append("path")
+                .attr("d", d => {
+                    const o = {
+                        x: source.x0,
+                        y: source.y0
+                    };
+                    // return this.diagonal({
+                    // return self.diagonal({
+                    return diagonal({
+                        source: o,
+                        target: o
                     });
+                });
 
             // Transition links to their new position.
             link.merge(linkEnter).transition(transition)
                 .attr("d", diagonal)
             // .attr("d", self.diagonal);
 
-                // Transition exiting nodes to the parent's new position.
-                link.exit().transition(transition).remove()
-                    .attr("d", d => {
-                        const o = {
-                            x: source.x,
-                            y: source.y
-                        };
-                        // return this.diagonal({
-                        // return self.diagonal({
-                        return diagonal({
-                            source: o,
-                            target: o
-                        });
+            // Transition exiting nodes to the parent's new position.
+            link.exit().transition(transition).remove()
+                .attr("d", d => {
+                    const o = {
+                        x: source.x,
+                        y: source.y
+                    };
+                    // return this.diagonal({
+                    // return self.diagonal({
+                    return diagonal({
+                        source: o,
+                        target: o
                     });
+                });
 
             // Stash the old positions for transition.
             root.eachBefore(d => {
