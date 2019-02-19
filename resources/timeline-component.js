@@ -158,8 +158,8 @@ window.TimelineComponent = Vue.component('timeline', {
                         "minVersion": _.minBy(session, "timestamp")['version']
                     })).value()
 
-                console.log("sessionGrouped = ", sessionGrouped);
-                console.dir('Data is Processed Successfully, session-grouped:', sessionGrouped)
+                // console.log("sessionGrouped = ", sessionGrouped);
+                console.log('Data is Processed Successfully, session-grouped:', sessionGrouped)
 
                 this.sessionGrouped = sessionGrouped
                 return sessionGrouped
@@ -175,7 +175,7 @@ window.TimelineComponent = Vue.component('timeline', {
                     className: 'entry--point--default'
                 }))
 
-                console.dir('Data Object is Created Successfully: ', sessionGrouped)
+                // console.log('Data Object is Created Successfully: ', sessionGrouped)
             },
         },
         async mounted() {
@@ -185,6 +185,7 @@ window.TimelineComponent = Vue.component('timeline', {
                 let versioningParsed = await this.getOpsJsonMixin(this.selected)
                 let sessionGrouped = await this.processData(versioningParsed)
                 this.dt = await this.createDataObject(sessionGrouped)
+                console.log('Data Object is Created Successfully: ', this.dt)
 
                 // window.self = this
                 // self = this

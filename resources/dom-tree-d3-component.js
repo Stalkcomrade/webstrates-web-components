@@ -151,8 +151,8 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
     },
     created() {
         // this.webstrateId = this.$store.state.webstrateId
-        this.webstrateId = "cowardly-octopus-29"
-        this.$store.commit('changeCurrentWebstrateId', "cowardly-octopus-29")
+        // this.webstrateId = "cowardly-octopus-29"
+        // this.$store.commit('changeCurrentWebstrateId', "cowardly-octopus-29")
     },
     async mounted() {
 
