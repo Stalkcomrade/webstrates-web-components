@@ -26,6 +26,25 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 
     <button @click="codestrateMode">Codestrate Mode</button>
 
+
+<br>
+<br>
+         <input v-model="selectedFilterOptions" placeholder="html element">
+         <p>Message is: {{ selectedFilterOptions }}</p>
+
+
+<br>
+<br>
+
+         <input v-model="selectedElementFilterOptions" placeholder="element attribute">
+         <p>Message is: {{ selectedElementFilterOptions }}</p>
+
+<br>
+<br>
+
+         <input v-model="selectedElementValueOptions" placeholder="value">
+         <p>Message is: {{ selectedElementValueOptions }}</p>
+
 <br>
 <br>
 
@@ -60,24 +79,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
       </svg>
     </b-col>
 
-
-    <!-- <b-col class="col-md-6">
-         <div class="treeD3" id="tree-container">
-         </div>
-         <svg
-         id="svgMainLatest"
-         :width="width" :height="dx" 
-         :viewBox="svgViewBox"
-         style="font: 10px sans-serif; user-select: none;">
-
-         <g
-         id="gLinkLatest"
-         fill="none" stroke="#555" stroke-opacity="0.4" stroke-width="1.5"> </g>
-         <g
-         id="gNodeLatest"
-         cursor="pointer"> </g> 
-         </svg>
-         </b-col> -->
   </b-row>
 
 </b-container>
@@ -85,6 +86,10 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 </div>
         `,
     data: () => ({
+        // selectedFilter: '',
+        selectedFilterOptions: '',
+        selectedElementFilterOptions: '',
+        selectedElementValueOptions: '',
         initSelected: '',
         isInitiated: false,
         inputVersion: '',
@@ -96,8 +101,8 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
         webstrateId: ''
     }),
     methods: {
-        codestrateMode() {
 
+        codestrateMode() {
             this.codestrateModeFlag = true
 
             var tw = d3.selectAll("#gNode")
@@ -179,6 +184,7 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
             return list
         }
 
+
         // INFO: I am waiting for data processing above and building united tree here
         this.$watch(
             (vm) => ([vm.d3Data, vm.d3DataLatest]), val => {
@@ -209,7 +215,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
             }
         )
 
-        // TODO: 
         // SOLVED: divide update logic into new Webstrate and
         // INFO: watcher for Initial version update
         this.$watch(
@@ -237,7 +242,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
         )
 
         // INFO: watcher for Latest version update
-        // TODO: 
         this.$watch(
             (vm) => (vm.$store.getters.latestVersionGet), async val => {
 
@@ -253,9 +257,6 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 this.htmlStringLatest = containerTmp
                 this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
 
-                // console.log("wsID", webstrateId)
-                // console.log("!!!!!", this.htmlObjectVersioned)
-
                 this.d3DataLatest = await this.init(this.htmlObjectVersioned, undefined, undefined)
 
             }, {
@@ -264,8 +265,26 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
         )
 
 
+        this.$watch((vm) => (vm.selectedFilterOptions, vm.selectedElementFilterOptions, vm.selectedElementValueOptions), val => {
+
+            console.dir("Dom Filter is Applied, Tree is processing")
+            // this.d3DataLatest = this.init(this.htmlObjectVersioned, undefined, undefined)
+
+            this.removeChildren("initial")
+
+            var filter = {
+                attributeName: this.selectedElementFilterOptions,
+                attributeValue: this.selectedElementValueOptions
+            }
+
+            this.d3Data = this.initEnhanced(this.htmlObject, undefined, undefined, filter)
+            this.d3DataLatest = this.initEnhanced(this.htmlObjectVersioned, undefined, undefined, filter)
+
+        })
+
+
         // INFO: watcher for webstrate update
-        // TODO: 
+        // INFO: also, if WS is trancluded, use different mechanism of accessing the dom 
         this.$watch(
             (vm) => (vm.$store.state.webstrateId), async val => {
 

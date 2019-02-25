@@ -69,6 +69,14 @@ webstrate.on('loaded', () => {
                 component: recentComponent
             },
             {
+                path: '/transclude-webstrate-component',
+                component: transcludeWebstrateComponent
+            },
+            {
+                path: '/transclude-and-read-dom',
+                component: transcludeAndReadDom
+            },
+            {
                 path: '*',
                 component: {
                     template: '#template-page-not-found '

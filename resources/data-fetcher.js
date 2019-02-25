@@ -9,22 +9,26 @@ console.dir(userId)
 // SOLVED: identify server
 
 var getServer = function() {
-    
+
+    var serverAddress;
+
     if (window.location.href.indexOf("webstrates.r2.enst.fr") > -1) {
-        var serverAddress = 'https://webstrates.r2.enst.fr/'
+        serverAddress = 'https://webstrates.r2.enst.fr/'
     } else {
-        var serverAddress = 'https://webstrates.cs.au.dk/'
+        serverAddress = 'https://webstrates.cs.au.dk/'
     }
-    
+
     return serverAddress
 }
 
 var checkServer = function(serverAddress) {
-    
+
+    var wsLocal;
+
     if (serverAddress === "https://webstrates.cs.au.dk/") {
-        var wsLocal = new WebSocket('wss://webstrates.cs.au.dk/_monitor')
+        wsLocal = new WebSocket('wss://webstrates.cs.au.dk/_monitor')
     } else {
-        var wsLocal = new WebSocket('wss://webstrates.r2.enst.fr/_monitor')
+        wsLocal = new WebSocket('wss://webstrates.r2.enst.fr/_monitor')
     }
 
     return wsLocal

@@ -215,34 +215,143 @@ window.networkUpd = Vue.mixin({
 
         },
 
+        sqEnhanced: function(input, attributeName, attributeValue) {
+
+            var target = [], // INFO: local-global scope
+                flag = false
+
+            for (var i = 0, len = input.length; i < len; ++i) {
+
+                flag = false
+                var item = input[i]
+                var children = {}
+
+                for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {
+
+                    att = atts[k];
+
+                    if (att.nodeName === attributeName && att.nodeValue === attributeValue) {
+
+                        flag = true
+
+                        var contObj = {};
+                        // nodes = [],
+                        // values = [],
+
+                        if (typeof att !== undefined) {
+
+                            if (att.nodeName !== "children") {
+
+                                // nodes.push(att.nodeName);
+                                // values.push(att.nodeValue);
+
+                                contObj[att.nodeName] = att.nodeValue
+
+                            }
+                        }
+                    }
+                }
+
+                if (flag === true) {
+
+                    Object.assign(children, contObj)
+
+                    children.value = item
+                    children.parent = item.parentElement.getAttribute("__wid")
+                    children.innerText = item.innerText
+                }
+
+                children.children = item.children ?
+                    this.sq(item.children) :
+                    "No Children"
+
+                if (flag === true) {
+                    target.push(children)
+                }
+
+            }
+
+            return target
+        },
+
+
         sq: function(input) {
 
-            // window.input = input
-
             var target = [] // INFO: local-global scope
-            var children = []
+            // var children = []
+            // var children = {}
 
             for (var i = 0, len = input.length; i < len; ++i) {
                 var item = input[i]
 
-                children = {
-                    value: item,
-                    unapproved: item.getAttribute("unapproved") === null ?
-                        null : item.getAttribute("unapproved"),
-                    class: typeof item.getAttribute("class") === undefined ?
-                        null : item.getAttribute("class"),
-                    nameAttr: typeof item.getAttribute("name") === undefined ?
-                        null : item.getAttribute("name"),
-                    name: item.getAttribute("__wid"),
-                    parent: item.parentElement.getAttribute("__wid"),
-                    children: (item.children ? this.sq(item.children) : "No Children"),
-                    innerText: item.innerText,
+                var children = {}
+
+                for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {
+
+                    var contObj = {};
+                    att = atts[k];
+
+                    if (typeof att !== undefined) {
+
+                        // SOLVED: consider children
+                        // TODO: consider search for reflected nodes
+                        if (att.nodeName !== "children") {
+
+                            if (att.nodeName === "__wid") {
+                                contObj["name"] = att.nodeValue
+                            } else {
+                                contObj[att.nodeName] = att.nodeValue
+                            }
+
+                        }
+                    }
                 }
+
+
+                Object.assign(children, contObj)
+
+                children.value = item
+                children.parent = item.parentElement.getAttribute("__wid")
+                children.innerText = item.innerText
+                children.children = item.children ?
+                    this.sq(item.children) :
+                    "No Children"
+
                 target.push(children)
             }
 
             return target
         },
+
+
+        // sq: function(input) {
+
+        //     // window.input = input
+
+        //     var target = [] // INFO: local-global scope
+        //     var children = []
+
+        //     for (var i = 0, len = input.length; i < len; ++i) {
+        //         var item = input[i]
+
+        //         children = {
+        //             value: item,
+        //             unapproved: item.getAttribute("unapproved") === null ?
+        //                 null : item.getAttribute("unapproved"),
+        //             class: typeof item.getAttribute("class") === undefined ?
+        //                 null : item.getAttribute("class"),
+        //             nameAttr: typeof item.getAttribute("name") === undefined ?
+        //                 null : item.getAttribute("name"),
+        //             name: item.getAttribute("__wid"),
+        //             parent: item.parentElement.getAttribute("__wid"),
+        //             children: (item.children ? this.sq(item.children) : "No Children"),
+        //             innerText: item.innerText,
+        //         }
+        //         target.push(children)
+        //     }
+
+        //     return target
+        // },
 
         // SOLVED: changing root from computed to function
         // TODO: 
@@ -253,14 +362,54 @@ window.networkUpd = Vue.mixin({
             hierarchyTemp.descendants().forEach((d, i) => {
                 d.name = d.data.name
                 d.class = d.data.class
-                d.unapproved = d.data.unapproved
+                // d.unapproved = d.data.unapproved
                 d.id = i
                 d._alignment = d.data.alignment;
                 d._children = d.children
-                if (d.depth && d.data.name.length !== 7) d.children = null
+                try {
+                    if (d.depth && d.data.name.length !== 7) d.children = null
+                } catch (err) {
+                    console.error("Smth with d.name.length in Hierarchy")
+                } finally {}
+
             })
             return hierarchyTemp
         },
+
+        /**
+         * use this for creating filtered tree
+         * @param {any} input
+         * @param {any} type
+         * @param {any} mode
+         * @param {object} filter - attributeName and attributeValue to search to
+         */
+        initEnhanced: function(input, type, mode, filter) {
+
+            var $el;
+
+            if (typeof type !== "undefined") {
+
+                return mode(input)
+
+            } else {
+
+                if (typeof input !== "undefined") {
+                    console.dir(input)
+                    $el = input.getElementsByTagName("BODY")[0]
+                    var el = $el.children[0]
+                    window.el = el
+                    return this.sqEnhanced(el.children, filter.attributeName, filter.attributeValue)
+
+                } else {
+
+                    $el = this.htmlObject.getElementsByTagName("BODY")[0]
+                    window.el = $el.children[0]
+                    return this.sqEnhanced(window.el.children, filter.attributeName, filter.attributeValue)
+
+                }
+            }
+        },
+
 
         // INFO: copy or transclusion are local functions
         /**
