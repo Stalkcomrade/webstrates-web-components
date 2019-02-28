@@ -251,6 +251,7 @@ window.slider = Vue.component('vue-slider-configured', {
                 this.sliderOptionsComp.piecewiseLabel = false
 
 
+
                 this.sliderOptionsComp.formatter = "{value}"
                 this.sliderOptionsComp.mergeFormatter = "¥{value[0]} ~ ¥{value[1]}"
 

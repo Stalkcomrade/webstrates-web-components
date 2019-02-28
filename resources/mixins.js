@@ -280,14 +280,12 @@ window.transclusion = Vue.mixin({
             docIframe.setAttribute("width", 750)
             docIframe.setAttribute("height", 750)
 
-
             this.docIframeTransient.appendChild(docIframe)
 
         },
 
         // FIXME: remove function
         removeIframe: function(webstrateId) {
-
 
             var tr = document.getElementById(webstrateId)
 
@@ -308,6 +306,12 @@ window.transclusion = Vue.mixin({
 
                 console.dir("Transclusion done")
                 console.dir(iframeWebstrateId)
+
+                window.tss = tr.contentDocument.documentElement // BODY tag
+                // window.tss = tr.contentDocument.documentElement.children[1] // BODY tag
+                // console.log("tmp = ", tmp);
+
+
                 console.dir(tr.contentWindow.webstrate.tags())
 
             })
@@ -371,10 +375,7 @@ window.transclusion = Vue.mixin({
                 console.dir("Transclusion done")
 
 
-
             })
-
-
 
             // return tr
 

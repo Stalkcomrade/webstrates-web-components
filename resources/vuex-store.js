@@ -11,7 +11,8 @@ webstrate.on('loaded', () => {
             currentNode: '',
             currentNodeInitial: '',
             currentNodeLatest: '',
-            webstrateId: 'hungry-cat-75',
+            // webstrateId: 'hungry-cat-75',
+            webstrateId: 'dry-goat-98',
             sessionObject: '',
             sliderVersions: [1, 2], // INFO: versioning
         },

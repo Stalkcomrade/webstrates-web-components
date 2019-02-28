@@ -265,7 +265,8 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
         )
 
 
-        this.$watch((vm) => (vm.selectedFilterOptions, vm.selectedElementFilterOptions, vm.selectedElementValueOptions), val => {
+        // FIXME: it seems that the main issue here is that html.Object is not created or is wrong
+        this.$watch((vm) => (vm.selectedFilterOptions, vm.selectedElementFilterOptions, vm.selectedElementValueOptions), async val => {
 
             console.dir("Dom Filter is Applied, Tree is processing")
             // this.d3DataLatest = this.init(this.htmlObjectVersioned, undefined, undefined)
@@ -277,8 +278,12 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 attributeValue: this.selectedElementValueOptions
             }
 
-            this.d3Data = this.initEnhanced(this.htmlObject, undefined, undefined, filter)
-            this.d3DataLatest = this.initEnhanced(this.htmlObjectVersioned, undefined, undefined, filter)
+            // debugger;
+            console.log("HTMLObject", this.htmlObject)
+            window.hti = this.htmlObject
+            this.d3Data = await this.initEnhanced(this.htmlObject, undefined, undefined, filter)
+            // console.log("this.d3Data = ", this.d3Data);
+            this.d3DataLatest = await this.initEnhanced(this.htmlObjectVersioned, undefined, undefined, filter)
 
         })
 
@@ -301,7 +306,9 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
                 this.htmlStringLatest = containerTmp[1]
 
                 this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
+                console.log("this.htmlObject = ", this.htmlObject);
                 this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
+                console.log("this.htmlObjectVersioned = ", this.htmlObjectVersioned);
 
                 // SOLVED: make init to have an input
                 this.d3Data = await this.init(this.htmlObject, undefined, undefined)

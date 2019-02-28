@@ -81,7 +81,6 @@ webstrate.on('loaded', () => {
 
         mounted() {
 
-
             // this.initiateTransclusion()
             // this.createIframe("short-turtle-55")
             // this.silentylyTransclude("short-turtle-55")
@@ -100,11 +99,15 @@ webstrate.on('loaded', () => {
 
             // console.log("d3Data = ", d3Data);
 
+            this.$store.commit('changeCurrentWebstrateId', "dry-goat-98")
+
             this.$store.commit('changeWebstrateIdIsTranscluded', true)
             this.$store.commit('changeCurrentWebstrateId', "dry-goat-98")
             this.initiateTransclusionNew()
             this.createIframeNew("dry-goat-98")
+
             this.selectWebstrateIdFromTransclusion("dry-goat-98")
+
 
         }
 

@@ -198,6 +198,7 @@ function sqEnhanced(input, attributeName, attributeValue) {
 
         flag = false
         var item = input[i]
+        // console.log(item)
         var children = {}
 
         for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {

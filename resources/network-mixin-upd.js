@@ -226,6 +226,8 @@ window.networkUpd = Vue.mixin({
                 var item = input[i]
                 var children = {}
 
+                // debugger;
+
                 for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {
 
                     att = atts[k];
@@ -269,8 +271,10 @@ window.networkUpd = Vue.mixin({
                     target.push(children)
                 }
 
+
             }
 
+            console.log("filter target", target)
             return target
         },
 
@@ -393,20 +397,9 @@ window.networkUpd = Vue.mixin({
 
             } else {
 
-                if (typeof input !== "undefined") {
-                    console.dir(input)
-                    $el = input.getElementsByTagName("BODY")[0]
-                    var el = $el.children[0]
-                    window.el = el
-                    return this.sqEnhanced(el.children, filter.attributeName, filter.attributeValue)
+                $el = input.getElementsByTagName("BODY")[0]
+                return this.sqEnhanced($el.children, filter.attributeName, filter.attributeValue)
 
-                } else {
-
-                    $el = this.htmlObject.getElementsByTagName("BODY")[0]
-                    window.el = $el.children[0]
-                    return this.sqEnhanced(window.el.children, filter.attributeName, filter.attributeValue)
-
-                }
             }
         },
 
@@ -431,7 +424,14 @@ window.networkUpd = Vue.mixin({
                     var $el = input.getElementsByTagName("BODY")[0]
                     var el = $el.children[0]
                     window.el = el
-                    return this.sq(el.children)
+                    // INFO: if current webstrate or el undefined (html body) is undefined, used precestor object
+                    if (this.$store.state.webstrateId === "dry-goat-98" || typeof el === undefined) {
+                        // debugger
+                        return this.sq($el.children)
+                    } else {
+                        return this.sq(el.children)
+                    }
+
 
                 } else {
 
