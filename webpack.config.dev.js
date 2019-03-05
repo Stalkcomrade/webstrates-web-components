@@ -48,9 +48,9 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        plugins: [
-                            require.resolve(path.resolve(definedPath, 'babel-plugin-dynamic-import-webpack')),
-                        ],
+                        // plugins: [
+                        // require.resolve(path.resolve(definedPath, 'babel-plugin-dynamic-import-webpack')),
+                        // ],
                         presets: [
                             [require.resolve(path.resolve(definedPath, "babel-preset-vue"))],
                             [require.resolve(path.resolve(definedPath, "@babel/preset-env"), {
