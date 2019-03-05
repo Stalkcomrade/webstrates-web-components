@@ -19,12 +19,13 @@
     "homepage": "https://github.com/Stalkcomrade/webstrate_dashboard#readme",
     "dependencies": {
         "babel-preset-vue": "^2.0.2",
-        "d3-vs": "^0.7.7",
+        "d3-vs": "git+https://github.com/Stalkcomrade/Vs.git",
         "document-offset": "^1.0.4",
         "lodash": "^4.17.11",
         "text-diff": "^1.0.1",
         "uuid": "^3.3.2",
         "vue-context": "^3.4.0",
+        "vue-layout-grid": "^0.2.5",
         "vue-slider-component": "^2.8.3"
     },
     "devDependencies": {

@@ -1,0 +1,564 @@
+
+timeline-component.js,510
+    data: () => ({data14,484
+            get() {get68,2098
+            set(value) {set74,2365
+        sessionObjectComp() {sessionObjectComp78,2485
+            testSelectRangeMethodSessions: function(dateTimeStart, dateTimeEnd) {testSelectRangeMethodSessions105,3345
+            processData: function(versioningParsed) {processData129,4322
+            createDataObject: function(sessionGrouped) { // INFO: updating vue vis componentcreateDataObject167,6335
+            update() {update218,8825
+
+data-fetcher.js,559
+    if (serverAddress === "https://webstrates.cs.au.dk/") {if28,662
+const randomString = () => Math.random().toString(36).substring(2);randomString51,1416
+const promises = new Map();promises54,1517
+ws.onopen = (e) => {onopen58,1638
+ws.onclose = (e) => {onclose66,1761
+ws.onmessage = (msg) => {onmessage71,1862
+    msg = JSON.parse(msg.data);msg72,1888
+    if (!msg.token) {if77,2157
+    switch (ws.readyState) {switch97,2825
+const dataFetcher = window.dataFetcher = (type, options) => new Promise((resolve, reject) => {dataFetcher123,3516
+
+network-mixin.js,2098
+    data: () => ({data2,29
+        viewBox() {viewBox44,1110
+        svgViewBox() {svgViewBox47,1224
+        getSelectors: function(legacy, version) {getSelectors65,2121
+            if (legacy === true) {if69,2207
+        changeCurrent: function(innerText) {changeCurrent96,3040
+        handler: function(e) {handler100,3148
+        getLevelNodes: function(node) {getLevelNodes105,3264
+        getChildIndex: function(node) {getChildIndex110,3402
+        tagNodeName: function(node) {tagNodeName114,3512
+        clearInside: function(node) {clearInside118,3622
+                if (child.nodeName === '#text') {if120,3719
+        handleImage: function(node) {handleImage125,3848
+            if (node.nodeName === 'IMG') {if126,3886
+        walk: function(node, cb) {walk132,4060
+            cb(node)cb133,4095
+            if (node.children.length) {if134,4116
+            if (node.nextElementSibling) {if137,4218
+        removeChildren: function(type) {removeChildren147,4513
+            if (type === "initial") {if151,4580
+                while (myNode.firstChild) {while154,4677
+                while (myNode.firstChild) {while159,4857
+                while (myNode.firstChild) {while166,5088
+                while (myNode.firstChild) {while171,5274
+                while (myNode.firstChild) {while177,5526
+                while (myNode.firstChild) {while182,5706
+        sq: function(input) {sq190,5855
+            for (var i = 0, len = input.length; i < len; ++i) {for195,5973
+        root: function(data) {root212,6562
+        init: function(input, type, mode) {init231,7267
+            if (typeof type !== "undefined") {if233,7312
+                if (typeof input !== "undefined") {if239,7418
+        layoutLinks: function(alignment) { // INFO: firstly, I need to wrap diagonal to method wlayoutLinks256,7973
+        update: function(source, alignment, selectors) { // INFO: update now has input for diffeupdate270,8560
+            tree(root)tree298,9734
+                    if (typeof self !== "undefined") {if354,11903
+
+time-machine-component.js,356
+    data: () => ({data10,333
+            get() {get37,966
+            set(value) {set43,1178
+        testSelectRangeMethod: function(dateTimeStart, dateTimeEnd) {testSelectRangeMethod63,1840
+        createDataObject: function(activityPromise) {createDataObject83,2490
+            createDataObject2: function(promise) {createDataObject2117,3560
+
+slider-component.js,925
+    data: () => ({data34,1244
+        processData: function(versioningParsed) {processData54,1759
+                    if (typeof tt === "undefined") {if117,4595
+                            this.sliderOptionsComp.formatter = (v) => `${v.label}`formatter143,5490
+                            this.sliderOptionsComp.mergeFormatter = (v1, v2) => `¥${v1.label} ~mergeFormatter144,5573
+                    this.sliderOptionsComp.formatter = (v) => `${v.label}`formatter201,7527
+                    this.sliderOptionsComp.mergeFormatter = (v1, v2) => `¥${v1.label} ~ ¥${v2.mergeFormatter202,7602
+                //     this.sliderOptionsComp.formatter = (v) => `${v.label}`formatter206,7765
+                //     this.sliderOptionsComp.mergeFormatter = (v1, v2) => `¥${v1.label} ~ ¥${mergeFormatter207,7843
+            if (this.valueSlider[0].v !== undefined && this.valueSlider[0].v !== null) {if296,10892
+
+view-calendar.js,0
+
+recent-component.js,291
+    data: () => ({data27,778
+        test2: function() {test238,977
+        test: function() {test44,1242
+    created: function() {created96,3343
+    mounted() {mounted134,4622
+            function type(d) {type187,6073
+            symbols = symbols.map(el => {symbols208,6680
+
+context-menu-component.js,688
+        currentRoute() {currentRoute39,1328
+        goBack() {goBack44,1421
+        inspectTransclusions() {inspectTransclusions47,1483
+        inspectCopies() {inspectCopies57,1850
+        inspectTree() {inspectTree67,2260
+        inspectComplex() {inspectComplex73,2506
+        inspectVersions() {inspectVersions79,2730
+        inspectSessions() {inspectSessions84,2854
+        onClick(data) {onClick89,2974
+        bookmarkCurrentWebstrate: function(webstrateId) {bookmarkCurrentWebstrate93,3070
+        visitCurrentWebstrate: function(webstrateId) {visitCurrentWebstrate99,3301
+        copyCurrentWebstrate: function(webstrateId) {copyCurrentWebstrate103,3503
+
+session-inspector.js,31
+    data: () => ({data40,815
+
+dom-tree-d3-component.js,823
+    data: () => ({data88,1929
+        codestrateMode() {codestrateMode105,2450
+                    if (d.class === "section section-hidden") {if112,2638
+                for (var i = 0; i < args.length; i++) {for123,3091
+        currentToChild() {currentToChild153,4295
+    created() {created157,4388
+        function findSelectedInList(list, propertyName, newPropertyName, newPropertyValue) {findSelectedInList165,4628
+                    if (typeof currentItem != null) {if169,4907
+                        if (typeof currentItem[propertyName] != "undefined" | typeof currentItemif170,4961
+                            if (typeof currentItem.children != "undefined") {if176,5303
+                                findSelectedInList(currentItem.children, propertyName, newProperfindSelectedInList177,5381
+
+webstrate-legend-component.js,250
+    created() {created4,128
+        mainLegend() {mainLegend12,343
+                        if (i == 0) {if59,1915
+                        if (i == 1) {if62,2020
+                        if (i == 2) {if66,2126
+    mounted() {mounted77,2291
+
+small_multiples.js,18
+vf("2")vf29,501
+
+month-view-component.js,1639
+    data: () => ({data94,2477
+        selected: function(oldValue, newValue) {selected142,3501
+            if (this.selected == "A") {if144,3551
+        dateToShow() {dateToShow199,5350
+        padded() {padded203,5503
+        d3Const() {d3Const211,5781
+        d3Scaling() {d3Scaling223,6233
+        circleCoords() {circleCoords233,6653
+                    if (x + radius >= cellSize / 5) {if246,7139
+        disablePulsate: function() {disablePulsate289,8481
+        pulsate: function(selection) {pulsate304,8937
+            recursive_transitions()recursive_transitions310,9085
+            function recursive_transitions() {recursive_transitions312,9122
+                setTimeout(function() {setTimeout315,9171
+        updateScaling() {updateScaling338,10091
+        update() {update346,10358
+            mainD3: function() {mainD3386,11709
+            mainD3Second: function(days, d3colorsQuantizeMonth, d3colorsQuantileMonth) {mainD3Second419,13269
+                        if (this.$route.fullPath === "/embedded") {if481,16320
+                        if (typeof self !== "undefined") {if493,16898
+                            for (let i = days.length; i; --i) {for608,22644
+                        previousMonth: function() {previousMonth642,24284
+                            while (myNode.firstChild) {while645,24408
+                        nextMonth: function() {nextMonth653,24807
+                            while (myNode.firstChild) {while656,24927
+    mounted() {mounted665,25333
+            for (let i = days.length; i; --i) {for703,27211
+    updated() {updated739,28567
+
+data-object-mixin.js,119
+        listOfWebstrates: function(days) { // INFO: resulted fetched promise should be days objelistOfWebstrates3,55
+
+template-page-not-found.html,35
+<h2>404, nope!</h2>404, nope!1,0
+
+diff-component.js,1014
+    data: () => ({data26,587
+        currentNodeComputed() {currentNodeComputed40,997
+        counter() {counter43,1094
+        dynamicComponentDiff() {dynamicComponentDiff46,1166
+                render(h) {render53,1301
+        findSelectedInList: function(list, propertyName, valueFilter, alignment) {findSelectedInList85,2557
+            function innerFunction(list, propertyName, valueFilter, alignment) {innerFunction88,2666
+                        if (typeof currentItem != null | typeof currentItem !== "undefined") {if93,2878
+                            if (typeof currentItem[propertyName] !== "undefined" | typeof currenif94,2973
+                                if (currentItem[propertyName] === valueFilter && currentItem.aliif95,3100
+                if (this.isUpdated === false) {if135,4943
+                    switch (mode) {switch177,6891
+                    funDiff(preDiffLocal[0], preDiffLocal[1])funDiff203,8070
+                if (localMode === 'patch') {if206,8134
+
+css-test-component.js,851
+    data: () => ({data11,168
+        htmlFromData: function() {htmlFromData37,866
+        htmlObjectReady() {htmlObjectReady46,1126
+        getLevelNodes: function(node) { // used for indexinggetLevelNodes53,1248
+        getChildIndex: function(node) { // used for indexinggetChildIndex57,1377
+        tagNodeName: function(node) {tagNodeName61,1508
+        clearInside: function(node) {clearInside65,1618
+                if (child.nodeName === '#text') {if67,1715
+        handleImage: function(node) {handleImage74,1846
+            if (node.nodeName === 'IMG') {if75,1884
+        walk: function(node, cb) {walk81,2050
+            cb(node)cb82,2085
+            if (node.children.length) {if83,2106
+            if (node.nextElementSibling) {if86,2208
+        init: function() {init91,2332
+    mounted() {mounted131,3777
+
+small-multiples-d3-component.js,384
+    data: () => ({data44,1337
+        width() {width57,1574
+        height() {height60,1665
+        transform() {transform63,1756
+        widthSvg() {widthSvg66,1871
+        heightSvg() {heightSvg69,1972
+        scaled() {scaled72,2075
+        area() {area78,2219
+        line() {line93,2610
+        parseDate() {parseDate105,2890
+    mounted() {mounted109,2973
+
+transclude-webstrate-component.js,252
+        data: () => ({data43,827
+            onTranscluded: function() {}onTranscluded48,940
+            selected() {selected53,1086
+                get() {get68,1463
+                set(value) {set71,1563
+        mounted() {mounted82,1955
+
+small-multiples-d3-semi-vue.js,546
+    data: () => ({data83,2265
+        width() {width104,2676
+        height() {height107,2767
+        transform() {transform110,2858
+        area() {area130,3462
+        test2: function() {test2168,4668
+        test: function() {test171,4767
+        type: function(d) {type247,7139
+        symbolsNest: function(fetchedData) {symbolsNest257,7440
+    created: function() {created265,7661
+    mounted() {mounted302,8934
+            function type(d) {type359,10520
+            symbols = symbols.map(el => {symbols382,11258
+
+script.js,0
+
+vuex-store.js,826
+            changeGraphData(state, payload) {changeGraphData34,1147
+            changeWebstratesList(state, payload) {changeWebstratesList37,1250
+            changeContextMenuContext(state, payload) {changeContextMenuContext40,1363
+            changeContextMenuObject(state, payload) {changeContextMenuObject43,1484
+            changeCurrentNode(state, payload) {changeCurrentNode47,1632
+            changeCurrentNodeInitial(state, payload) {changeCurrentNodeInitial50,1739
+            changeCurrentNodeLatest(state, payload) {changeCurrentNodeLatest53,1860
+            changeCurrentSessionObject(state, payload) {changeCurrentSessionObject56,1979
+            changeCurrentWebstrateId(state, payload) {changeCurrentWebstrateId59,2097
+                if (this.$store.state.listWebstrates === '') {if76,2725
+
+layout.css,2301
+#mainBody {#mainBody17,234
+.container {container36,516
+.container-fluid {container-fluid47,665
+.container-fluid {.container-fluid47,665
+svg {svg57,830
+svg {svg57,830
+svg text {svg text61,855
+svg text {svg text61,855
+.listStyle {listStyle66,908
+.listStyle {.listStyle66,908
+    from {from71,956
+    to {to76,1030
+.d3-tip.show {.d3-tip.show122,1579
+.d3-tip {d3-tip130,1781
+.d3-tip {.d3-tip130,1781
+    background-color: rgba(0, 0, 0, 0.8);background-color: rgba(0135,1882
+.d3-tip::after {d3-tip::after143,2072
+.d3-tip::after {.d3-tip::after143,2072
+    color: rgba(0, 0, 0, 0.8);color: rgba(0148,2182
+    content: "\25BC";content: "149,2213
+rect {rect161,2511
+rect {rect161,2511
+text {text165,2554
+text {text165,2554
+    font-family: BlinkMacSystemFont, -apple-system, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell,font-family: BlinkMacSystemFont166,2561
+.leaflet-control-fullscreen a {leaflet-control-fullscreen a169,2730
+.leaflet-control-fullscreen a {.leaflet-control-fullscreen a169,2730
+.d3-metric text {d3-metric text177,2953
+.d3-metric text {.d3-metric text177,2953
+.d3-timeline .entry--point--default {.d3-timeline .entry--point--default181,2995
+.d3-timeline .entry--point--error {.d3-timeline .entry--point--error188,3120
+.d3-timeline .entry--point--success {.d3-timeline .entry--point--success196,3249
+.fade-enter-active,fade-enter-active207,3413
+.fade-enter-active,fade-enter-active207,3413
+.fade-enter-active,.fade-enter-active207,3413
+.fade-leave-active {fade-leave-active208,3433
+.fade-leave-active {.fade-leave-active208,3433
+.node {node214,3501
+.node {.node214,3501
+.overlay {overlay218,3533
+.overlay {.overlay218,3533
+.node circle {node circle222,3575
+.node circle {.node circle222,3575
+.node text {node text228,3657
+.node text {.node text228,3657
+.link {link233,3723
+.link {.link233,3723
+.templink {templink239,3793
+.templink {.templink239,3793
+.ghostCircle.show {.ghostCircle.show245,3864
+.ghostCircle,ghostCircle249,3907
+.ghostCircle,ghostCircle249,3907
+.ghostCircle,.ghostCircle249,3907
+.activeDrag .ghostCircle {.activeDrag .ghostCircle250,3921
+.smallMultiples {smallMultiples257,3994
+.smallMultiples {.smallMultiples257,3994
+.line {line262,4057
+.line {.line262,4057
+
+.indium.json,345
+    "configurations": [{02,2
+        "name": "Web project",name3,27
+        "type": "chrome",type4,58
+        "command": "chromium-browser --incognito",command5,84
+        "sourceMaps": false,sourceMaps6,135
+        "url": "https://webstrates.cs.au.dk/wicked-wombat-56/#/timeline"url7,164
+    "configurations": [{configurations2,2
+
+overview-component.js,62
+    data: () => ({data22,386
+    mounted() {mounted27,457
+
+network-mixin-upd.js,3420
+    data: () => ({data2,32
+        dy() {dy44,1117
+        viewBoxConst() {viewBoxConst47,1177
+        viewBox() {viewBox50,1296
+        svgViewBox() {svgViewBox53,1405
+        getSelectors: function(legacy, version) {getSelectors71,2302
+            if (legacy === true) {if75,2388
+        changeCurrent: function(innerText) {changeCurrent98,3064
+        handler: function(e) {handler102,3172
+        getLevelNodes: function(node) {getLevelNodes107,3288
+        getChildIndex: function(node) {getChildIndex112,3426
+        tagNodeName: function(node) {tagNodeName116,3536
+        clearInside: function(node) {clearInside120,3646
+        handleImage: function(node) {handleImage127,3887
+            if (node.nodeName === 'IMG') {if128,3925
+        walk: function(node, cb) {walk134,4099
+            cb(node)cb135,4134
+            if (node.children.length) {if136,4155
+            if (node.nextElementSibling) {if139,4257
+        removeChildren: function(type) {removeChildren149,4552
+            if (type === "initial") {if153,4619
+                while (myNode.firstChild) {while156,4716
+                while (myNode.firstChild) {while161,4896
+                while (myNode.firstChild) {while168,5127
+                while (myNode.firstChild) {while173,5313
+                while (myNode.firstChild) {while179,5565
+                while (myNode.firstChild) {while184,5745
+        filterDefaultCategories: function(input) {filterDefaultCategories195,6029
+        sqEnhanced: function(input, attributeName, attributeValue) {sqEnhanced218,7422
+            for (var i = 0, len = input.length; i < len; ++i) {for223,7579
+                for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {for229,7744
+                    if (att.nodeName === attributeName && att.nodeValue === attributeValue) {if233,7873
+                        if (typeof att !== undefined) {if241,8127
+                            if (att.nodeName !== "children") {if243,8184
+                if (flag === true) {if255,8541
+                if (flag === true) {if268,8961
+        sq: function(input) {sq278,9113
+            for (var i = 0, len = input.length; i < len; ++i) {for284,9267
+                for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {for289,9403
+                    if (typeof att !== undefined) {if294,9570
+                        if (att.nodeName !== "children") {if298,9745
+                            if (att.nodeName === "__wid") {if300,9805
+        root: function(data) {root358,11818
+        initEnhanced: function(input, type, mode, filter) {initEnhanced386,12829
+            if (typeof type !== "undefined") {if390,12912
+                if (typeof input !== "undefined") {if396,13018
+        init: function(input, type, mode) {init421,13931
+            if (typeof type !== "undefined") {if423,13976
+                if (typeof input !== "undefined") {if429,14082
+        checkNested: function(obj /*, level1, level2, ... levelN*/ ) {checkNested447,14672
+            for (var i = 0; i < args.length; i++) {for449,14808
+        findSelectedInList: function(selected, list, propertyName, valueFilter) {findSelectedInList461,15232
+        update: function(source, selectors) { // INFO: update now has input for different graph update483,16193
+            tree(root)tree527,17833
+
+top-menu-component.js,61
+	data: () => ({data3,85
+		isActive(path) {isActive13,227
+
+dom-tree-d3-vue-component.js,674
+    data: () => ({data74,1766
+        d3Data() {d3Data84,2007
+        d3DataLatest() {d3DataLatest104,2625
+        currentToChild() {currentToChild126,3300
+        function findSelectedInList(list, propertyName, newPropertyName, newPropertyValue){findSelectedInList133,3425
+                    if (typeof currentItem != null) {if137,3703
+                        if (typeof currentItem[propertyName] != "undefined" | typeof currentItemif138,3757
+                            if (typeof currentItem.children != "undefined") {if144,4099
+                                findSelectedInList(currentItem.children, propertyName, newProperfindSelectedInList145,4177
+
+small-multiples-component.js,291
+    data: () => ({data17,525
+        test2: function() {test228,724
+        test: function() {test36,1003
+    created: function() {created89,3093
+    mounted() {mounted126,4366
+            function type(d) {type179,5817
+            symbols = symbols.map(el => {symbols200,6424
+
+transclusion-component.js,438
+        d3Data() {d3Data63,1403
+        selected: function(newValue, oldValue) {selected90,2252
+            get() {get97,2472
+            set(value) {set103,2684
+    data: () => ({data108,2810
+        extractSummary: function(input) {extractSummary115,2956
+                    if (prs !== null && typeof prs !== "undefined") {if189,5482
+                        for (var i = 0, len = prs.length; i < len; ++i) {for191,5553
+
+scripts/tweaking_filter.js,2426
+    cb(node)cb60,1290
+    if (node.children.length) {if61,1303
+    if (node.nextElementSibling) {if64,1381
+function hashing(str) { // TODO: get rid of object in returnhashing160,3139
+    for (var i = 0, len = str.length; i < len; ++i) {for165,3244
+function recursiveWalks(roots) { // TODO: either add here a function for each element, either sorecursiveWalks196,4107
+        if (parent.value.childElementCount != 0) {if204,4361
+                findChildren(parent.children[i])findChildren214,4959
+    for (var i = 0, len = roots.length; i < len; ++i) {for222,5123
+        findChildren(roots[i])findChildren223,5179
+function rc(str, cb) {rc236,5499
+    for (var i = 0, len = str.length; i < len; ++i) {for241,5566
+    cb(target)cb255,6002
+        if (parent.value.childElementCount != 0) {if266,6303
+                findChildren(parent.children[i])findChildren275,6786
+    for (var i = 0, len = roots.length; i < len; ++i) {for281,6948
+        findChildren(roots[i])findChildren282,7004
+// function rcw(roots, cb) {rcw292,7067
+        if (parent.value.childElementCount != 0) {if308,7667
+                findChildren(parent.children[i])findChildren317,8141
+    for (var i = 0, len = roots.length; i < len; ++i) {for324,8304
+        findChildren(roots[i])findChildren325,8360
+function makeStructureExample(roots, children) {makeStructureExample353,8900
+        if (children[parent.value.Id]) {if356,8992
+            for (var i = 0, len = parent.children.length; i < len; ++i) {for359,9119
+    for (var i = 0, len = roots.length; i < len; ++i) {for366,9350
+function makeStructure(roots, children) {makeStructure377,9542
+            for (var i = 0, len = parent.children.length; i < len; ++i) {for385,9955
+                findChildren(parent.children[i])findChildren386,10029
+    for (var i = 0, len = roots.length; i < len; ++i) {for392,10184
+        findChildren(roots[i])findChildren393,10240
+function buildHierarchy(array) {buildHierarchy402,10301
+    for (var i = 0, len = array.length; i < len; ++i) {for409,10463
+            for (var i = 0, len = parent.children.length; i < len; ++i) {for429,11324
+                findChildren(parent.children[i])findChildren430,11398
+    for (var i = 0, len = roots.length; i < len; ++i) {for436,11553
+        findChildren(roots[i])findChildren437,11609
+buildHierarchy(window.el.children)buildHierarchy446,11702
+
+scripts/recursion.js,98
+function sq(input) {sq23,521
+    for (var i = 0, len = input.length; i < len; ++i) {for28,614
+
+scripts/deprecated.js,0
+
+scripts/test.js,0
+
+scripts/indium.js,64
+async function getHtmlsPerSession() {getHtmlsPerSession12,337
+
+scripts/object-properties.js,1794
+function sq(input) {sq6,146
+    for (var i = 0, len = input.length; i < len; ++i) {for13,268
+function sq(input) {sq39,1062
+    for (var i = 0, len = input.length; i < len; ++i) {for45,1183
+        for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {for50,1295
+            if (typeof att !== undefined) {if58,1496
+                if (att.nodeName !== "children") {if62,1645
+function checkNested(obj /*, level1, level2, ... levelN*/ ) {checkNested103,2547
+    for (var i = 0; i < args.length; i++) {for105,2666
+// function findSelectedInList(selected, list, propertyName, valueFilter) {findSelectedInList117,2944
+findSelectedInList(selected, td, "data-id", "x48M3u9y")findSelectedInList132,3558
+function sq(input) {sq137,3655
+    for (var i = 0, len = input.length; i < len; ++i) {for143,3776
+        for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {for148,3888
+            if (typeof att !== undefined) {if156,4089
+                if (att.nodeName !== "children") {if160,4238
+function sqEnhanced(input, attributeName, attributeValue) {sqEnhanced192,4892
+    for (var i = 0, len = input.length; i < len; ++i) {for197,5024
+        for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {for203,5157
+            if (att.nodeName === attributeName && att.nodeValue === attributeValue) {if207,5270
+                if (typeof att !== undefined) {if215,5484
+                    if (att.nodeName !== "children") {if217,5533
+        if (flag === true) {if229,5826
+        if (flag === true) {if242,6197
+sqEnhanced(window.el.children, "__wid", "NMS8A3rD")sqEnhanced252,6300
+for (var i = 0, atts = item.attributes, n = atts.length, arr = []; i < n; i++) {for266,6461
+sq(dv)sq286,6759
+
+mixins.js,1773
+    data: () => ({data6,133
+        changeView: function(value, webstrateId) {changeView11,218
+        testSync: function(value) {testSync16,447
+        checkEvent: function(valueCheck) {checkEvent20,556
+    data: () => ({data29,767
+                filterTags: function(tags) {filterTags52,1629
+                        custom = tags.filter((el) => {custom56,1831
+                            if (snapshot === true && typeof snapshotCustom !== "undefined" && snif110,4780
+                        fetchActivityMixin: function(webstrateIdInst) {fetchActivityMixin172,7845
+                        fetchDaysOverview: function(inputDate) {fetchDaysOverview187,8579
+                        getToday: function() {getToday209,9669
+                        monthBack: function(date) {monthBack212,9789
+                        monthForward: function(date) {monthForward215,9938
+                        getOpsJsonMixin: function(input) {getOpsJsonMixin219,10150
+    data: () => ({data235,10856
+        initiateTransclusion: function() {initiateTransclusion242,11029
+        initiateTransclusionNew: function() {initiateTransclusionNew249,11419
+        createIframe: function(webstrateId) {createIframe259,11864
+        createIframeNew: function(webstrateId) {createIframeNew274,12322
+        removeIframe: function(webstrateId) {removeIframe289,12762
+            function removeElement(elementId) {removeElement294,12869
+            removeElement(webstrateId)removeElement301,13057
+        selectWebstrateIdFromTransclusion: function(webstrateId) {selectWebstrateIdFromTransclusion304,13108
+        receiveTags: function(webstrateId) {receiveTags317,13491
+        silentylyTransclude: function(webstrateId) {silentylyTransclude337,14097
+
+template-topmenu.html,0
+
+external-vue-components-import.js,0
+
+small-multiples-global.js,420
+    data: () => ({data37,1066
+        width() {width59,1524
+        scaled() {scaled63,1743
+        maxActivity() {maxActivity69,1884
+        dynamicComponent: function() {dynamicComponent75,2014
+                render(h) {render83,2205
+        type: function(d) {type100,2791
+        symbolsNest: function(fetchedData) {symbolsNest106,2982
+                symbols = symbols.map(el => {symbols149,4370
+
+animation-mixin.js,230
+// function myMove() {myMove30,559
+//   function frame() {frame37,720
+        // function myMove() {myMove56,1056
+        //     function frame() {frame60,1222
+        // function step(timestamp, direction) {step78,1675
+
+realtime-component.js,30
+    data: () => ({data8,194
+
+transclude-and-read-dom.js,478
+    data: () => ({data47,1109
+        range: function(start, stop, step = 1) {range57,1306
+        extractSummary: function(input) {extractSummary60,1458
+                if (prs !== null && typeof prs !== "undefined") {if110,3043
+                    for (var i = 0, len = prs.length; i < len; ++i) {for112,3110
+        targetParsed() {targetParsed240,7634
+        //     // you can also specify your own class and add it to SPA. The class shouldn't be and285,8827
+
+embedded.js,219
+  data: () => ({data26,664
+    changeView: function() {changeView33,766
+  changeId(value) {changeId37,868
+    webstrateIdProp() {webstrateIdProp43,971
+  mounted() {mounted47,1043
+  created() {created49,1062

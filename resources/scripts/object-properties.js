@@ -287,3 +287,19 @@ var dv = {
 sq(dv)
 
 console.log(sq(dv))
+
+
+// // // //
+
+var gl = [];
+var tdf = function(input) {
+
+    input.forEach(el => {
+
+        gl.push(el)
+        tdf(el.children)
+
+    })
+}
+
+tdf()

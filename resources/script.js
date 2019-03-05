@@ -77,6 +77,12 @@ webstrate.on('loaded', () => {
                 component: transcludeAndReadDom
             },
             {
+                path: '/player',
+                component: player
+            },
+
+
+            {
                 path: '*',
                 component: {
                     template: '#template-page-not-found '
@@ -87,6 +93,11 @@ webstrate.on('loaded', () => {
     });
 
     const store = window.store
+
+    Vue.use(Vuex);
+    Vue.use(window.LayoutGrid, {
+        store
+    });
 
     // Create Vue application and mount in container.
     const app = new Vue({

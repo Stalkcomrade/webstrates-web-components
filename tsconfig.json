@@ -1,0 +1,7 @@
+{
+    "compilerOptions": {
+        "removeComments": false,
+        "module": "esnext"
+    },
+    "allowSyntheticDefaultImports": true
+}
