@@ -1,7 +1,8 @@
+Vue.config.devtools = true;
 webstrate.on('loaded', () => {
 
-    Vue.config.ignoredElements = ['transient'];
     Vue.config.devtools = true;
+    Vue.config.ignoredElements = ['transient'];
     // Create container and instantiate template.
     const containerElement = document.createElement('transient');
     containerElement.setAttribute('id', 'container');
@@ -77,6 +78,10 @@ webstrate.on('loaded', () => {
                 component: transcludeAndReadDom
             },
             {
+                path: '/cs-vs-ift-patching',
+                component: csVsIftPatching
+            },
+            {
                 path: '/layout-grid-component',
                 component: layoutGridComponent
             },
@@ -91,6 +96,7 @@ webstrate.on('loaded', () => {
     });
 
     const store = window.store
+    const mapState = window.Vuex.mapState
 
     Vue.use(Vuex);
     Vue.use(window.LayoutGrid, {
@@ -105,5 +111,6 @@ webstrate.on('loaded', () => {
     }).$mount(containerElement)
 
     window.app = app
+    window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue = app.constructor;
 
 });

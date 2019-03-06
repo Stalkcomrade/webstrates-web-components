@@ -1,6 +1,7 @@
 webstrate.on('loaded', () => {
 
     // SOLVED: dividing slider versions on initial and latest
+    Vue.config.devtools = true;
 
     window.store = new Vuex.Store({
         state: {

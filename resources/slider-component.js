@@ -6,14 +6,17 @@
 // webstrate.on('loaded', () => {
 
 window.slider = Vue.component('vue-slider-configured', {
-    mixins: [window.dataFetchMixin, window.dataObjectsCreator],
+    mixins: [window.dataFetchMixin, window.dataObjectsCreator, window.transclusion],
+    props: ["webstrateIdSliderProp"],
     components: {
         'vue-slider': window.vueSlider
     },
     template: `
 <div>
 
- <vue-slider v-model="valueSlider" ref="slider" 
+<br>
+
+ <vue-slider v-model="valueSlider" ref="slider" v-if="webstrateIdSliderProp !== 'main'"
               :data="sliderOptionsComp.data"
               :interval="sliderOptionsComp.interval"
               :piecewise="true"
@@ -25,13 +28,16 @@ window.slider = Vue.component('vue-slider-configured', {
               :enableCross="false"> 
   </vue-slider>
 
-    <button @click="changeMode('versions')">Version Mode</button>
-    <button @click="changeMode('sessions')">Sessions aka Auto-Tag Mode</button>
-    <button @click="changeMode('tags')">Users Tags Mode</button>
+<br>
+
+    <button @click="changeMode('versions')" v-if="mode === 'global'">Version Mode</button>
+    <button @click="changeMode('sessions')" v-if="mode === 'global'">Sessions aka Auto-Tag Mode</button>
+    <button @click="changeMode('tags')"     v-if="mode === 'global'">Users Tags Mode</button>
 
 </div>
 `,
     data: () => ({
+        mode: "global",
         valueSlider: [1, 3],
         currentMode: "default",
         sliderOptionsComp: {
@@ -260,108 +266,212 @@ window.slider = Vue.component('vue-slider-configured', {
     },
     async mounted() {
 
+        // INFO: if I am using this in the local mode (via prop)
+        // I don't want to use store
 
-        // INFO: if no information about versions is presented, fetch it
+        if (this.webstrateIdSliderProp !== undefined) {
 
-        if (typeof this.$store.state.sessionObject === undefined |
-            this.$store.state.sessionObject === "") {
+            this.mode = "local"
+            this.sliderOptionsComp.data = [1, 2, 3]
+            console.log("Slider Local Mode")
 
-            console.log("Fetching Session Object in Slider Component")
+            var wsId = this.webstrateIdSliderProp
+            var tags = await this.fetchTags(wsId)
+            console.log(tags)
 
-            var selected = this.$store.state.webstrateId
-            console.log("selected = ", selected);
+            var vSession = [];
+            var vLabel = [];
 
-            var versioningParsed = await this.getOpsJsonMixin(selected)
-            var sessionGrouped = this.processData(versioningParsed)
+            tags.forEach(el => {
+                vSession.push(el.v)
+                vLabel.push(el.label)
+            })
 
-            // this.$store.commit("changeCurrentSessionObject", sessionGrouped)
+
+            var vUnited = [];
+
+            tags.forEach(el => {
+                vUnited.push(el.v + "||" + el.label)
+            })
+
+            console.log("vUnited = ", vUnited);
+
+            this.sliderOptionsComp.data = tags // FIXME: delete
+            this.sliderOptionsComp.piecewiseLabel = true
+
+            this.$nextTick(() => {
+                this.sliderOptionsComp.formatter = (v) => `${v.label}`
+                this.sliderOptionsComp.mergeFormatter = (v1, v2) => `¥${v1.label} ~ ¥${v2.label}`
+            });
+
+            // setTimeout(() => {
+            //     this.sliderOptionsComp.formatter = (v) => `${v.label}`
+            //     this.sliderOptionsComp.mergeFormatter = (v1, v2) => `¥${v1.label} ~ ¥${v2.label}`
+            // }, 100)
+
+
+            this.sliderOptionsComp.piecewiseStyle = {
+                "backgroundColor": "#ccc",
+                "visibility": "visible",
+                "width": "12px",
+                "height": "12px"
+            }
+
+
+            this.sliderOptionsComp.piecewiseStyle = {
+                "backgroundColor": "#3498db"
+            }
+
+            this.sliderOptionsComp.piecewiseStyle = {
+                "color": "#3498db"
+            }
+
+            // INFO: LOCAL MODE (manipulates for construction)
+            // INFO: watching for manipulations made with slider
+            // and mutating corresponding state in store
+
+            this.$watch((vm) => (vm.valueSlider), val => {
+
+                console.log("this.valueSlider changed", this.valueSlider)
+                console.log("Slider shifted, commited to store", this.valueSlider)
+
+                // setTimeout(function() {
+
+                // INFO: checking whether versions are wrapped in array of objects
+
+                if (this.valueSlider[0].v !== undefined && this.valueSlider[0].v !== null) {
+
+                    console.log(this.valueSlider)
+                    console.log("CHECKING Slider type", typeof this.valueSlider[0].v !== undefined)
+
+                    var parsedVersions = this.valueSlider.map(el => {
+                        return el.v
+                    })
+                    console.log("this.valueSlider = ", this.valueSlider);
+                    console.log("parsedVersions = ", parsedVersions);
+
+                    setTimeout(() => {
+                        this.$store.commit("changeSliderVersions", parsedVersions)
+                    }, 3000)
+
+
+                } else {
+                    setTimeout(() => {
+                        this.$store.commit("changeSliderVersions", this.valueSlider)
+                    }, 3000)
+
+                }
+
+                console.log("SLIDER STORE:", this.$store.state.valueSlider)
+
+            })
+
+
 
         } else {
-            console.log("Session object for slider is already presented")
-        }
 
+            // INFO: if no information about versions is presented, fetch it
 
-        // INFO: watching for manipulations made with slider
-        // and mutating corresponding state in store
+            if (typeof this.$store.state.sessionObject === undefined |
+                this.$store.state.sessionObject === "") {
 
-        this.$watch((vm) => (vm.valueSlider), val => {
+                console.log("Fetching Session Object in Slider Component")
 
-            console.log("this.valueSlider changed", this.valueSlider)
-            console.log("Slider shifted, commited to store", this.valueSlider)
+                var selected = this.$store.state.webstrateId
+                console.log("selected = ", selected);
 
-            // setTimeout(function() {
+                var versioningParsed = await this.getOpsJsonMixin(selected)
+                var sessionGrouped = this.processData(versioningParsed)
 
-            // INFO: checking whether versions are wrapped in array of objects
-
-            if (this.valueSlider[0].v !== undefined && this.valueSlider[0].v !== null) {
-
-                console.log(this.valueSlider)
-                console.log("CHECKING Slider type", typeof this.valueSlider[0].v !== undefined)
-
-                var parsedVersions = this.valueSlider.map(el => {
-                    return el.v
-                })
-                console.log("this.valueSlider = ", this.valueSlider);
-                console.log("parsedVersions = ", parsedVersions);
-
-                setTimeout(() => {
-                    this.$store.commit("changeSliderVersions", parsedVersions)
-                }, 3000)
-
-
+                // this.$store.commit("changeCurrentSessionObject", sessionGrouped)
 
             } else {
-                setTimeout(() => {
-                    this.$store.commit("changeSliderVersions", this.valueSlider)
-                }, 3000)
-
+                console.log("Session object for slider is already presented")
             }
 
-            console.log("SLIDER STORE:", this.$store.state.valueSlider)
 
-            // debugger
-            // }.bind(this), 3000)
+            // INFO: watching for manipulations made with slider
+            // and mutating corresponding state in store
 
+            this.$watch((vm) => (vm.valueSlider), val => {
 
-        })
+                console.log("this.valueSlider changed", this.valueSlider)
+                console.log("Slider shifted, commited to store", this.valueSlider)
 
-        // INFO: Receiveing session-object from timeline-component
-        this.$watch(
-            (vm) => (vm.$store.state.sessionObject, Date.now()), async val => {
+                // setTimeout(function() {
 
-                console.dir("store.state.sessionObject is received")
-                var sessionObject = this.$store.state.sessionObject
-                console.log("sessionObject = ", sessionObject); // INFO: getting from store
+                // INFO: checking whether versions are wrapped in array of objects
 
-                // fetching tags
-                var wsId = this.$store.state.webstrateId
-                // console.log("wsId = ", wsId);
-                // var tags = await this.fetchTags(wsId)
-                // console.log("tags = ", tags);
-                // var rTags = await this.fetchRangeOfTags(wsId)
-                // console.log("rTags = ", rTags);
-                // fetching tags
+                if (this.valueSlider[0].v !== undefined && this.valueSlider[0].v !== null) {
 
-                var counter = 0,
-                    sessionIds = []
+                    console.log(this.valueSlider)
+                    console.log("CHECKING Slider type", typeof this.valueSlider[0].v !== undefined)
 
-                sessionObject.forEach((el, index) => {
-                    counter = counter + 1
-                    sessionIds.push(counter)
-                })
+                    var parsedVersions = this.valueSlider.map(el => {
+                        return el.v
+                    })
+                    console.log("this.valueSlider = ", this.valueSlider);
+                    console.log("parsedVersions = ", parsedVersions);
 
-                console.log("Slider Options")
-                this.sliderOptionsComp.data = sessionIds // FIXME: delete
-                this.sliderOptionsComp.value = sessionIds
-                // this.sliderOptionsComp.formatter = "¥" {{ this.sliderOptionsComp.value }}
-                this.sliderOptionsComp.min = this.valueSlider[0] = sessionIds[0]
-                this.sliderOptionsComp.max = this.valueSlider[1] = sessionIds[sessionIds.length - 1]
+                    setTimeout(() => {
+                        this.$store.commit("changeSliderVersions", parsedVersions)
+                    }, 3000)
 
 
-            }, {
-                immediate: true
-            }
-        )
 
+                } else {
+                    setTimeout(() => {
+                        this.$store.commit("changeSliderVersions", this.valueSlider)
+                    }, 3000)
+
+                }
+
+                console.log("SLIDER STORE:", this.$store.state.valueSlider)
+
+                // debugger
+                // }.bind(this), 3000)
+
+
+            })
+
+            // INFO: Receiveing session-object from timeline-component
+            this.$watch(
+                (vm) => (vm.$store.state.sessionObject, Date.now()), async val => {
+
+                    console.dir("store.state.sessionObject is received")
+                    var sessionObject = this.$store.state.sessionObject
+                    console.log("sessionObject = ", sessionObject); // INFO: getting from store
+
+                    // fetching tags
+                    var wsId = this.$store.state.webstrateId
+                    // console.log("wsId = ", wsId);
+                    // var tags = await this.fetchTags(wsId)
+                    // console.log("tags = ", tags);
+                    // var rTags = await this.fetchRangeOfTags(wsId)
+                    // console.log("rTags = ", rTags);
+                    // fetching tags
+
+                    var counter = 0,
+                        sessionIds = []
+
+                    sessionObject.forEach((el, index) => {
+                        counter = counter + 1
+                        sessionIds.push(counter)
+                    })
+
+                    console.log("Slider Options")
+                    this.sliderOptionsComp.data = sessionIds // FIXME: delete
+                    this.sliderOptionsComp.value = sessionIds
+                    // this.sliderOptionsComp.formatter = "¥" {{ this.sliderOptionsComp.value }}
+                    this.sliderOptionsComp.min = this.valueSlider[0] = sessionIds[0]
+                    this.sliderOptionsComp.max = this.valueSlider[1] = sessionIds[sessionIds.length - 1]
+
+
+                }, {
+                    immediate: true
+                }
+            )
+
+        }
     }
 })

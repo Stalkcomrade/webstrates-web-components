@@ -9,11 +9,10 @@ import {
 } from '../node_modules/d3-vs';
 
 
-
 import LayoutGrid from 'vue-layout-grid';
 window.LayoutGrid = LayoutGrid
 import Buefy from 'buefy';
-import 'buefy/lib/buefy.min.css';
+// import 'buefy/lib/buefy.min.css';
 
 
 import vueSlider from '/home/stlk/Downloads/node_modules/vue-slider-component/src/vue2-slider.vue'
