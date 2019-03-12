@@ -12,8 +12,34 @@ window.transclusion = Vue.mixin({
          */
         constructWsTransclusionSimple: function(wsId, v) {
 
+            // INFO: several things to consider
+            // transient tags
+            // In order to really compose new webstrate with custom version,
+            // I need to delete transiet section and apply dom to non-transient section
+
+
+            // INFO: make a recommendation to disable programmatic creation of transclusion
+            // per a demonstration - cause they gonna interfere/duplicate with the composed webstrate
+
+
+            // INFO: programmatic creation of transclusion
+            // In this case, I am just parsing already processed webstrate
+            // So, no probelm to solve here
+
             // TODO: test plain structure
-            document.getElementById(wsId).setAttribute("src", "/" + wsId + "/" + v + "/")
+            // SOLVED: I need to check whether it is already been used
+            // FIXME: don't delete transclusions
+
+            var ndList = document.getElementsByTagName("iframe")
+
+            for (var i = 0; i < ndList.length; i++) {
+
+                ndList[i].getAttribute("src").search(wsId) > -1 &&
+                    ndList[i].setAttribute("src", "/" + wsId + "/" + v + "/")
+
+            }
+
+            // document.getElementById(wsId).setAttribute("src", "/" + wsId + "/" + v + "/")
 
         },
         /** Used for tags fetching */

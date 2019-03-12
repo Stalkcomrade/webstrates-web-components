@@ -74,6 +74,10 @@ webstrate.on('loaded', () => {
                 component: transcludeWebstrateComponent
             },
             {
+                path: '/transclude-codestrate-component',
+                component: transcludeWebstrateComponent
+            },
+            {
                 path: '/transclude-and-read-dom',
                 component: transcludeAndReadDom
             },

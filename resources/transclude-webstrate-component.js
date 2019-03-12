@@ -81,32 +81,33 @@ webstrate.on('loaded', () => {
 
         mounted() {
 
-            // this.initiateTransclusion()
-            // this.createIframe("short-turtle-55")
-            // this.silentylyTransclude("short-turtle-55")
-            // console.log("html = ", html);
-            // var d3Data = this.init(this.htmlObject, undefined, undefined)
+            if (this.$route.path === "/transclude-webstrate-component") {
 
-            // var containerLatest = {
-            //         name: "main",
-            //         children: merged
-            //     }
+                this.$store.commit('changeCurrentWebstrateId', "dry-goat-98")
 
-            // this.rootInstance = this.root(d3Dat)
-            // // window.dfr = this.rootInstance
-            //     // changeGraphData
-            //     this.update(this.rootInstance, selectorsInst)
+                this.$store.commit('changeWebstrateIdIsTranscluded', true)
+                this.$store.commit('changeCurrentWebstrateId', "dry-goat-98")
+                this.initiateTransclusionNew()
+                this.createIframeNew("dry-goat-98")
 
-            // console.log("d3Data = ", d3Data);
+                this.selectWebstrateIdFromTransclusion("dry-goat-98")
 
-            this.$store.commit('changeCurrentWebstrateId', "dry-goat-98")
+            } else {
 
-            this.$store.commit('changeWebstrateIdIsTranscluded', true)
-            this.$store.commit('changeCurrentWebstrateId', "dry-goat-98")
-            this.initiateTransclusionNew()
-            this.createIframeNew("dry-goat-98")
 
-            this.selectWebstrateIdFromTransclusion("dry-goat-98")
+                this.$store.commit('changeCurrentWebstrateId', "neat-husky-32")
+
+                this.$store.commit('changeWebstrateIdIsTranscluded', true)
+                this.$store.commit('changeCurrentWebstrateId', "neat-husky-32")
+                this.initiateTransclusionNew()
+                this.createIframeNew("neat-husky-32")
+
+                this.selectWebstrateIdFromTransclusion("neat-husky-32")
+
+
+            }
+
+
 
 
         }
