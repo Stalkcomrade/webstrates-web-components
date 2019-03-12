@@ -38,6 +38,7 @@ window.slider = Vue.component('vue-slider-configured', {
 `,
     data: () => ({
         mode: "global",
+        // valueSliderMemory: "", // INFO: I am using this in order to memorise
         valueSlider: [1, 3],
         currentMode: "default",
         sliderOptionsComp: {
@@ -339,25 +340,32 @@ window.slider = Vue.component('vue-slider-configured', {
 
                 // INFO: checking whether versions are wrapped in array of objects
 
-                if (this.valueSlider[0].v !== undefined && this.valueSlider[0].v !== null) {
+                if (this.valueSlider[0].v !== undefined && this.valueSlider[1].v !== null) {
 
-                    console.log(this.valueSlider)
-                    console.log("CHECKING Slider type", typeof this.valueSlider[0].v !== undefined)
+
+                    // console.log(this.valueSlider)
+                    // console.log("CHECKING Slider type", typeof this.valueSlider[0].v !== undefined)
 
                     var parsedVersions = this.valueSlider.map(el => {
                         return el.v
                     })
+
+
+                    // INFO: Changing WebstrateId Version IN parent webstrate for child webstrate
+                    // INFO: This is limited to the non-nested transclusion
+                    this.constructWsTransclusionSimple(this.webstrateIdSliderProp, this.valueSlider[1].v)
+
                     console.log("this.valueSlider = ", this.valueSlider);
                     console.log("parsedVersions = ", parsedVersions);
 
                     setTimeout(() => {
-                        this.$store.commit("changeSliderVersions", parsedVersions)
+                        // this.$store.commit("changeSliderVersions", parsedVersions)
                     }, 3000)
 
 
                 } else {
                     setTimeout(() => {
-                        this.$store.commit("changeSliderVersions", this.valueSlider)
+                        // this.$store.commit("changeSliderVersions", this.valueSlider)
                     }, 3000)
 
                 }

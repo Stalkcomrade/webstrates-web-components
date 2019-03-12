@@ -253,13 +253,142 @@ function sqEnhanced(input, attributeName, attributeValue) {
 sqEnhanced(window.el.children, "__wid", "NMS8A3rD")
 
 
+window.el.children[0].attributes.forEach(el => {})
+
+function sq(input) {
+
+    var target = [] // INFO: local-global scope
+    // var children = []
+    // var children = {}
+
+    for (var i = 0, len = input.length; i < len; ++i) {
+        var item = input[i]
+
+        var children = {}
+
+        for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {
+
+            var nodes = [],
+                values = [],
+                contObj = {};
+
+            att = atts[k];
+
+            if (typeof att !== undefined) {
+
+                // TODO: consider children
+                // TODO: consider search for reflected nodes
+                if (att.nodeName !== "children") {
+
+                    // TODO: delete 
+                    nodes.push(att.nodeName);
+                    values.push(att.nodeValue);
+
+                    contObj[att.nodeName] = att.nodeValue
+
+                }
+            }
+        }
 
 
-window.el.children[0].attributes.forEach(el => {
+        Object.assign(children, contObj)
+
+        children.value = item
+        children.parent = item.parentElement.getAttribute("__wid")
+        children.innerText = item.innerText
+        children.children = item.children ?
+            sq(item.children) :
+            "No Children"
+
+        target.push(children)
+    }
+
+    return target
+}
 
 
+var sqEnhanced = function(input, attributeName, attributeValue, includeNot) {
 
-})
+    var target = [], // INFO: local-global scope
+        flag = false,
+        flagCS = false
+
+    for (var i = 0, len = input.length; i < len; ++i) {
+
+        flag = false
+        var item = input[i]
+        var children = {}
+
+        // debugger;
+
+        for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {
+
+            att = atts[k];
+
+            if (att.nodeName === attributeName && att.nodeValue === attributeValue) {
+                console.log(item)
+            }
+
+            // INFO: Used for Codestrates Filtering
+            if (includeNot === true && att.nodeName === attributeName && att.nodeValue !== attributeValue) {
+
+                console.log("!!!")
+                flagCS = true
+                flag = true
+
+                flag = true
+
+                var contObj = {};
+
+                if (typeof att !== undefined) {
+
+                    if (att.nodeName !== "children") {
+
+                        contObj[att.nodeName] = att.nodeValue
+
+                    }
+                }
+
+            } else if (att.nodeName === attributeName && att.nodeValue === attributeValue) { // INFO: used for just filtering
+
+                flag = true
+
+                var contObj = {};
+
+                if (typeof att !== undefined) {
+
+                    if (att.nodeName !== "children") {
+
+                        contObj[att.nodeName] = att.nodeValue
+
+                    }
+                }
+            }
+        }
+
+        if (flag === true || flagCS === true) {
+
+            Object.assign(children, contObj)
+
+            children.value = item
+            children.parent = item.parentElement.getAttribute("__wid")
+            children.innerText = item.innerText
+        }
+
+        children.children = item.children ?
+            sq(item.children) :
+            "No Children"
+
+        if (flag === true || flagCS === true) {
+            target.push(children)
+        }
+
+    }
+
+    console.log("filter target", target)
+    return target
+}
+
 
 
 
@@ -287,3 +416,72 @@ var dv = {
 sq(dv)
 
 console.log(sq(dv))
+
+
+for (var i = 0, len = input.length; i < len; ++i) {
+
+    flag = false
+    var item = input[i]
+    var children = {}
+
+    console.log(item)
+
+    for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {
+
+        att = atts[k];
+
+        if (att.nodeName === attributeName && att.nodeValue === attributeValue) {
+            console.log(item)
+        }
+
+        // INFO: Used for Codestrates Filtering
+        if (includeNot === true && att.nodeName === attributeName && att.nodeValue !== attributeValue) {
+
+            console.log("!!!")
+            flagCS = true
+            flag = true
+
+
+
+        } else if (att.nodeName === attributeName && att.nodeValue === attributeValue) {
+
+            flag = true
+
+            var contObj = {};
+            // nodes = [],
+            // values = [],
+
+            if (typeof att !== undefined) {
+
+                if (att.nodeName !== "children") {
+
+                    // nodes.push(att.nodeName);
+                    // values.push(att.nodeValue);
+
+                    contObj[att.nodeName] = att.nodeValue
+
+                }
+            }
+        }
+    }
+
+    if (flag === true || flagCS === true) {
+
+        Object.assign(children, contObj)
+
+        children.value = item
+        children.parent = item.parentElement.getAttribute("__wid")
+        children.innerText = item.innerText
+    }
+
+    children.children = item.children ?
+        sq(item.children) :
+        "No Children"
+
+    if (flag === true || flagCS === true) {
+        target.push(children)
+    }
+
+}
+
+console.log("filter target", target)
