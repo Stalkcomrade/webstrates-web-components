@@ -194,31 +194,56 @@ window.networkUpd = Vue.mixin({
          */
         filterDefaultCategories: function(input) {
 
-            var filter = ["Global Menu Utils", "system", "Documentation", "Properties", "Migration Loader",
-                "Migration", "migration", "Migration - Pull beatify libraries", "Migration - Add section-visible to sections",
-                "Migration - Pull linter libraries", "Migration - Pull active line addon", "Migration - Update sortable.js",
-                "Migration - CodeMirror Addons", "Migration - Extended Material Icons", "Migration - CodeMirror Markdown Modes",
-                "Migration - Roboto Fonts", "Migration - Missing Roboto Regular Font", "Migration - JSZip and FileSaver libraries",
-                "Migration - Favicons", "Migration - Pull new CodeMirror version",
-                "Migration - Pull Monaco Editor version and protect codestrate",
-                "Migration - Pull new material icons archive", "Migration - Clear Settings Editor Name",
-                "Migration - Add document title if not exist", "Migration - Protect the document",
-                "Migration - Pull new monaco editor version", "Migration - Pull monaco-themes archive",
-                "Console", "User & Client Manager", "Client Manager Global", "User Manager Global",
-                "User Manager", "Idle Timer", ""
-            ]
+            // var filter = ["Global Menu Utils", "system", "Documentation", "Properties", "Migration Loader",
+            //     "Migration", "migration", "Migration - Pull beatify libraries", "Migration - Add section-visible to sections",
+            //     "Migration - Pull linter libraries", "Migration - Pull active line addon", "Migration - Update sortable.js",
+            //     "Migration - CodeMirror Addons", "Migration - Extended Material Icons", "Migration - CodeMirror Markdown Modes",
+            //     "Migration - Roboto Fonts", "Migration - Missing Roboto Regular Font", "Migration - JSZip and FileSaver libraries",
+            //     "Migration - Favicons", "Migration - Pull new CodeMirror version",
+            //     "Migration - Pull Monaco Editor version and protect codestrate",
+            //     "Migration - Pull new material icons archive", "Migration - Clear Settings Editor Name",
+            //     "Migration - Add document title if not exist", "Migration - Protect the document",
+            //     "Migration - Pull new monaco editor version", "Migration - Pull monaco-themes archive",
+            //     "Console", "User & Client Manager", "Client Manager Global", "User Manager Global",
+            //     "User Manager", "Idle Timer", ""
+            // ]
 
 
             var ctl = "section section-hidden"
 
-            // input.
-
         },
+        /**
+         * used to build filtered dom represenation
+         * @param {any} input
+         * @param {any} attributeName
+         * @param {any} attributeValue
+         * @param {boolean} includeNot - not include elements with current attributes
+         * @param {any} filterArray    - array of of objects {attributeName, attributeValue}
+         */
+        sqEnhanced: function(input, attributeName, attributeValue, includeNot, filterArray) {
 
-        sqEnhanced: function(input, attributeName, attributeValue) {
+            // var fltArray = []
+            // fltArray.name = []
+            // fltArray.value = []
+
+            // filterArray.forEach(el => {
+
+            //     fltArray.name = el.name
+            //     fltArray.value = el.value
+
+            // })
+
+            // att.nodeName
+
+            if (includeNot === true) {
+                console.log(input)
+                input = input[0].children
+                // input = input[0].children[0].children[1].children[0] // .children
+            }
 
             var target = [], // INFO: local-global scope
-                flag = false
+                flag = false,
+                flagCS = false
 
             for (var i = 0, len = input.length; i < len; ++i) {
 
@@ -232,29 +257,35 @@ window.networkUpd = Vue.mixin({
 
                     att = atts[k];
 
-                    if (att.nodeName === attributeName && att.nodeValue === attributeValue) {
+                    // INFO: Used for Codestrates Filtering
+                    if (includeNot === true &&
+                        att.nodeName === attributeName && att.nodeValue === attributeValue) {
+                        // fltArray.name.indexOf(att.nodeName) > -1 && fltArray.value.indexOf(att.attributeValue) === -1) {
 
+                        flagCS = true
                         flag = true
-
                         var contObj = {};
-                        // nodes = [],
-                        // values = [],
 
                         if (typeof att !== undefined) {
-
                             if (att.nodeName !== "children") {
-
-                                // nodes.push(att.nodeName);
-                                // values.push(att.nodeValue);
-
                                 contObj[att.nodeName] = att.nodeValue
+                            }
+                        }
 
+                    } else if (att.nodeName === attributeName && att.nodeValue === attributeValue) { // INFO: used for webstrate
+
+                        flag = true
+                        var contObj = {};
+
+                        if (typeof att !== undefined) {
+                            if (att.nodeName !== "children") {
+                                contObj[att.nodeName] = att.nodeValue
                             }
                         }
                     }
                 }
 
-                if (flag === true) {
+                if (flag === true || flagCS === true) {
 
                     Object.assign(children, contObj)
 
@@ -267,10 +298,9 @@ window.networkUpd = Vue.mixin({
                     this.sq(item.children) :
                     "No Children"
 
-                if (flag === true) {
+                if (flag === true || flagCS === true) {
                     target.push(children)
                 }
-
 
             }
 
@@ -373,7 +403,7 @@ window.networkUpd = Vue.mixin({
                 try {
                     if (d.depth && d.data.name.length !== 7) d.children = null
                 } catch (err) {
-                    console.error("Smth with d.name.length in Hierarchy")
+                    console.error("No d.name.length in Hierarchy")
                 } finally {}
 
             })
@@ -384,13 +414,28 @@ window.networkUpd = Vue.mixin({
          * use this for creating filtered tree
          * @param {any} input
          * @param {any} type
-         * @param {any} mode
+         * @param {any} mode - copy vs transclusion mode
          * @param {object} filter - attributeName and attributeValue to search to
+         * @param {boolean} codestrateMode - attributeName and attributeValue to search to
          */
-        initEnhanced: function(input, type, mode, filter) {
+        initEnhanced: function(input, type, mode, filter, codestrateMode) {
 
+            // class section vissible
+
+            console.log(input)
             var $el;
 
+            // INFO: codestrate mode
+            if (codestrateMode === true) {
+
+                // var filterArray = [{"class", ""}, {"class", ""}]
+
+                $el = input.getElementsByTagName("BODY")[0]
+                return this.sqEnhanced($el.children, filter.attributeName, filter.attributeValue, true)
+
+            }
+
+            // INFO: ordinary call
             if (typeof type !== "undefined") {
 
                 return mode(input)
@@ -539,6 +584,10 @@ window.networkUpd = Vue.mixin({
 
             const height = right.x - left.x + this.margin.top + this.margin.bottom
 
+            selectors.svg
+                .call(d3.zoom().on("zoom", function() {
+                    selectors.svg.attr("transform", d3.event.transform)
+                }))
 
 
             // INFO: compute viewBox params here
@@ -558,7 +607,10 @@ window.networkUpd = Vue.mixin({
                 ])
                 // .tween("resize", window.ResizeObserver ? null : () => () => self.svg
                 .tween("resize", window.ResizeObserver ? null : () => () => selectors.svg
-                    .dispatch("toggle"));
+                    .dispatch("toggle"))
+            // .call(d3.zoom().on("zoom", function() {
+            //     transition.attr("transform", d3.event.transform)
+            // }));
 
             // Update the nodes…
             const node = selectors.gNode.selectAll("g")
@@ -601,6 +653,7 @@ window.networkUpd = Vue.mixin({
 
                     })
 
+
                     this.codestrateModeFlag === true && this.codestrateMode()
 
 
@@ -613,10 +666,17 @@ window.networkUpd = Vue.mixin({
                     // self.$refs.ct.$refs.menu.open(self.$event, d.data.value)
                     // }
                 })
+            // .call(d3.zoom().on("zoom", function() {
+            //     nodeEnter.attr("transform", d3.event.transform)
+            // }))
 
             nodeEnter.append("circle")
                 .attr("r", 2.5)
                 .attr("fill", d => d._children ? "#555" : "#999")
+            // .call(d3.zoom().on("zoom", function() {
+            //     nodeEnter
+            //         .select("circle").attr("transform", d3.event.transform)
+            // }))
             // .attr("fill", d => d.data.nameAttr === null ? "red" : "blue")
 
             nodeEnter.append("text")
@@ -637,6 +697,9 @@ window.networkUpd = Vue.mixin({
                 .clone(true).lower()
                 .attr("stroke-linejoin", "round")
                 .attr("stroke-width", 3)
+            // .call(d3.zoom().on("zoom", function() {
+            //     nodeEnter.select("text").attr("transform", d3.event.transform)
+            // }))
             // .attr("stroke", "white");
 
             // TODO: check prop name
@@ -659,7 +722,10 @@ window.networkUpd = Vue.mixin({
 
             // Update the links…
             const link = selectors.gLink.selectAll("path")
-                .data(links, d => d.target.id);
+                .data(links, d => d.target.id)
+            // .call(d3.zoom().on("zoom", function() {
+            //     link.attr("transform", d3.event.transform)
+            // }))
 
             // Enter any new links at the parent's previous position.
             const linkEnter = link.enter().append("path")

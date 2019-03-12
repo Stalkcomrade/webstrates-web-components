@@ -5,6 +5,7 @@ window.csVsIftPatching = Vue.component('cs-vs-ift-patching', {
         'd3-icicle-vertical': window.d3ICicleVertical,
         'd3-vertical-slider': window.d3VerticalSlider
     },
+
     //     :options="options"
     // :margin="margin"
     template: `
