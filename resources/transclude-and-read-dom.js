@@ -2,6 +2,7 @@
 window.transcludeAndReadDom = Vue.component('transclude-and-read-dom', {
     mixins: [window.transclusion, window.networkUpd],
     components: {
+        'selector-component': window.selectorComponent,
         'd3-player': window.d3Player,
         'd3-icicle-vertical': window.d3ICicleVertical,
         'd3-vertical-slider': window.d3VerticalSlider,
@@ -11,6 +12,11 @@ window.transcludeAndReadDom = Vue.component('transclude-and-read-dom', {
     // :margin="margin"
     template: `
         <div>
+
+<selector-component/>
+
+<br>
+<br>
 
    <!-- <script src="https://unpkg.com/d3-simple-slider"></script> -->
 
@@ -232,7 +238,7 @@ window.transcludeAndReadDom = Vue.component('transclude-and-read-dom', {
 
                         } finally {
 
-                            this.removeIframe(webstrateId)
+                            // this.removeIframe(webstrateId)
 
                             player.push((async () => {
                                 var el = tmp1[0]
