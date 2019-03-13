@@ -29,17 +29,6 @@ window.networkUpd = Vue.mixin({
             left: 40
         }
     }),
-    // TODO: decide on whether to merge watchers
-    // watch: {
-    //     d3Data() {
-    //         console.dir("INSIDE d3Data Watcher")
-    //         var container = {
-    //             name: "main",
-    //             children: this.d3Data
-    //         }
-    //         this.rootInstance = this.root(container)
-    //         this.update(this.rootInstance)
-    //     }},
     computed: {
         dy() {
             return this.width / 6
@@ -117,13 +106,7 @@ window.networkUpd = Vue.mixin({
             node.innerHTML = node.nodeName + node.innerHTML
         },
 
-        clearInside: function(node) {
-            // Array.from(node.childNodes).forEach(child => {
-            //     if (child.nodeName === '#text') {
-            //         child.remove()
-            //     }
-            // })
-        },
+        clearInside: function(node) {},
         handleImage: function(node) {
             if (node.nodeName === 'IMG') {
                 node.src = ''
@@ -141,7 +124,6 @@ window.networkUpd = Vue.mixin({
             }
         },
 
-        // TODO: rewrite considering several trees
         /**
          * 
          * @param {string} type - whether delete children of initial or latest tree
@@ -186,30 +168,6 @@ window.networkUpd = Vue.mixin({
                 }
 
             }
-
-        },
-        /**
-         * filteres codestrate div to get code desired chunks 
-         * @param {any} input - item dom element
-         */
-        filterDefaultCategories: function(input) {
-
-            // var filter = ["Global Menu Utils", "system", "Documentation", "Properties", "Migration Loader",
-            //     "Migration", "migration", "Migration - Pull beatify libraries", "Migration - Add section-visible to sections",
-            //     "Migration - Pull linter libraries", "Migration - Pull active line addon", "Migration - Update sortable.js",
-            //     "Migration - CodeMirror Addons", "Migration - Extended Material Icons", "Migration - CodeMirror Markdown Modes",
-            //     "Migration - Roboto Fonts", "Migration - Missing Roboto Regular Font", "Migration - JSZip and FileSaver libraries",
-            //     "Migration - Favicons", "Migration - Pull new CodeMirror version",
-            //     "Migration - Pull Monaco Editor version and protect codestrate",
-            //     "Migration - Pull new material icons archive", "Migration - Clear Settings Editor Name",
-            //     "Migration - Add document title if not exist", "Migration - Protect the document",
-            //     "Migration - Pull new monaco editor version", "Migration - Pull monaco-themes archive",
-            //     "Console", "User & Client Manager", "Client Manager Global", "User Manager Global",
-            //     "User Manager", "Idle Timer", ""
-            // ]
-
-
-            var ctl = "section section-hidden"
 
         },
         /**
@@ -357,38 +315,7 @@ window.networkUpd = Vue.mixin({
             return target
         },
 
-
-        // sq: function(input) {
-
-        //     // window.input = input
-
-        //     var target = [] // INFO: local-global scope
-        //     var children = []
-
-        //     for (var i = 0, len = input.length; i < len; ++i) {
-        //         var item = input[i]
-
-        //         children = {
-        //             value: item,
-        //             unapproved: item.getAttribute("unapproved") === null ?
-        //                 null : item.getAttribute("unapproved"),
-        //             class: typeof item.getAttribute("class") === undefined ?
-        //                 null : item.getAttribute("class"),
-        //             nameAttr: typeof item.getAttribute("name") === undefined ?
-        //                 null : item.getAttribute("name"),
-        //             name: item.getAttribute("__wid"),
-        //             parent: item.parentElement.getAttribute("__wid"),
-        //             children: (item.children ? this.sq(item.children) : "No Children"),
-        //             innerText: item.innerText,
-        //         }
-        //         target.push(children)
-        //     }
-
-        //     return target
-        // },
-
         // SOLVED: changing root from computed to function
-        // TODO: 
         root: function(data) {
             var hierarchyTemp = d3.hierarchy(data)
             hierarchyTemp.x0 = this.dy / 2 + 500
@@ -396,7 +323,6 @@ window.networkUpd = Vue.mixin({
             hierarchyTemp.descendants().forEach((d, i) => {
                 d.name = d.data.name
                 d.class = d.data.class
-                // d.unapproved = d.data.unapproved
                 d.id = i
                 d._alignment = d.data.alignment;
                 d._children = d.children
@@ -608,9 +534,6 @@ window.networkUpd = Vue.mixin({
                 // .tween("resize", window.ResizeObserver ? null : () => () => self.svg
                 .tween("resize", window.ResizeObserver ? null : () => () => selectors.svg
                     .dispatch("toggle"))
-            // .call(d3.zoom().on("zoom", function() {
-            //     transition.attr("transform", d3.event.transform)
-            // }));
 
             // Update the nodes…
             const node = selectors.gNode.selectAll("g")
@@ -666,41 +589,19 @@ window.networkUpd = Vue.mixin({
                     // self.$refs.ct.$refs.menu.open(self.$event, d.data.value)
                     // }
                 })
-            // .call(d3.zoom().on("zoom", function() {
-            //     nodeEnter.attr("transform", d3.event.transform)
-            // }))
 
             nodeEnter.append("circle")
                 .attr("r", 2.5)
                 .attr("fill", d => d._children ? "#555" : "#999")
-            // .call(d3.zoom().on("zoom", function() {
-            //     nodeEnter
-            //         .select("circle").attr("transform", d3.event.transform)
-            // }))
-            // .attr("fill", d => d.data.nameAttr === null ? "red" : "blue")
 
             nodeEnter.append("text")
                 .attr("dy", "0.31em")
                 .attr("x", d => d._children ? -6 : 6)
                 .attr("text-anchor", d => d._children ? "end" : "start")
                 .text(d => d.data.name)
-                // .attr("stroke", d => {
-                //     if (d.data.class === "section section-hidden") {
-                //         return "blue"
-                //     } else if (d.data.unapproved === "") {
-                //         return "yellow"
-                //     } else {
-                //         return "red"
-                //     }
-                // })
-                // .style("fill", d => d.data.class == "paragraph code-paragraph" ? "red" : "black")
                 .clone(true).lower()
                 .attr("stroke-linejoin", "round")
                 .attr("stroke-width", 3)
-            // .call(d3.zoom().on("zoom", function() {
-            //     nodeEnter.select("text").attr("transform", d3.event.transform)
-            // }))
-            // .attr("stroke", "white");
 
             // TODO: check prop name
             // Transition nodes to their new position.
@@ -723,9 +624,6 @@ window.networkUpd = Vue.mixin({
             // Update the links…
             const link = selectors.gLink.selectAll("path")
                 .data(links, d => d.target.id)
-            // .call(d3.zoom().on("zoom", function() {
-            //     link.attr("transform", d3.event.transform)
-            // }))
 
             // Enter any new links at the parent's previous position.
             const linkEnter = link.enter().append("path")
@@ -734,8 +632,6 @@ window.networkUpd = Vue.mixin({
                         x: source.x0,
                         y: source.y0
                     };
-                    // return this.diagonal({
-                    // return self.diagonal({
                     return diagonal({
                         source: o,
                         target: o
@@ -745,7 +641,6 @@ window.networkUpd = Vue.mixin({
             // Transition links to their new position.
             link.merge(linkEnter).transition(transition)
                 .attr("d", diagonal)
-            // .attr("d", self.diagonal);
 
             // Transition exiting nodes to the parent's new position.
             link.exit().transition(transition).remove()
@@ -754,8 +649,6 @@ window.networkUpd = Vue.mixin({
                         x: source.x,
                         y: source.y
                     };
-                    // return this.diagonal({
-                    // return self.diagonal({
                     return diagonal({
                         source: o,
                         target: o
