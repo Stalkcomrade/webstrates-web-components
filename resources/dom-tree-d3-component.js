@@ -6,14 +6,17 @@
 
 // TODO: set true timeout
 
-window.DomTreeD3Component = Vue.component('dom-tree-d3', {
-    mixins: [window.dataFetchMixin, window.networkUpd],
-    props: ["webstrateId", "initialVersion", "latestVersion"],
-    components: {
-        'diff-vue-component': window.diffVueComponent,
-        'vue-slider': window.vueSlider
-    },
-    template: `
+
+webstrate.on("loaded", () => {
+
+    window.DomTreeD3Component = Vue.component('dom-tree-d3', {
+        mixins: [window.dataFetchMixin, window.networkUpd],
+        props: ["webstrateId", "initialVersion", "latestVersion"],
+        components: {
+            'diff-vue-component': window.diffVueComponent,
+            'vue-slider': window.vueSlider
+        },
+        template: `
 
 <div>
 
@@ -26,7 +29,7 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 <br>
 <br>
 
-    <button @click="codestrateMode">Codestrate Mode</button>
+    <!-- <button @click="codestrateMode">Codestrate Mode</button> -->
 
 
 <br>
@@ -87,499 +90,292 @@ window.DomTreeD3Component = Vue.component('dom-tree-d3', {
 
 </div>
         `,
-    data: () => ({
-        // selectedFilter: '',
-        selectedFilterOptions: '',
-        selectedElementFilterOptions: '',
-        selectedElementValueOptions: '',
-        initSelected: '',
-        isInitiated: false,
-        inputVersion: '',
-        currentInnerText: '',
-        htmlString: '',
-        htmlStringLatest: '',
-        currentVersionSentences: [],
-        codestrateModeFlag: false, // INFO: used to color/filter children if codestrate mode is enabled
-        webstrateId: ''
-    }),
-    methods: {
+        data: () => ({
+            selectedFilterOptions: '',
+            selectedElementFilterOptions: '',
+            selectedElementValueOptions: '',
+            initSelected: '',
+            isInitiated: false,
+            inputVersion: '',
+            currentInnerText: '',
+            htmlString: '',
+            htmlStringLatest: '',
+            currentVersionSentences: [],
+            codestrateModeFlag: false, // INFO: used to color/filter children if codestrate mode is enabled
+        }),
+        methods: {
+            debounce: function(func, wait, immediate) {
 
-        codestrateMode() {
-            this.codestrateModeFlag = true
+                var timeout;
 
-            var tw = d3.selectAll("#gNode")
+                return function() {
+                    var context = this,
+                        args = arguments;
 
-            tw.selectAll("text")
-                .attr("stroke", d => {
-                    if (d.class === "section section-hidden") {
-                        return "blue"
-                    } else if (d.unapproved === "") {
-                        return "yellow"
-                    } else {
-                        return "red"
-                    }
-                })
+                    var callNow = immediate && !timeout;
 
-            var checkNested = function(obj /*, level1, level2, ... levelN*/ ) {
-                var args = Array.prototype.slice.call(arguments, 1);
-                for (var i = 0; i < args.length; i++) {
-                    if (!obj || !obj.hasOwnProperty(args[i])) {
-                        return false;
-                    }
-                    obj = obj[args[i]];
-                }
-                return true;
-            }
+                    clearTimeout(timeout);
 
-            var findSelectedInList = function(selected, list, propertyName, valueFilter) {
+                    timeout = setTimeout(function() {
 
-                Object.values(list).some((currentItem) => {
+                        timeout = null;
 
-                    // // INFO: using this in order to parse 1-level svg elements
-                    if (checkNested(currentItem, 'data', propertyName)) {
-                        currentItem.data[propertyName] === valueFilter ?
-                            selected.push(currentItem) // ? selected = currentItem.__data__.data.name
-                            :
-                            (typeof currentItem._children != "undefined" && findSelectedInList(selected, currentItem._children, propertyName, valueFilter))
-                    }
-                })
-                return selected
-            }
-
-            var selected = []
-            console.log(findSelectedInList(selected, this.rootInstance.children, "unapproved", ""))
-
-        },
-
-        /**
-         * used to bind sqEnhanced for Codestrate mode
-         * @param {any} codestrateMode
-         */
-        instantiateWatchers: function(codestrateMode) {
-
-            function findSelectedInList(list, propertyName, newPropertyName, newPropertyValue) {
-                let condition;
-                if (typeof Object.values(list) != "undefined" && typeof Object.values(list) != null) {
-                    Object.values(list).some((currentItem) => {
-                        if (typeof currentItem != null) {
-                            if (typeof currentItem[propertyName] != "undefined" | typeof currentItem[propertyName] != null) {
-
-                                if (Array.isArray(currentItem) !== true) {
-                                    currentItem[newPropertyName] = newPropertyValue
-                                }; // INFO: important to put semicolon
-
-                                if (typeof currentItem.children != "undefined") {
-                                    findSelectedInList(currentItem.children, propertyName, newPropertyName, newPropertyValue)
-                                }
-
-                            }
+                        if (!immediate) {
+                            func.apply(context, args);
                         }
-                    })
+                    }, wait);
+
+                    if (callNow) func.apply(context, args);
                 }
-                return list
-            }
+            },
+            /**
+             * used to bind sqEnhanced for Codestrate mode
+             * @param {any} codestrateMode
+             */
+            instantiateWatchers: function(codestrateMode) {
+
+                function findSelectedInList(list, propertyName, newPropertyName, newPropertyValue) {
+                    let condition;
+                    if (typeof Object.values(list) != "undefined" && typeof Object.values(list) != null) {
+                        Object.values(list).some((currentItem) => {
+                            if (typeof currentItem != null) {
+                                if (typeof currentItem[propertyName] != "undefined" | typeof currentItem[propertyName] != null) {
+
+                                    if (Array.isArray(currentItem) !== true) {
+                                        currentItem[newPropertyName] = newPropertyValue
+                                    }; // INFO: important to put semicolon
+
+                                    if (typeof currentItem.children != "undefined") {
+                                        findSelectedInList(currentItem.children, propertyName, newPropertyName, newPropertyValue)
+                                    }
+
+                                }
+                            }
+                        })
+                    }
+                    return list
+                }
+
+                var initFun,
+                    arguments;
+
+                // INFO: if method is called with the webstrate mode
+                // assigning corresponding function with arguments
+                if (codestrateMode === true) {
+
+                    initFun = this.initEnhanced
+                    arguments = [undefined, undefined, {
+                        attributeName: "class",
+                        attributeValue: "section section-visible"
+                    }, true]
+
+                } else {
+
+                    initFun = this.init
+                    arguments = [undefined, undefined]
+
+                }
 
 
-            var initFun,
-                arguments;
+                // INFO: I am waiting for data processing above and building united tree here
+                this.$watch(
+                    (vm) => ([vm.d3Data, vm.d3DataLatest]), val => {
 
-            // INFO:
-            // if method is called with the webstrate mode
-            // assigning corresponding function with arguments
-            if (codestrateMode === true) {
+                        // let typingTimer; // timer identifier
+                        // let doneTypingInterval = 1000; // time in ms (5 seconds)
 
-                initFun = this.initEnhanced
-                arguments = [undefined, undefined, {
-                    attributeName: "class",
-                    attributeValue: "section section-visible"
-                }, true]
+                        // function accomplish() {
+                        this.removeChildren("initial")
 
-            } else {
+                        // FIXME: WTF?
+                        var t1 = findSelectedInList(this.d3Data, "name", "alignment", "left"),
+                            t2 = findSelectedInList(this.d3DataLatest, "name", "alignment", "right")
 
-                initFun = this.init
-                arguments = [undefined, undefined]
+                        var merged = [];
+                        merged = merged.concat(t1, t2)
 
-            }
+                        var containerLatest = {
+                            name: "main",
+                            children: merged
+                        }
+
+                        var selectorsInst = this.getSelectors(false, "initial")
+                        this.rootInstance = this.root(containerLatest)
+                        this.update(this.rootInstance, selectorsInst)
+                        // }
+
+                        // clearTimeout(typingTimer);
+                        // typingTimer = setTimeout(accomplish.bind(this), doneTypingInterval);
 
 
+                    }, {
+                        immediate: false
+                    }
+                )
 
-            // INFO: I am waiting for data processing above and building united tree here
-            this.$watch(
-                (vm) => ([vm.d3Data, vm.d3DataLatest]), val => {
+                // SOLVED: divide update logic into new Webstrate and
+                // INFO: watcher for Initial version update
+                this.$watch(
+                    (vm) => (vm.$store.getters.initialVersionGet), async val => {
 
+                        console.dir("Initial Version Update")
+
+                        var webstrateId = this.$store.state.webstrateId
+                        var initialVersion = this.$store.state.sliderVersions[0]
+
+                        var containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
+                            undefined, undefined,
+                            true, initialVersion)
+
+                        this.htmlString = containerTmp
+                        this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
+
+                        this.d3Data = await initFun(...[this.htmlObject].concat(arguments))
+
+                    }, {
+                        immediate: false
+                    }
+                )
+
+                // INFO: watcher for Latest version update
+                this.$watch(
+                    (vm) => (vm.$store.getters.latestVersionGet), async val => {
+
+                        var smth = this.debounce(async () => {
+
+                            console.log("Latest Version update")
+                            var webstrateId = this.$store.state.webstrateId
+                            var latestVersion = this.$store.state.sliderVersions[1]
+
+                            var containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
+                                undefined, undefined,
+                                true, latestVersion)
+
+                            this.htmlStringLatest = containerTmp
+                            this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
+                            this.d3DataLatest = await initFun(...[this.htmlObjectVersioned].concat(arguments))
+
+                        }, 1000)
+
+                        smth()
+
+
+                    }, {
+                        immediate: false
+                    }
+                )
+
+
+                // FIXME: it seems that the main issue here is that html.Object is not created or is wrong
+                this.$watch((vm) => (vm.selectedFilterOptions, vm.selectedElementFilterOptions, vm.selectedElementValueOptions), async val => {
+
+
+                    console.dir("Dom Filter is Applied, Tree is processing")
                     this.removeChildren("initial")
 
-                    // FIXME: WTF?
-                    var t1 = findSelectedInList(this.d3Data, "name", "alignment", "left"),
-                        t2 = findSelectedInList(this.d3DataLatest, "name", "alignment", "right")
-
-                    var merged = [];
-                    merged = merged.concat(t1, t2)
-
-                    var containerLatest = {
-                        name: "main",
-                        children: merged
+                    var filter = {
+                        attributeName: this.selectedElementFilterOptions,
+                        attributeValue: this.selectedElementValueOptions
                     }
-                    // console.log("containerLatest = ", containerLatest);
 
-                    var selectorsInst = this.getSelectors(false, "initial")
-                    this.rootInstance = this.root(containerLatest)
-                    window.dfr = this.rootInstance
-                    // changeGraphData
-                    this.update(this.rootInstance, selectorsInst)
+                    // TODO: filter is not working right now
+                    // FIXME: multiple filters
+                    this.d3Data = await this.initEnhanced(this.htmlObject, undefined, undefined, filter, true)
+                    this.d3DataLatest = await this.initEnhanced(this.htmlObjectVersioned, undefined, undefined, filter, true)
+                    // }
 
-                }, {
-                    immediate: true
-                }
-            )
-
-            // SOLVED: divide update logic into new Webstrate and
-            // INFO: watcher for Initial version update
-            this.$watch(
-                (vm) => (vm.$store.getters.initialVersionGet), async val => {
-
-                    console.dir("Initial Version Update")
-
-                    var webstrateId = this.$store.state.webstrateId
-                    // console.log("webstrateId = ", webstrateId);
-                    // var initialVersion = this.$store.getters.initialVersionGet
-                    var initialVersion = this.$store.state.sliderVersions[0]
-                    // console.log("initialVersion = ", initialVersion);
-
-                    var containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
-                        undefined, undefined,
-                        true, initialVersion)
-
-                    this.htmlString = containerTmp
-                    this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
+                    // clearTimeout(typingTimer);
+                    // typingTimer = setTimeout(accomplish.bind(this), doneTypingInterval);
 
 
-                    // debugger;
-                    this.d3Data = await initFun(...[this.htmlObject].concat(arguments))
-
-                    // this.d3Data = await this.initEnhanced(this.htmlObject, undefined, undefined, {
-                    //     attributeName: "class",
-                    //     attributeValue: "section section-hidden"
-                    // }, true)
-                    // this.initEnhanced(this.htmlObject, undefined, undefined, filter)
-
-                }, {
-                    immediate: true
-                }
-            )
-
-            // INFO: watcher for Latest version update
-            this.$watch(
-                (vm) => (vm.$store.getters.latestVersionGet), async val => {
-
-                    console.dir("Latest Version update")
-
-                    var webstrateId = this.$store.state.webstrateId
-                    // var latestVersion = this.$store.getters.latestVersionGet
-                    var latestVersion = this.$store.state.sliderVersions[1]
-
-                    var containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
-                        undefined, undefined,
-                        true, latestVersion)
-
-                    this.htmlStringLatest = containerTmp
-                    this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
-                    this.d3DataLatest = await initFun(...[this.htmlObjectVersioned].concat(arguments))
-
-                }, {
-                    immediate: true
-                }
-            )
+                })
 
 
-            // FIXME: it seems that the main issue here is that html.Object is not created or is wrong
-            this.$watch((vm) => (vm.selectedFilterOptions, vm.selectedElementFilterOptions, vm.selectedElementValueOptions), async val => {
+                // INFO: watcher for webstrate update
+                // INFO: also, if WS is trancluded, use different mechanism of accessing the dom 
+                this.$watch(
+                    (vm) => (vm.$store.state.webstrateId), async val => {
 
-                console.dir("Dom Filter is Applied, Tree is processing")
-                // this.d3DataLatest = this.init(this.htmlObjectVersioned, undefined, undefined)
+                        // setup before functions
+                        // let typingTimer; // timer identifier
+                        // let doneTypingInterval = 1000; // time in ms (5 seconds)
 
-                this.removeChildren("initial")
+                        // async function accomplish() {
+                        console.dir("watcher for webstrate update")
 
-                var filter = {
-                    attributeName: this.selectedElementFilterOptions,
-                    attributeValue: this.selectedElementValueOptions
-                }
+                        var webstrateId = this.$store.state.webstrateId,
+                            initialVersion = this.$store.getters.initialVersionGet,
+                            latestVersion = this.$store.getters.latestVersionGet
 
-                // debugger;
-                // console.log("HTMLObject", this.htmlObject)
-                window.hti = this.htmlObject
+                        let containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
+                            initialVersion, latestVersion, false)
 
-                // console.log("this.d3Data = ", this.d3Data);
-                // TODO: filter is not working right now
-                // FIXME: multiple filters
-                this.d3Data = await this.initEnhanced(this.htmlObject, undefined, undefined, filter, true)
-                this.d3DataLatest = await this.initEnhanced(this.htmlObjectVersioned, undefined, undefined, filter, true)
+                        this.htmlString = containerTmp[0]
+                        this.htmlStringLatest = containerTmp[1]
 
-            })
+                        this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
+                        this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
 
+                        // SOLVED: make init to have an input
 
-            // INFO: watcher for webstrate update
-            // INFO: also, if WS is trancluded, use different mechanism of accessing the dom 
-            this.$watch(
-                (vm) => (vm.$store.state.webstrateId), async val => {
+                        this.d3Data = await initFun(...[this.htmlObject].concat(arguments))
+                        this.d3DataLatest = await initFun(...[this.htmlObjectVersioned].concat(arguments))
+                        // }
 
-                    console.dir("watcher for webstrate update")
+                        // clearTimeout(typingTimer);
+                        // typingTimer = setTimeout(accomplish.bind(this), doneTypingInterval);
 
-                    var webstrateId = this.$store.state.webstrateId
-                    var initialVersion = this.$store.getters.initialVersionGet,
-                        latestVersion = this.$store.getters.latestVersionGet
+                    }, {
+                        immediate: false
+                    }
+                )
 
-                    let containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
-                        initialVersion, latestVersion, false)
+                this.$watch(
+                    // INFO: watching for data and creating prop for child component
+                    vm => (vm.rootInstance), val => {
 
-                    this.htmlString = containerTmp[0]
-                    this.htmlStringLatest = containerTmp[1]
+                        // let typingTimer; // timer identifier
+                        // let doneTypingInterval = 1000; // time in ms (5 seconds)
+                        // function accomplish() {
 
-                    this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
-                    // console.log("this.htmlObject = ", this.htmlObject);
-                    this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
-                    // console.log("this.htmlObjectVersioned = ", this.htmlObjectVersioned);
+                        // INFO: this as a prop to childthis.currentVersionSentences
+                        // INFO: first goes earlier versions
+                        var containerVersionSentences = []
 
-                    // SOLVED: make init to have an input
+                        // FIXME: eliminate
+                        containerVersionSentences.push({
+                            'data': this.rootInstance.data,
+                            // 'field': "name",
+                            // 'value': "VDnPvJ36"
+                        })
 
-                    console.log("...Arg:", [this.htmlObject].concat(arguments))
-                    this.d3Data = await initFun(...[this.htmlObject].concat(arguments))
-                    this.d3DataLatest = await initFun(...[this.htmlObjectVersioned].concat(arguments))
+                        this.currentVersionSentences = containerVersionSentences // INFO: to avoid evoking component before data is ready
+                        // }
 
-                }, {
-                    immediate: true
-                }
-            )
+                        // clearTimeout(typingTimer);
+                        // typingTimer = setTimeout(accomplish.bind(this), doneTypingInterval);
 
-            this.$watch(
-                // TODO: 
-                // INFO: watching for data and creating prop for child component
-                vm => (vm.rootInstance), val => {
+                    },
+                )
 
-                    // console.dir("Inside diff-version watcher", this.rootInstance)
+            }
 
-                    // INFO: this as a prop to childthis.currentVersionSentences
-                    // INFO: first goes earlier versions
-                    var containerVersionSentences = []
-
-                    // FIXME: eliminate
-                    containerVersionSentences.push({
-                        'data': this.rootInstance.data,
-                        // 'field': "name",
-                        // 'value': "VDnPvJ36"
-                    })
-
-                    // console.log("currentVersionSentences !!!!", this.currentVersionSentences)
-                    this.currentVersionSentences = containerVersionSentences // INFO: to avoid evoking component before data is ready
-
-                },
-            )
-
-        }
-
-    },
-    computed: {
-        currentToChild() {
-            return this.currentVersionSentences
         },
-    },
-    created() {},
-    async mounted() {
+        computed: {
+            currentToChild() {
+                return this.currentVersionSentences
+            },
+        },
+        created() {},
+        async mounted() {
 
-        if (this.$route.path === "/transclude-codestrate-component") {
-            this.instantiateWatchers(true)
-        } else {
-            this.instantiateWatchers(false)
+            if (this.$route.path === "/transclude-codestrate-component") {
+                this.instantiateWatchers(true)
+            } else {
+                this.instantiateWatchers(false)
+            }
+
         }
+    })
 
-
-        // function findSelectedInList(list, propertyName, newPropertyName, newPropertyValue) {
-        //     let condition;
-        //     if (typeof Object.values(list) != "undefined" && typeof Object.values(list) != null) {
-        //         Object.values(list).some((currentItem) => {
-        //             if (typeof currentItem != null) {
-        //                 if (typeof currentItem[propertyName] != "undefined" | typeof currentItem[propertyName] != null) {
-
-        //                     if (Array.isArray(currentItem) !== true) {
-        //                         currentItem[newPropertyName] = newPropertyValue
-        //                     }; // INFO: important to put semicolon
-
-        //                     if (typeof currentItem.children != "undefined") {
-        //                         findSelectedInList(currentItem.children, propertyName, newPropertyName, newPropertyValue)
-        //                     }
-
-        //                 }
-        //             }
-        //         })
-        //     }
-        //     return list
-        // }
-
-
-        // // INFO: I am waiting for data processing above and building united tree here
-        // this.$watch(
-        //     (vm) => ([vm.d3Data, vm.d3DataLatest]), val => {
-
-        //         this.removeChildren("initial")
-
-        //         // FIXME: WTF?
-        //         var t1 = findSelectedInList(this.d3Data, "name", "alignment", "left"),
-        //             t2 = findSelectedInList(this.d3DataLatest, "name", "alignment", "right")
-
-        //         var merged = [];
-        //         merged = merged.concat(t1, t2)
-
-        //         var containerLatest = {
-        //             name: "main",
-        //             children: merged
-        //         }
-        //         console.log("containerLatest = ", containerLatest);
-
-        //         var selectorsInst = this.getSelectors(false, "initial")
-        //         this.rootInstance = this.root(containerLatest)
-        //         window.dfr = this.rootInstance
-        //         // changeGraphData
-        //         this.update(this.rootInstance, selectorsInst)
-
-        //     }, {
-        //         immediate: true
-        //     }
-        // )
-
-        // // SOLVED: divide update logic into new Webstrate and
-        // // INFO: watcher for Initial version update
-        // this.$watch(
-        //     (vm) => (vm.$store.getters.initialVersionGet), async val => {
-
-        //         console.dir("Initial Version Update")
-
-        //         var webstrateId = this.$store.state.webstrateId
-        //         console.log("webstrateId = ", webstrateId);
-        //         // var initialVersion = this.$store.getters.initialVersionGet
-        //         var initialVersion = this.$store.state.sliderVersions[0]
-        //         console.log("initialVersion = ", initialVersion);
-
-        //         var containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
-        //             undefined, undefined,
-        //             true, initialVersion)
-
-        //         this.htmlString = containerTmp
-        //         this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
-        //         this.d3Data = await this.init(this.htmlObject, undefined, undefined)
-
-        //     }, {
-        //         immediate: true
-        //     }
-        // )
-
-        // // INFO: watcher for Latest version update
-        // this.$watch(
-        //     (vm) => (vm.$store.getters.latestVersionGet), async val => {
-
-        //         console.dir("Latest Version update")
-
-        //         var webstrateId = this.$store.state.webstrateId
-        //         // var latestVersion = this.$store.getters.latestVersionGet
-        //         var latestVersion = this.$store.state.sliderVersions[1]
-
-        //         var containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
-        //             undefined, undefined,
-        //             true, latestVersion)
-        //         this.htmlStringLatest = containerTmp
-        //         this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
-
-        //         this.d3DataLatest = await this.init(this.htmlObjectVersioned, undefined, undefined)
-
-        //     }, {
-        //         immediate: true
-        //     }
-        // )
-
-
-        // // FIXME: it seems that the main issue here is that html.Object is not created or is wrong
-        // this.$watch((vm) => (vm.selectedFilterOptions, vm.selectedElementFilterOptions, vm.selectedElementValueOptions), async val => {
-
-        //     console.dir("Dom Filter is Applied, Tree is processing")
-        //     // this.d3DataLatest = this.init(this.htmlObjectVersioned, undefined, undefined)
-
-        //     this.removeChildren("initial")
-
-        //     var filter = {
-        //         attributeName: this.selectedElementFilterOptions,
-        //         attributeValue: this.selectedElementValueOptions
-        //     }
-
-        //     // debugger;
-        //     console.log("HTMLObject", this.htmlObject)
-        //     window.hti = this.htmlObject
-
-        //     // console.log("this.d3Data = ", this.d3Data);
-        //     this.d3Data = await this.initEnhanced(this.htmlObject, undefined, undefined, filter)
-        //     this.d3DataLatest = await this.initEnhanced(this.htmlObjectVersioned, undefined, undefined, filter)
-
-        // })
-
-
-        // // INFO: watcher for webstrate update
-        // // INFO: also, if WS is trancluded, use different mechanism of accessing the dom 
-        // this.$watch(
-        //     (vm) => (vm.$store.state.webstrateId), async val => {
-
-        //         console.dir("watcher for webstrate update")
-
-        //         var webstrateId = this.$store.state.webstrateId
-        //         var initialVersion = this.$store.getters.initialVersionGet,
-        //             latestVersion = this.$store.getters.latestVersionGet
-
-        //         let containerTmp = await this.getHtmlsPerSessionMixin(webstrateId,
-        //             initialVersion, latestVersion, false)
-
-        //         this.htmlString = containerTmp[0]
-        //         this.htmlStringLatest = containerTmp[1]
-
-        //         this.htmlObject = new DOMParser().parseFromString(this.htmlString, "text/html")
-        //         console.log("this.htmlObject = ", this.htmlObject);
-        //         this.htmlObjectVersioned = new DOMParser().parseFromString(this.htmlStringLatest, "text/html")
-        //         console.log("this.htmlObjectVersioned = ", this.htmlObjectVersioned);
-
-        //         // SOLVED: make init to have an input
-        //         this.d3Data = await this.init(this.htmlObject, undefined, undefined)
-        //         this.d3DataLatest = await this.init(this.htmlObjectVersioned, undefined, undefined)
-
-        //     }, {
-        //         immediate: true
-        //     }
-        // )
-
-        // this.$watch(
-        //     // TODO: 
-        //     // INFO: watching for data and creating prop for child component
-        //     vm => (vm.rootInstance), val => {
-
-        //         console.dir("Inside diff-version watcher", this.rootInstance)
-
-        //         // INFO: this as a prop to childthis.currentVersionSentences
-        //         // INFO: first goes earlier versions
-        //         var containerVersionSentences = []
-
-        //         // FIXME: eliminate
-        //         containerVersionSentences.push({
-        //             'data': this.rootInstance.data,
-        //             // 'field': "name",
-        //             // 'value': "VDnPvJ36"
-        //         })
-
-        //         // containerVersionSentences.push({
-        //         //     'data': this.rootInstance.data,
-        //         //     // 'field': "name",
-        //         //     // 'value': "VDnPvJ36"
-        //         // })
-
-        //         console.log("currentVersionSentences !!!!", this.currentVersionSentences)
-        //         this.currentVersionSentences = containerVersionSentences // INFO: to avoid evoking component before data is ready
-
-        //     },
-        // )
-
-    }
 })

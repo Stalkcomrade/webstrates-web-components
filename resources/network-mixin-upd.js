@@ -1,7 +1,5 @@
 window.networkUpd = Vue.mixin({
     data: () => ({
-        d3Data: [],
-        d3Object: {},
         finalHtml: '',
         htmlObjectReady: false,
         htmlObject: '',
@@ -20,8 +18,7 @@ window.networkUpd = Vue.mixin({
         diagonal: '',
         htmlStringLatest: '',
         dx: 10,
-        // dy: 162.5,
-        width: 1800,
+        width: 900,
         margin: {
             top: 10,
             right: 120,
@@ -183,14 +180,10 @@ window.networkUpd = Vue.mixin({
             // var fltArray = []
             // fltArray.name = []
             // fltArray.value = []
-
             // filterArray.forEach(el => {
-
             //     fltArray.name = el.name
             //     fltArray.value = el.value
-
             // })
-
             // att.nodeName
 
             if (includeNot === true) {
@@ -208,8 +201,6 @@ window.networkUpd = Vue.mixin({
                 flag = false
                 var item = input[i]
                 var children = {}
-
-                // debugger;
 
                 for (var att, k = 0, atts = item.attributes, n = atts.length; k < n; k++) {
 
@@ -266,7 +257,10 @@ window.networkUpd = Vue.mixin({
             return target
         },
 
-
+        /**
+         * parse node attributes
+         * @param {any} input
+         */
         sq: function(input) {
 
             var target = [] // INFO: local-global scope
@@ -316,6 +310,10 @@ window.networkUpd = Vue.mixin({
         },
 
         // SOLVED: changing root from computed to function
+        /**
+         * creates structure for dom-tree
+         * @param {any} data
+         */
         root: function(data) {
             var hierarchyTemp = d3.hierarchy(data)
             hierarchyTemp.x0 = this.dy / 2 + 500
@@ -446,7 +444,7 @@ window.networkUpd = Vue.mixin({
 
 
         /**
-         * 
+         * defacto, builds dom-tree
          * @param {object} source - data structure for tree building
          * @param {string} alignment - direction of transtion - left or right
          * @param {object} selectors - object with selectors
@@ -510,11 +508,33 @@ window.networkUpd = Vue.mixin({
 
             const height = right.x - left.x + this.margin.top + this.margin.bottom
 
-            selectors.svg
-                .call(d3.zoom().on("zoom", function() {
-                    selectors.svg.attr("transform", d3.event.transform)
-                }))
 
+
+            selectors.svg
+                .call(d3.zoom().on("zoom", () => {
+
+                    let t = d3.event.transform;
+
+                    t.x = t.x < this.viewBoxConst[0] ? this.viewBoxConst[0] : t.x;
+                    t.x = t.x > this.viewBoxConst[2] ? this.viewBoxConst[2] : t.x;
+                    t.y = t.y < this.viewBoxConst[1] ? this.viewBoxConst[1] : t.y;
+                    t.y = t.y > this.viewBoxConst[3] ? this.viewBoxConst[3] : t.y;
+
+                    if (t.k === 1) t.x = t.y = 0;
+                    console.log(t.x, t.y)
+
+                    const vb = [t.x, t.y, this.viewBoxConst[2] * t.k, this.viewBoxConst[3] * t.k];
+
+
+                    selectors.svg.attr("viewBox", vb.join(' '));
+
+                    // selectors.svg.attr('viewBox', newViewBox);
+
+
+                }))
+            // .call(d3.zoom().on("zoom", function() {
+            //     selectors.svg.attr("transform", d3.event.transform)
+            // }))
 
             // INFO: compute viewBox params here
             // TODO: fix global alignment
@@ -563,7 +583,6 @@ window.networkUpd = Vue.mixin({
                     re.forEach((el) => {
                         el.children = el.children ? null : el._children;
                         self.update(el, selectors)
-
 
                         // store.commit('changeCurrentNode', d.data.name)
 

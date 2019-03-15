@@ -8,35 +8,26 @@ window.transcludeAndReadDom = Vue.component('transclude-and-read-dom', {
         'd3-vertical-slider': window.d3VerticalSlider,
         "vue-slider-configured": window.slider
     },
-    //     :options="options"
-    // :margin="margin"
     template: `
         <div>
+
+<div id="trs-container"> </div>
 
 <selector-component/>
 
 <br>
 <br>
 
-   <!-- <script src="https://unpkg.com/d3-simple-slider"></script> -->
-
 <h2>Time</h2>
 
                <div id="mainBody">
                  </div>
-
-     <!-- @range-updated="(dateTimeStart, dateTimeEnd) => yourMethod(dateTimeStart, dateTimeEnd)"  -->
-     <!-- @reference-updated="(dateTimeRange, entries) => yourMethod(dateTimeRange, entries)">  -->
 
  <d3-player 
      :data="gl" 
      width="100%" 
      height="300px">
  </d3-player> 
-
-<br>
-<br>
-
 
 <br>
 <br>
@@ -64,12 +55,6 @@ window.transcludeAndReadDom = Vue.component('transclude-and-read-dom', {
 
      </b-row>
 
-
-  <!-- <div class="row align-items-center"> -->
-  <!--   <div class="col-sm-2"><p id="value-time"></p></div> -->
-  <!--   <div class="col-sm"><div id="slider-time"></div></div> -->
-  <!-- </div> -->
-
     </b-col>
 
   </b-row>
@@ -87,373 +72,414 @@ window.transcludeAndReadDom = Vue.component('transclude-and-read-dom', {
 
 </div>
 
-    <button @click="composeNewWebstrate()">Compose New Webstrate</button>
+    <button @click="composeNewWebstrate(data)">Compose New Webstrate</button>
 
 <div id="k">
 </div>
 
         </div>
         `,
-    // <!-- @input="(val) => yourMethod(val)" -->
-    // <!-- :margin="margin" -->
     data: () => ({
-        // options: '',
         min: 0,
-        targetParsed: '',
         max: 20,
+        targetParsed: '',
         webstrateIdRemove: '',
         data: '',
         dataPlayer: '',
         realDataPlayer: '',
-        gl: []
+        levelCounter: 0,
+        containerWebstrate: '', // INFO: container webstrate Id to inspect for transclusions
+        memArray: [], // INFO: memorise newly created copies of transcluded webstrates
+        gl: [] // INFO: data container for creating vis component
     }),
     methods: {
+        /**
+         * FIXME: create mixin with utils functions
+         * used to generate semi-random ids
+         * @param {any} start
+         * @param {any} stop
+         * @param {any} step
+         */
         range: function(start, stop, step = 1) {
             Array(Math.ceil((stop - start) / step)).fill(start).map((x, y) => x + y * step)
         },
         /**
-         * assemble new webstrate with custom versions for transclusions
-         * @param {any} wsId - desired Webstrate Title 
+         * used to create copies of transcluded webstrates before
+         * composing a new webstrates with versioned transclusions
+         * @param {any} wsObject
          */
-        composeNewWebstrate: function(wsId) {
+        constructWsTransclusionHardcore: async function(wsObject) {
 
-        },
-        /**
-         * extracting transcluded webstrateIds using regExps
-         * @param {any} input - 
-         */
-        extractSummary: function(input) {
+                // FIXME: main issue is that I cannot watch for dataset and automatically bind it
+                // or can via https://stackoverflow.com/questions/44065564/beautiful-way-to-resolve-an-object-with-nested-promises
+                // so, bind this function to button to make user decide than promises are resolved
 
-            // var reg = /(?=\<iframe.*?src="\/(.*?)\/*?".*?<\/iframe\>)|(?=\<iframe.*?wid="(.*?)".*?<\/iframe\>)/gi
-            // var reg = /\<iframe src="\/(.*?)\/".*?\_\_wid="(.*?)".*?<\/iframe\>/gi // INFO: two groups
+                this.memArray = "https://webstrates.cs.au.dk/" +
+                    wsObject.key + "/" +
+                    "1" +
+                    "?copy=" + wsObject.key + "_assemled"
 
-            var regSrc = /\<iframe.*?src="\/(.*?)\/*?".*?<\/iframe\>/gi
-            var regWid = /\<iframe.*?wid="(.*?)".*?<\/iframe\>/gi
+                // TODO: additional (complex structures, where copies of webstrates needed to be created)
+                // TODO: create copy of originial webstrate?
 
-            try {
+                console.log("Inside Cnstructor")
+                // console.log("Constructor", wsId)
 
-                var src = (input.match(regSrc) || []).map(e => {
-                    return {
-                        src: e.replace(regSrc, '$1'),
-                    }
-                })
-                console.log("src = ", src);
+                var level; // INFO: indicate nestedness of transclusion
 
-                var wid = (input.match(regWid) || []).map(e => {
-                    return {
-                        wid: e.replace(regWid, '$1'),
-                    }
-                })
-                // console.log("wid = ", wid);
+                if (!(wsObject.level % 2)) {
 
-                var tt = wid.map((el, index) => {
-                    return {
-                        ...el,
-                        src: src[index].src
-                    }
-                })
+                    var newWs = await fetch("https://webstrates.cs.au.dk/" +
+                        wsObject.key + "/" +
+                        "1" +
+                        "?copy=" + wsObject.key + "_assemled")
 
-                return {
-                    tt: tt,
-                    src: src
-                }
+                    console.log(newWs)
 
-            } catch (err) {
-                return null
-            }
-        },
-        sqt: async function(input) {
-
-                console.dir("Transclusion")
-
-                // var htmlParsed = await this.getHtmlsPerSessionMixin(input, undefined, undefined, true)
-                var prs = this.extractSummary(input)
-
-                var target = [],
-                    children = []
-
-                if (prs !== null && typeof prs !== "undefined") {
-
-                    for (var i = 0, len = prs.length; i < len; ++i) {
-
-                        var el = prs[i]
-
-                        children = {
-                            value: el.src,
-                            name: el.wid,
-                            children: (typeof el.src !== "undefined" ? await this.sqt(el.src) : "no transclusions")
-                        }
-
-                        target.push(children)
-                    }
                 } else {
 
-                    console.dir("else statement")
+                    console.log("Constructor else statement")
+                    // change version inline
 
                 }
-                return target
+
+                return newWs
+
+                // var flag - since
+                // var flag = true
+
+                // 1. create new webstrate
+                // 2. if it is 1-st level transclusion - do not create copy of it
+                // 3. if it level > 1, then
+                //                 copy it
+                //                 write name
+                //                 
+
+                // change attribute
+
+                // if transclusion is not nested 
+
+                // var intWsId,
+                //     intV;
+                // change attribute
 
             },
-
             /**
-             * Transclude given webstrate and search inside its dom tree for inner transclusions
-             * @param {any} webstrateId
+             * mapping levels for the transcluded webstrates
+             * @param {any} object - processed object containing transcluded webstrates
              */
-            recursiveTransclusionSearch: async function(webstrateId) {
+            mapLevels: function(object) {
 
-                    var target = [],
-                        children = [],
-                        player = []
+                console.log("Mapped", object)
+
+                var levels = 0,
+                    levelInternal = 0,
+                    flag = false
+
+                var recLevels = function(d, flag) {
+
+                    if (levels === 0) d.level = levels;
+                    levels++;
+                    flag === true && levelInternal++
 
 
-                    this.initiateTransclusion()
-                    this.createIframe(webstrateId)
-                    var tr = document.getElementById(webstrateId)
+                    if (d.children !== undefined && d.children !== null) {
 
-                    // TODO: if something is commented when
+                        // INFO: levels internal
 
-                    var tmp1 = []
+                        if (d.children.length > 1) {
 
-                    tr.webstrate.on("transcluded", (iframeWebstrateId) => {
 
-                        try {
+                            d.children.forEach(child => {
 
-                            // console.dir("Transclusion done")
-                            // console.dir(tr)
-                            // window.tr = tr
+                                child.level = levelInternal;
+                                typeof child.children !== undefined && recLevels(child.children, false)
 
-                            var tmp = this.extractSummary(tr.contentDocument.documentElement.innerHTML).src
-                            // var tmp1 = [...new Set(Object.values(tmp))] 
-                            var tmp1 = []
-                            tmp.forEach((el) => {
-                                tmp1.push(el.src)
                             })
 
-                            tmp1 = [...new Set(tmp1)] // filtering duplicates
-                            // console.log("this.extractSummary = ", tmp1);
+                        } else {
 
-                        } catch (err) {
+                            // INFO: general case
+                            var child = d.children[0]
 
-                            console.error("Error while parsing", err)
+                            child.level = levels;
+                            typeof child.children !== undefined && recLevels(child.children, true)
 
-                        } finally {
+                        }
 
-                            // this.removeIframe(webstrateId)
+                    }
 
-                            player.push((async () => {
-                                var el = tmp1[0]
-                                return {
-                                    value: el,
-                                    from: await this.getOpsJsonMixin().then(el => {
-                                        return new Date(
-                                            el[0].session.connectTime)
-                                    }),
-                                    to: new Date(),
-                                    title: el,
-                                    name: el,
-                                    key: el,
-                                    label: el,
-                                    value: Math.random() * (+50 - +2) + +2,
-                                }
-                            })())
+                    return d
 
-                            tmp1.forEach(async (el) => {
+                }
 
-                                children = {
-                                    value: el,
-                                    from: await this.getOpsJsonMixin().then(el => {
-                                        return new Date(
-                                            el[0].session.connectTime)
-                                    }),
-                                    to: new Date(),
-                                    title: el,
-                                    name: el,
-                                    key: el,
-                                    label: el,
-                                    value: Math.random() * (+50 - +2) + +2,
-                                    children: await (async () => {
-                                        var [
-                                            target
-                                        ] = await this.recursiveTransclusionSearch(el)
-                                        player.push(target)
-                                        return target
-                                    })()
-                                }
-                                target.push(children)
-                                this.gl.push(children)
-                            })
+                return recLevels(object, true)
+
+
+            },
+            /**
+             * helper function to make a flat array of nested transclusions
+             * @param {any} objectAfterMapLevels 
+             */
+            flattenStructure: function(objectAfterMapLevels) {
+
+
+                console.log("objectAfterMapLevels", objectAfterMapLevels)
+                var target = [] // INFO: local-global scope
+
+                function sq(input) {
+
+                    if (input.length !== 0) target.push(input);
+
+                    if (input.children !== undefined) {
+
+                        if (input.children.length > 1) {
+                            input.children.forEach(el => sq(el)) // INFO: if multiple
+                        } else {
+                            sq(input.children) // INFO: if single
+                        }
+
+                    }
+
+                    return target
+                }
+
+                return sq(objectAfterMapLevels)
+
+            },
+            /**
+             * assemble new webstrate with custom versions for transclusions
+             * @param {any} wsId - desired Webstrate Title 
+             */
+            composeNewWebstrate: function(wsId) {
+
+                var mapped = this.mapLevels(this.data)
+                console.log("mapped = ", mapped);
+                var flattened = this.flattenStructure(mapped)
+                console.log("flattened = ", flattened);
+
+                flattened.forEach(async (ws) => {
+
+                    var final = await this.constructWsTransclusionHardcore(ws)
+                    console.log("final = ", final);
+
+                })
+
+            },
+            // TODO: use from mixins
+            /**
+             * TODO: check for commented transclusions
+             * extracting transcluded webstrateIds using regExps
+             * @param {any} input
+             */
+            extractSummary: function(input) {
+
+                var regSrc = /\<iframe.*?src="\/(.*?)\/*?".*?<\/iframe\>/gi
+                var regWid = /\<iframe.*?wid="(.*?)".*?<\/iframe\>/gi
+
+                try {
+
+                    var src = (input.match(regSrc) || []).map(e => {
+                        return {
+                            src: e.replace(regSrc, '$1'),
+                        }
+                    })
+                    console.log("src = ", src);
+
+                    var wid = (input.match(regWid) || []).map(e => {
+                        return {
+                            wid: e.replace(regWid, '$1'),
                         }
                     })
 
+                    var tt = wid.map((el, index) => {
+                        return {
+                            ...el,
+                            src: src[index].src
+                        }
+                    })
 
-                    // children = {
-                    //     value: el.src,
-                    //     name: el.wid,
-                    //     children: (typeof el.src !== "undefined" ? await this.sqt(el.src) : "no transclusions")
-                    //         }
-                    // target.push(children)
+                    return {
+                        tt: tt,
+                        src: src
+                    }
 
-                    return [target, player]
+                } catch (err) {
+                    return null
+                }
+            },
+            sqt: async function(input) {
 
-                    // return {
-                    //     target: target,
-                    //     player: player
-                    // }
+                    console.dir("Transclusion")
+
+                    var prs = this.extractSummary(input)
+
+                    var target = [],
+                        children = []
+
+                    if (prs !== null && typeof prs !== "undefined") {
+
+                        for (var i = 0, len = prs.length; i < len; ++i) {
+
+                            var el = prs[i]
+
+                            children = {
+                                value: el.src,
+                                name: el.wid,
+                                children: (typeof el.src !== "undefined" ? await this.sqt(el.src) : "no transclusions")
+                            }
+
+                            target.push(children)
+                        }
+                    } else {
+
+                        console.dir("else statement")
+
+                    }
+                    return target
 
                 },
 
-                tdf: async function(input) {
+                /**
+                 * TODO: add level of nestedness
+                 * Transclude given webstrate and search inside its dom tree for inner transclusions
+                 * @param {any} webstrateId
+                 */
+                recursiveTransclusionSearch: async function(webstrateId) {
 
-                    input.forEach(async el => {
+                        var target = [],
+                            children = [],
+                            player = []
 
-                        this.gl.push(el)
-                        var tmp = await el.children
+                        this.initiateTransclusion()
+                        this.createIframe(webstrateId)
+                        var tr = document.getElementById(webstrateId)
 
-                        this.tdf(tmp)
+                        // TODO: if something is commented when
 
-                    })
+                        var tmp1 = []
 
-                }
+                        tr.webstrate.on("transcluded", (iframeWebstrateId) => {
+
+                            try {
+
+                                var tmp = this.extractSummary(tr.contentDocument.documentElement.innerHTML).src
+                                var tmp1 = []
+                                tmp.forEach((el) => {
+                                    tmp1.push(el.src)
+                                })
+
+                                tmp1 = [...new Set(tmp1)] // filtering duplicates
+
+                            } catch (err) {
+
+                                console.error("Error while parsing", err)
+
+                            } finally {
+
+                                // this.removeIframe(webstrateId)
+
+                                player.push((async () => {
+                                    var el = tmp1[0]
+                                    return {
+                                        value: el,
+                                        from: await this.getOpsJsonMixin().then(el => {
+                                            return new Date(
+                                                el[0].session.connectTime)
+                                        }),
+                                        to: new Date(),
+                                        title: el,
+                                        name: el,
+                                        key: el,
+                                        label: el,
+                                        value: Math.random() * (+50 - +2) + +2,
+                                    }
+                                })())
+
+
+                                // TODO: bind container webstrate as well
+
+                                tmp1.forEach(async (el) => {
+
+                                    children = {
+                                        value: el,
+                                        from: await this.getOpsJsonMixin().then(el => {
+                                            return new Date(
+                                                el[0].session.connectTime)
+                                        }),
+                                        to: new Date(),
+                                        title: el,
+                                        name: el,
+                                        key: el,
+                                        label: el,
+                                        value: Math.random() * (+50 - +2) + +2,
+                                        children: await (async () => {
+
+                                            var [
+                                                target
+                                            ] = await this.recursiveTransclusionSearch(el)
+
+                                            player.push(target)
+
+                                            return target
+
+                                        })()
+                                    }
+                                    target.push(children)
+                                    this.gl.push(children)
+                                })
+                            }
+                        })
+
+
+                        return [target, player]
+
+                    },
+
+                    tdf: async function(input) {
+
+                        input.forEach(async el => {
+
+                            this.gl.push(el)
+                            var tmp = await el.children
+
+                            this.tdf(tmp)
+
+                        })
+
+                    }
     },
     watch: {
         async targetParsed() {
             var cont = {
-                key: "main",
+                key: this.containerWebstrate,
+                title: this.containerWebstrate,
                 children: this.targetParsed
             }
 
             this.data = cont
+            console.log("FINAL DATASET:", this.data)
             console.log("Data Player is Watched", this.dataPlayer)
 
         },
     },
     async mounted() {
 
+        // tsd-31
+        // ugly-mule-22
+
+        this.containerWebstrate = "ugly-mule-22"
+
         var [
             target,
             player
-        ] = await this.recursiveTransclusionSearch("tsd-31")
+        ] = await this.recursiveTransclusionSearch(this.containerWebstrate)
 
         this.targetParsed = target
-        console.log("this.targetParsed = ", this.gl);
 
-        // this.gl.forEach
+        this.initiateTransclusionNew("")
+        this.createIframeNew(this.containerWebstrate)
 
-        // Time
-        var dataTime = d3.range(0, 10).map(function(d) {
-            return new Date(1995 + d, 10, 3);
-        });
-
-        var sliderTime = d3
-            .sliderBottom()
-            .min(d3.min(dataTime))
-            .max(d3.max(dataTime))
-            .step(1000 * 60 * 60 * 24 * 365)
-            .width(300)
-            .tickFormat(d3.timeFormat('%Y'))
-            .tickValues(dataTime)
-            .default(new Date(1998, 10, 3))
-            .on('onchange', val => {
-                d3.select('p#value-time').text(d3.timeFormat('%Y')(val));
-            });
-
-        // document.getElementById("main").getBoundingClientRect().y
-
-        var tmp = document.getElementById("main").getBoundingClientRect().x,
-            tmpL = document.getElementById("main").getBoundingClientRect().y;
-
-        // var tmp2 = document.getElementById("k").getBoundingClientRect().x,
-        //     tmp2L = document.getElementById("k").getBoundingClientRect().y
-
-        // <div class="row align-items-center">
-        // <div class="col-sm-2"><p id="value-time"></p></div>
-        // <div class="col-sm"><div id="slider-time"></div></div>
-        // </div>
-
-        var gTime = d3
-            .select("div#slider-time")
-            .append('svg')
-            .attr('width', 500)
-            .attr('height', 100)
-            .append('g')
-            .attr("transform", "translate(30,30)")
-            .attr("transform", "scale(0.7)")
-        // .attr('transform', "translate(" + tmp2 + "," + tmp2L + ")");
-
-        gTime.call(sliderTime);
-        d3.select('p#value-time').text(d3.timeFormat('%Y')(sliderTime.value()));
-
-
-        function constructWsTransclusionHardcore(wsId) {
-
-            // TODO: additional (complex structures, where copies of webstrates needed to be created)
-
-            // var level - indicate nestedness of transclusion
-            // var flag - since 
-
-            // 1. create new webstrate
-            // 2. if it is 1-st level transclusion - do not create copy of it
-            // 3. if it level > 1, then
-            //                 copy it
-            //                 write name
-            //                 
-
-            // change attribute
-
-            // if transclusion is not nested 
-
-            var intWsId,
-                intV;
-
-
-            // change attribute
-
-        }
-
-        // // document.getElementById("main").getBoundingClientRect().right
-
-        // gTime.call(sliderTime);
-
-        // // d3.select('p#value-time').text(d3.timeFormat('%Y')(sliderTime.value()));
-        // d3.select('rect#main').text(d3.timeFormat('%Y')(sliderTime.value()));
-
-
-        // this.createIframe("short-turtle-55")
-        // var webstrateId = "short-turtle-55"
-
-        // var tr = document.getElementById(webstrateId)
-
-        // // tr.webstrate.on("loaded", () => {
-        // //     console.dir("Loading is Done")
-        // //     console.dir(tr)
-        // //     // var d3Data = this.init(tr, undefined, undefined)
-        // //     // console.log("d3Data = ", d3Data);
-        // //     // console.dir(iframeWebstrateId)
-        // //     // console.dir(tr.contentWindow.webstrate.tags())
-        // //     // tr.contentWindow.webstrate.tag("CUSTOM")
-        // //     // tr.remove()
-        // // })
-
-        // // TODO: if something is commented when
-
-        // tr.webstrate.on("transcluded", (iframeWebstrateId) => {
-
-        //     console.dir("Transclusion done")
-        //     console.dir(tr)
-        //     window.tr = tr
-
-        //     // tr.)
-
-        //     var tmp = this.extractSummary(tr.contentDocument.documentElement.innerHTML)
-        //     var tmp1 = [...new Set(tmp)] // filtering duplicates
-
-        //     console.log("this.extractSummary = ", tmp1);
-        //     // var d3Data = this.init(tr.contentDocument, undefined, undefined)
-        //     // console.log("d3Data = ", d3Data);
-
-        // })
-
-        // this.silentylyTransclude("short-turtle-55")
     }
 })
 // })

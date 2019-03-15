@@ -485,3 +485,57 @@ for (var i = 0, len = input.length; i < len; ++i) {
 }
 
 console.log("filter target", target)
+
+
+
+//////////////////////////
+
+
+var levels = 0,
+    levelInternal = 0,
+    flag = false
+
+var recLevels = function(d, flag) {
+
+    d.level = levels
+    levels++;
+    flag === true && levelInternal++
+
+
+    if (d.children !== undefined && d.children !== null) {
+        // && typeof d.children.length !== undefined
+        // INFO: levels internal
+
+        if (d.children.length > 1) {
+
+            // levelInternal = levels
+
+            d.children.forEach(child => {
+
+                child.level = levelInternal;
+                typeof child.children !== undefined && recLevels(child.children, false)
+
+            })
+
+        } else {
+
+            // INFO: general case
+            d.children.forEach(child => {
+
+                child.level = levels;
+                typeof child.children !== undefined && recLevels(child.children, true)
+
+            })
+
+        }
+
+    }
+
+    return d
+
+}
+
+recLevels(temp1.children[0], true)
+
+
+////////////////////////////

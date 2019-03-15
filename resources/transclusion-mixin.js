@@ -17,10 +17,8 @@ window.transclusion = Vue.mixin({
             // In order to really compose new webstrate with custom version,
             // I need to delete transiet section and apply dom to non-transient section
 
-
             // INFO: make a recommendation to disable programmatic creation of transclusion
             // per a demonstration - cause they gonna interfere/duplicate with the composed webstrate
-
 
             // INFO: programmatic creation of transclusion
             // In this case, I am just parsing already processed webstrate
