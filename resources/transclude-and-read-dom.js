@@ -266,188 +266,114 @@ window.transcludeAndReadDom = Vue.component('transclude-and-read-dom', {
                 })
 
             },
-            // TODO: use from mixins
             /**
-             * TODO: check for commented transclusions
-             * extracting transcluded webstrateIds using regExps
-             * @param {any} input
+             * TODO: add level of nestedness
+             * Transclude given webstrate and search inside its dom tree for inner transclusions
+             * @param {any} webstrateId
              */
-            extractSummary: function(input) {
-
-                var regSrc = /\<iframe.*?src="\/(.*?)\/*?".*?<\/iframe\>/gi
-                var regWid = /\<iframe.*?wid="(.*?)".*?<\/iframe\>/gi
-
-                try {
-
-                    var src = (input.match(regSrc) || []).map(e => {
-                        return {
-                            src: e.replace(regSrc, '$1'),
-                        }
-                    })
-                    console.log("src = ", src);
-
-                    var wid = (input.match(regWid) || []).map(e => {
-                        return {
-                            wid: e.replace(regWid, '$1'),
-                        }
-                    })
-
-                    var tt = wid.map((el, index) => {
-                        return {
-                            ...el,
-                            src: src[index].src
-                        }
-                    })
-
-                    return {
-                        tt: tt,
-                        src: src
-                    }
-
-                } catch (err) {
-                    return null
-                }
-            },
-            sqt: async function(input) {
-
-                    console.dir("Transclusion")
-
-                    var prs = this.extractSummary(input)
+            recursiveTransclusionSearch: async function(webstrateId) {
 
                     var target = [],
-                        children = []
+                        children = [],
+                        player = []
 
-                    if (prs !== null && typeof prs !== "undefined") {
+                    this.initiateTransclusion()
+                    this.createIframe(webstrateId)
+                    var tr = document.getElementById(webstrateId)
 
-                        for (var i = 0, len = prs.length; i < len; ++i) {
+                    // TODO: if something is commented when
 
-                            var el = prs[i]
+                    var tmp1 = []
 
-                            children = {
-                                value: el.src,
-                                name: el.wid,
-                                children: (typeof el.src !== "undefined" ? await this.sqt(el.src) : "no transclusions")
-                            }
+                    tr.webstrate.on("transcluded", (iframeWebstrateId) => {
 
-                            target.push(children)
+                        try {
+
+                            var tmp = this.extractSummary(tr.contentDocument.documentElement.innerHTML).src
+                            var tmp1 = []
+                            tmp.forEach((el) => {
+                                tmp1.push(el.src)
+                            })
+
+                            tmp1 = [...new Set(tmp1)] // filtering duplicates
+
+                        } catch (err) {
+
+                            console.error("Error while parsing", err)
+
+                        } finally {
+
+                            // this.removeIframe(webstrateId)
+
+                            player.push((async () => {
+                                var el = tmp1[0]
+                                return {
+                                    value: el,
+                                    from: await this.getOpsJsonMixin().then(el => {
+                                        return new Date(
+                                            el[0].session.connectTime)
+                                    }),
+                                    to: new Date(),
+                                    title: el,
+                                    name: el,
+                                    key: el,
+                                    label: el,
+                                    value: Math.random() * (+50 - +2) + +2,
+                                }
+                            })())
+
+
+                            // TODO: bind container webstrate as well
+
+                            tmp1.forEach(async (el) => {
+
+                                children = {
+                                    value: el,
+                                    from: await this.getOpsJsonMixin().then(el => {
+                                        return new Date(
+                                            el[0].session.connectTime)
+                                    }),
+                                    to: new Date(),
+                                    title: el,
+                                    name: el,
+                                    key: el,
+                                    label: el,
+                                    value: Math.random() * (+50 - +2) + +2,
+                                    children: await (async () => {
+
+                                        var [
+                                            target
+                                        ] = await this.recursiveTransclusionSearch(el)
+
+                                        player.push(target)
+
+                                        return target
+
+                                    })()
+                                }
+                                target.push(children)
+                                this.gl.push(children)
+                            })
                         }
-                    } else {
+                    })
 
-                        console.dir("else statement")
 
-                    }
-                    return target
+                    return [target, player]
 
                 },
 
-                /**
-                 * TODO: add level of nestedness
-                 * Transclude given webstrate and search inside its dom tree for inner transclusions
-                 * @param {any} webstrateId
-                 */
-                recursiveTransclusionSearch: async function(webstrateId) {
+                tdf: async function(input) {
 
-                        var target = [],
-                            children = [],
-                            player = []
+                    input.forEach(async el => {
 
-                        this.initiateTransclusion()
-                        this.createIframe(webstrateId)
-                        var tr = document.getElementById(webstrateId)
+                        this.gl.push(el)
+                        var tmp = await el.children
 
-                        // TODO: if something is commented when
+                        this.tdf(tmp)
 
-                        var tmp1 = []
+                    })
 
-                        tr.webstrate.on("transcluded", (iframeWebstrateId) => {
-
-                            try {
-
-                                var tmp = this.extractSummary(tr.contentDocument.documentElement.innerHTML).src
-                                var tmp1 = []
-                                tmp.forEach((el) => {
-                                    tmp1.push(el.src)
-                                })
-
-                                tmp1 = [...new Set(tmp1)] // filtering duplicates
-
-                            } catch (err) {
-
-                                console.error("Error while parsing", err)
-
-                            } finally {
-
-                                // this.removeIframe(webstrateId)
-
-                                player.push((async () => {
-                                    var el = tmp1[0]
-                                    return {
-                                        value: el,
-                                        from: await this.getOpsJsonMixin().then(el => {
-                                            return new Date(
-                                                el[0].session.connectTime)
-                                        }),
-                                        to: new Date(),
-                                        title: el,
-                                        name: el,
-                                        key: el,
-                                        label: el,
-                                        value: Math.random() * (+50 - +2) + +2,
-                                    }
-                                })())
-
-
-                                // TODO: bind container webstrate as well
-
-                                tmp1.forEach(async (el) => {
-
-                                    children = {
-                                        value: el,
-                                        from: await this.getOpsJsonMixin().then(el => {
-                                            return new Date(
-                                                el[0].session.connectTime)
-                                        }),
-                                        to: new Date(),
-                                        title: el,
-                                        name: el,
-                                        key: el,
-                                        label: el,
-                                        value: Math.random() * (+50 - +2) + +2,
-                                        children: await (async () => {
-
-                                            var [
-                                                target
-                                            ] = await this.recursiveTransclusionSearch(el)
-
-                                            player.push(target)
-
-                                            return target
-
-                                        })()
-                                    }
-                                    target.push(children)
-                                    this.gl.push(children)
-                                })
-                            }
-                        })
-
-
-                        return [target, player]
-
-                    },
-
-                    tdf: async function(input) {
-
-                        input.forEach(async el => {
-
-                            this.gl.push(el)
-                            var tmp = await el.children
-
-                            this.tdf(tmp)
-
-                        })
-
-                    }
+                }
     },
     watch: {
         async targetParsed() {

@@ -681,5 +681,108 @@ window.networkUpd = Vue.mixin({
             });
 
         },
+
+        /**
+         * TODO: check for commented transclusions
+         * extracting transcluded webstrateIds using regExps
+         * @param {any} input
+         */
+        extractSummary: function(input) {
+
+            var regSrc = /\<iframe.*?src="\/(.*?)\/*?".*?<\/iframe\>/gi
+            var regWid = /\<iframe.*?wid="(.*?)".*?<\/iframe\>/gi
+
+            try {
+
+                var src = (input.match(regSrc) || []).map(e => {
+                    return {
+                        src: e.replace(regSrc, '$1'),
+                    }
+                })
+                console.log("src = ", src);
+
+                var wid = (input.match(regWid) || []).map(e => {
+                    return {
+                        wid: e.replace(regWid, '$1'),
+                    }
+                })
+
+                var tt = wid.map((el, index) => {
+                    return {
+                        ...el,
+                        src: src[index].src
+                    }
+                })
+
+                // INFO: supporting legacy code
+                if (this.$route.path === "/transclusion1") {
+                    return tt
+                } else {
+
+                    return {
+                        tt: tt,
+                        src: src
+                    }
+
+                }
+
+            } catch (err) {
+                return null
+            }
+        },
+
+        /**
+         * used for recursive finding of transclusions 
+         * v1 with this.getHtmlsPerSessionMixin is used webstrates API, searching for static page
+         * this means, that is transclusions are created programmatically or exist under <transient> tag
+         * it will fail to find them
+         * v2 read transcluded DOM to avoid this
+         * if statement in the begining used to support both uses
+         * @param {any} input
+         */
+        sqt: async function(input) {
+
+                console.dir("Transclusion")
+
+                var prs;
+
+                if (this.$route.path === "/transclusion1") {
+
+                    var htmlParsed = await this.getHtmlsPerSessionMixin(input, undefined, undefined, true)
+                    prs = this.extractSummary(htmlParsed)
+
+                } else {
+
+                    prs = this.extractSummary(input)
+
+                }
+
+                var target = [],
+                    children = []
+
+                if (prs !== null && typeof prs !== "undefined") {
+
+                    for (var i = 0, len = prs.length; i < len; ++i) {
+
+                        var el = prs[i]
+
+                        children = {
+                            value: el.src,
+                            name: el.wid,
+                            children: (typeof el.src !== "undefined" ? await this.sqt(el.src) : "no transclusions")
+                        }
+
+                        target.push(children)
+                    }
+                } else {
+
+                    console.dir("else statement")
+
+                }
+                return target
+
+            },
+
+
     }
 })
