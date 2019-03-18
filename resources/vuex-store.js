@@ -1,3 +1,4 @@
+Vue.config.devtools = true;
 webstrate.on('loaded', () => {
 
     // SOLVED: dividing slider versions on initial and latest
@@ -29,6 +30,7 @@ webstrate.on('loaded', () => {
                 return state.sliderVersions[1]
             },
             sliderVersionsFullGet: state => {
+                // return [state.sliderVersions[0], state.state.sliderVersions[1]]
                 return [getters.initialVersionGet, getters.latestVersionGet]
             },
         },

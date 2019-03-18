@@ -20,18 +20,18 @@ webstrate.on('loaded', () => {
                 path: '/calendar',
                 component: CalendarView
             },
-            {
-                path: '/small-multiples',
-                component: smallMultiplesComponent
-            },
-            {
-                path: '/small-multiples-d3',
-                component: smallMultiplesD3Component
-            },
-            {
-                path: '/small-multiples-global',
-                component: smallMultiplesGlobalComponent
-            },
+            // {
+            //     path: '/small-multiples',
+            //     component: smallMultiplesComponent
+            // },
+            // {
+            //     path: '/small-multiples-d3',
+            //     component: smallMultiplesD3Component
+            // },
+            // {
+            //     path: '/small-multiples-global',
+            //     component: smallMultiplesGlobalComponent
+            // },
             {
                 path: '/time-machine',
                 component: TimeMachineComponent
@@ -44,14 +44,10 @@ webstrate.on('loaded', () => {
                 path: '/dom-tree-d3',
                 component: DomTreeD3Component
             },
-            {
-                path: '/dom-tree-d3-vue',
-                component: DomTreeD3VueComponent
-            },
-            {
-                path: '/css-test',
-                component: CssTestComponent
-            },
+            // {
+            //     path: '/css-test',
+            //     component: CssTestComponent
+            // },
             {
                 path: '/embedded',
                 component: Embedded
